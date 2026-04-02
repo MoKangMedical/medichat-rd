@@ -15,6 +15,7 @@ from rare_disease_api import router as rare_disease_router
 from community_api import router as community_router
 from knowledge_api import router as knowledge_router
 from crawler_service import router as crawler_router
+from repurposing_api import router as repurposing_router
 from rare_disease_agent import RARE_DISEASES_DB, search_rare_disease_by_symptoms
 from datetime import datetime
 from pydantic import BaseModel
@@ -27,6 +28,7 @@ app.include_router(rare_disease_router)
 app.include_router(community_router)
 app.include_router(knowledge_router)
 app.include_router(crawler_router)
+app.include_router(repurposing_router)
 
 # ============================================================
 # 患者定位API
