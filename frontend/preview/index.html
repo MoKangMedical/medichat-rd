@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediChat - 医疗多Agent智能交互平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .app { max-width: 500px; margin: 0 auto; background: white; min-height: 100vh; }
+        
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        
+        .doctor-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #dee2e6; }
+        .avatar { width: 60px; height: 60px; border-radius: 50%; background: #FF6B6B; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; }
+        .doctor-info h3 { font-size: 18px; color: #333; }
+        .doctor-info .title { color: #667eea; font-size: 14px; font-weight: 500; }
+        .doctor-info .dept { color: #666; font-size: 13px; }
+        .doctor-info .hospital { color: #999; font-size: 12px; }
+        
+        .messages { padding: 20px; background: #f8f9fa; }
+        .message { margin-bottom: 20px; }
+        .message.patient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-left: auto; max-width: 80%; padding: 12px 16px; border-radius: 18px 18px 4px 18px; }
+        .message.agent { background: white; max-width: 85%; border-radius: 18px 18px 18px 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; }
+        .message-header { display: flex; align-items: center; gap: 10px; padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; }
+        .mini-avatar { width: 35px; height: 35px; border-radius: 50%; background: #FF6B6B; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold; }
+        .message-meta .name { font-weight: 600; font-size: 14px; color: #333; }
+        .message-meta .role { font-size: 11px; color: #667eea; }
+        .message-content { padding: 15px; line-height: 1.6; font-size: 14px; color: #333; }
+        
+        .rare-disease { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-top: 1px solid #ffcc80; }
+        .rare-disease h3 { color: #e65100; font-size: 14px; margin-bottom: 10px; }
+        .cases { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .case { background: white; border: 2px solid #ff9800; border-radius: 10px; padding: 12px; text-align: center; }
+        .case .name { font-weight: 600; color: #e65100; font-size: 14px; }
+        .case .desc { font-size: 11px; color: #666; margin-top: 3px; }
+        
+        .quick { padding: 15px; background: #f5f5f5; display: flex; gap: 10px; flex-wrap: wrap; }
+        .quick button { background: white; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; font-size: 13px; }
+        
+        .input-area { padding: 15px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee; }
+        .input-area textarea { flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; resize: none; height: 50px; font-size: 14px; }
+        .input-area button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0 25px; border-radius: 10px; font-size: 15px; font-weight: 600; }
+        
+        .footer { padding: 12px; text-align: center; background: #fff3e0; color: #e65100; font-size: 12px; }
+        
+        .badge { display: inline-block; background: #e8eaf6; color: #3f51b5; padding: 3px 8px; border-radius: 10px; font-size: 11px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>🏥 MediChat</h1>
+            <p>医疗多Agent智能交互平台 - 罕见病专版</p>
+        </div>
+        
+        <div class="doctor-card">
+            <div class="avatar">陈</div>
+            <div class="doctor-info">
+                <h3>陈雅琴</h3>
+                <div class="title">副主任医师</div>
+                <div class="dept">急诊医学科</div>
+                <div class="hospital">协和医院</div>
+            </div>
+        </div>
+        
+        <div class="messages">
+            <div class="message agent">
+                <div class="message-header">
+                    <div class="mini-avatar">陈</div>
+                    <div class="message-meta">
+                        <div class="name">陈雅琴医生</div>
+                        <div class="role">副主任医师 | 急诊医学科</div>
+                    </div>
+                </div>
+                <div class="message-content">
+                    您好，我是陈雅琴医生，协和医院急诊科的分诊医师。请告诉我您哪里不舒服，我会帮您分析情况，并建议您应该挂什么科室。
+                </div>
+            </div>
+            
+            <div class="message patient">
+                医生您好，我孩子5岁了，肚子越来越大，脾脏肿大，经常骨痛，血小板减少
+            </div>
+            
+            <div class="message agent">
+                <div class="message-header">
+                    <div class="mini-avatar">陈</div>
+                    <div class="message-meta">
+                        <div class="name">陈雅琴医生</div>
+                        <div class="role">副主任医师 | 急诊医学科</div>
+                    </div>
+                </div>
+                <div class="message-content">
+                    您好，听到您描述孩子的情况，我非常理解您此刻焦急的心情。
+
+您提到的这几个症状——**腹部膨隆（肚子大）、脾脏肿大、骨痛、血小板减少**——组合在一起，是非常需要我们高度重视的信号。这通常指向一些需要立即明确诊断的疾病，尤其是在儿童身上。
+
+根据您描述的**脾脏肿大、骨痛和血小板减少**这个组合，临床上我们会高度警惕**血液系统疾病**的可能性，例如某些类型的白血病、淋巴瘤，或者一些少见的代谢性疾病（如戈谢病）。
+
+**我的建议是：请务必立即带孩子前往大型综合性医院或儿童专科医院就诊，首选挂【儿童血液科】的号。**
+
+<div class="badge">⚠️ 建议尽快就医</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rare-disease">
+            <h3>🧬 罕见病场景测试</h3>
+            <div class="cases">
+                <div class="case">
+                    <div class="name">戈谢病</div>
+                    <div class="desc">遗传性溶酶体贮积症</div>
+                </div>
+                <div class="case">
+                    <div class="name">庞贝病</div>
+                    <div class="desc">糖原贮积症II型</div>
+                </div>
+                <div class="case">
+                    <div class="name">法布雷病</div>
+                    <div class="desc">X连锁遗传性溶酶体贮积症</div>
+                </div>
+                <div class="case">
+                    <div class="name">渐冻症</div>
+                    <div class="desc">肌萎缩侧索硬化症</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick">
+            <button>头痛</button>
+            <button>发热</button>
+            <button>咳嗽</button>
+            <button>腹痛</button>
+            <button>失眠</button>
+        </div>
+        
+        <div class="input-area">
+            <textarea placeholder="请描述您的症状..."></textarea>
+            <button>发送</button>
+        </div>
+        
+        <div class="footer">
+            <p>⚠️ 本平台仅供参考，不替代专业医疗诊断</p>
+            <p>🧬 专注于罕见病AI辅助诊断</p>
+        </div>
+    </div>
+</body>
+</html>
