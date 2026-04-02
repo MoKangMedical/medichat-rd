@@ -1,503 +1,669 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
-import KnowledgeCenter from './components/KnowledgeCenter';
 
-// ========== 数据 ==========
-const DISEASE_CATEGORIES = [
-  { icon: '🧬', label: '遗传病', count: 45 },
-  { icon: '⚗️', label: '代谢病', count: 32 },
-  { icon: '🧠', label: '神经系统', count: 18 },
-  { icon: '🛡️', label: '免疫病', count: 12 },
-  { icon: '🩸', label: '血液病', count: 8 },
-  { icon: '❤️', label: '心血管', count: 6 },
-  { icon: '🦴', label: '骨骼病', count: 5 },
-  { icon: '👁️', label: '眼科病', count: 4 },
-];
-
-const DOCTORS = {
-  triage: { name: '陈雅琴', title: '副主任医师', dept: '急诊医学科', hospital: '协和医院', color: '#2563EB' },
-  diagnosis: { name: '王建国', title: '主任医师', dept: '内科', hospital: '协和医院', color: '#10B981' },
-  medicine: { name: '李明辉', title: '主任药师', dept: '药学部', hospital: '协和医院', color: '#F59E0B' },
-  mental: { name: '赵晓燕', title: '副主任医师', dept: '心理科', hospital: '北大六院', color: '#8B5CF6' },
-  rehab: { name: '林雨桐', title: '康复医师', dept: '康复医学科', hospital: '博爱医院', color: '#EC4899' },
-  followup: { name: '刘志强', title: '全科医师', dept: '全科医学科', hospital: '协和医院', color: '#06B6D4' },
+// ═══════════════════════════════════════════════════
+// 图标组件
+// ═══════════════════════════════════════════════════
+const Icons = {
+  dna: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M2 15c6.667-6 13.333 0 20-6M2 9c6.667 6 13.333 0 20 6M7 3v4M17 3v4M7 17v4M17 17v4"/>
+    </svg>
+  ),
+  search: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+    </svg>
+  ),
+  chat: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  ),
+  pill: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+      <path d="m8.5 8.5 7 7"/>
+    </svg>
+  ),
+  file: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+    </svg>
+  ),
+  activity: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+  ),
+  users: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  send: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+  ),
+  menu: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  ),
+  x: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  ),
+  home: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  check: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  ),
+  alert: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+  ),
 };
 
-const COMMUNITIES = [
-  { icon: '🫁', name: '戈谢病互助群', count: 2341, activity: '127条新消息' },
-  { icon: '💪', name: '庞贝病交流群', count: 1856, activity: '89条新消息' },
-  { icon: '🔥', name: '法布雷病关爱群', count: 987, activity: '45条新消息' },
-  { icon: '🧊', name: '渐冻症关怀群', count: 3456, activity: '234条新消息' },
-  { icon: '🧠', name: '罕见神经疾病群', count: 4567, activity: '312条新消息' },
-  { icon: '🏃', name: '运动与康复', count: 5678, activity: '567条新消息' },
-  { icon: '🧘', name: '心理健康互助', count: 3456, activity: '189条新消息' },
-  { icon: '🥗', name: '营养与饮食', count: 2345, activity: '98条新消息' },
-];
-
-// ========== 组件 ==========
-function TopBar() {
-  return (
-    <div className="top-bar">
-      <div className="logo">
-        <div className="logo-icon">🧬</div>
-        <div>
-          <div>MediChat-RD</div>
-          <div className="subtitle">罕见病AI诊疗平台</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TabBar({ active, onChange }) {
-  const tabs = [
-    { key: 'home', icon: '🏠', label: '首页' },
-    { key: 'consult', icon: '💬', label: '问诊' },
-    { key: 'knowledge', icon: '📚', label: '知识' },
-    { key: 'community', icon: '👥', label: '社群' },
-    { key: 'profile', icon: '👤', label: '我的' },
-  ];
-  return (
-    <div className="tab-bar">
-      {tabs.map(t => (
-        <button key={t.key} className={`tab-item ${active === t.key ? 'active' : ''}`} onClick={() => onChange(t.key)}>
-          <span className="tab-icon">{t.icon}</span>
-          <span className="tab-label">{t.label}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// ===== 首页 =====
+// ═══════════════════════════════════════════════════
+// 首页组件
+// ═══════════════════════════════════════════════════
 function HomePage({ onNavigate }) {
+  const stats = [
+    { label: '覆盖罕见病', value: '121+', icon: 'dna' },
+    { label: '药物数据', value: '47万+', icon: 'pill' },
+    { label: '临床试验', value: '48万+', icon: 'activity' },
+    { label: 'AI分析能力', value: 'MIMO驱动', icon: 'chat' },
+  ];
+
+  const features = [
+    {
+      icon: 'search',
+      title: '智能症状自查',
+      desc: '描述症状，AI分析可能的罕见病方向，建议进一步检查',
+      action: 'symptom-check',
+    },
+    {
+      icon: 'pill',
+      title: '药物重定位研究',
+      desc: '整合OpenTargets、ChEMBL数据，发现老药新用的机会',
+      action: 'drug-research',
+    },
+    {
+      icon: 'file',
+      title: '疾病研究一站通',
+      desc: '靶点、药物、临床试验、文献，一键生成完整研究报告',
+      action: 'disease-research',
+    },
+    {
+      icon: 'chat',
+      title: 'AI医学助手',
+      desc: '罕见病专业知识问答，患者教育，诊疗方案讨论',
+      action: 'ai-chat',
+    },
+  ];
+
   return (
-    <div className="page">
-      <div className="hero-banner">
-        <h2>🧬 4C 诊疗体系</h2>
-        <p>Connect → Consult → Care → Community</p>
-      </div>
-      <div className="grid-4c">
-        <div className="c-card connect" onClick={() => onNavigate('consult')}>
-          <span className="c-icon">🔍</span>
-          <div className="c-title">智能分诊</div>
-          <div className="c-desc">症状初筛，匹配专科</div>
+    <div className="home-page">
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="hero-bg">
+          <div className="hero-gradient"></div>
+          <div className="hero-dna">
+            <Icons.dna />
+          </div>
         </div>
-        <div className="c-card consult" onClick={() => onNavigate('consult')}>
-          <span className="c-icon">💬</span>
-          <div className="c-title">AI问诊</div>
-          <div className="c-desc">6个专科Agent在线</div>
+        <div className="hero-content">
+          <div className="hero-badge">MediChat-RD v4.0</div>
+          <h1>罕见病在线诊疗平台</h1>
+          <p className="hero-subtitle">
+            AI驱动的罕见病研究与诊疗，连接患者、医生与全球最新医学知识
+          </p>
+          <div className="hero-actions">
+            <button className="btn-primary" onClick={() => onNavigate('ai-chat')}>
+              <Icons.chat /> 开始咨询
+            </button>
+            <button className="btn-secondary" onClick={() => onNavigate('symptom-check')}>
+              <Icons.search /> 症状自查
+            </button>
+          </div>
         </div>
-        <div className="c-card care" onClick={() => onNavigate('knowledge')}>
-          <span className="c-icon">📋</span>
-          <div className="c-title">全程照护</div>
-          <div className="c-desc">随访管理·用药提醒</div>
+      </section>
+
+      {/* Stats */}
+      <section className="stats-section">
+        <div className="stats-grid">
+          {stats.map((stat, i) => {
+            const Icon = Icons[stat.icon];
+            return (
+              <div key={i} className="stat-card">
+                <div className="stat-icon"><Icon /></div>
+                <div className="stat-value">{stat.value}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            );
+          })}
         </div>
-        <div className="c-card community" onClick={() => onNavigate('community')}>
-          <span className="c-icon">👥</span>
-          <div className="c-title">患者社群</div>
-          <div className="c-desc">数字分身·病友互助</div>
+      </section>
+
+      {/* Features */}
+      <section className="features-section">
+        <h2>核心功能</h2>
+        <p className="section-desc">四大功能模块，覆盖罕见病诊疗全流程</p>
+        <div className="features-grid">
+          {features.map((feat, i) => {
+            const Icon = Icons[feat.icon];
+            return (
+              <div key={i} className="feature-card" onClick={() => onNavigate(feat.action)}>
+                <div className="feature-icon"><Icon /></div>
+                <h3>{feat.title}</h3>
+                <p>{feat.desc}</p>
+                <span className="feature-link">立即使用 →</span>
+              </div>
+            );
+          })}
         </div>
-      </div>
-      <div className="stat-bar">
-        <div className="stat-item">
-          <div className="stat-num">121</div>
-          <div className="stat-label">罕见病种</div>
-        </div>
-        <div className="stat-item">
-          <div className="stat-num">6</div>
-          <div className="stat-label">专科Agent</div>
-        </div>
-        <div className="stat-item">
-          <div className="stat-num">2000万</div>
-          <div className="stat-label">覆盖患者</div>
-        </div>
-      </div>
-      <div className="card">
-        <div className="card-header">
-          <span className="card-title">🏷️ 疾病分类</span>
-          <button className="card-more" onClick={() => onNavigate('knowledge')}>查看全部 →</button>
-        </div>
-        <div className="disease-grid">
-          {DISEASE_CATEGORIES.slice(0, 4).map((cat, i) => (
-            <div key={i} className="disease-chip" onClick={() => onNavigate('knowledge')}>
-              <span className="chip-icon">{cat.icon}</span>
-              <span className="chip-label">{cat.label}</span>
-              <span className="chip-count">{cat.count}种</span>
-            </div>
+      </section>
+
+      {/* Data Sources */}
+      <section className="sources-section">
+        <h2>数据来源</h2>
+        <div className="sources-grid">
+          {['OpenTargets', 'ChEMBL', 'ClinicalTrials.gov', 'PubMed', 'OMIM', 'DrugBank'].map((src, i) => (
+            <div key={i} className="source-tag">{src}</div>
           ))}
         </div>
-      </div>
-      <div className="card">
-        <div className="card-header">
-          <span className="card-title">⚡ 快捷问诊</span>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {['头痛', '发热', '咳嗽', '腹痛', '关节痛', '疲劳', '皮疹', '视力下降'].map(s => (
-            <button key={s} className="quick-chip" onClick={() => onNavigate('consult', s)}>{s}</button>
-          ))}
-        </div>
-      </div>
-      <div className="insurance-card">
-        <h4>💊 罕见病用药医保</h4>
-        <div className="ins-grid">
-          <div className="ins-item"><div className="label">目录内药物</div><div className="value">45种</div></div>
-          <div className="ins-item"><div className="label">各省覆盖</div><div className="value">31省市</div></div>
-          <div className="ins-item"><div className="label">平均报销比</div><div className="value">70%</div></div>
-          <div className="ins-item"><div className="label">慈善援助</div><div className="value">28项目</div></div>
-        </div>
-      </div>
-      <div className="disclaimer">⚠️ 本平台仅供参考，不替代专业医疗诊断<br/>🧬 中国首个AI驱动罕见病诊疗平台</div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <p>MediChat-RD 罕见病在线诊疗平台 | 数据仅供参考，不构成医疗建议</p>
+        <p>Powered by MIMO AI + ToolUniverse</p>
+      </footer>
     </div>
   );
 }
 
-// ===== 问诊页 =====
-function ConsultPage({ initialSymptom }) {
-  const [messages, setMessages] = useState([{
-    role: 'agent',
-    content: '您好，我是陈雅琴医生，协和医院急诊科的分诊医师。请告诉我您或家人的症状，我会帮您分析情况，并推荐最合适的专科方向。',
-    doctor: DOCTORS.triage,
-  }]);
-  const [input, setInput] = useState(initialSymptom || '');
+// ═══════════════════════════════════════════════════
+// AI 对话组件
+// ═══════════════════════════════════════════════════
+function AIChatPage() {
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: '您好！我是 MediChat-RD 的AI助手，专注于罕见病领域。我可以帮您：\n\n- 解答罕见病相关问题\n- 解释医学检查结果\n- 提供疾病管理建议\n- 讨论治疗方案\n\n请问有什么可以帮您的？'
+    }
+  ]);
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sessionId, setSessionId] = useState(null);
-  const [currentDoctor, setCurrentDoctor] = useState(DOCTORS.triage);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-  useEffect(() => { if (initialSymptom) setInput(initialSymptom); }, [initialSymptom]);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(scrollToBottom, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
-    const userMsg = { role: 'patient', content: input };
+    
+    const userMsg = { role: 'user', content: input };
     setMessages(prev => [...prev, userMsg]);
-    const msg = input;
     setInput('');
     setLoading(true);
+
     try {
-      const resp = await fetch('/api/v1/chat', {
+      const res = await fetch('/api/v2/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, session_id: sessionId })
+        body: JSON.stringify({
+          messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+        }),
       });
-      const data = await resp.json();
-      setSessionId(data.session_id);
-      const agentKey = data.agent_name?.includes('分诊') ? 'triage' : data.agent_name?.includes('诊断') ? 'diagnosis' : data.agent_name?.includes('用药') ? 'medicine' : data.agent_name?.includes('心理') ? 'mental' : data.agent_name?.includes('康复') ? 'rehab' : 'followup';
-      const doctor = DOCTORS[agentKey];
-      setCurrentDoctor(doctor);
-      setMessages(prev => [...prev, { role: 'agent', content: data.message, doctor, suggestions: data.suggestions }]);
-    } catch (e) {
-      setMessages(prev => [...prev, { role: 'error', content: '网络错误，请稍后重试' }]);
-    } finally { setLoading(false); }
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '抱歉，暂时无法连接到AI服务。请稍后再试。' 
+      }]);
+    }
+    setLoading(false);
   };
-
-  const rareCases = [
-    { title: '戈谢病', symptoms: '我孩子5岁了，肚子越来越大，脾脏肿大，经常骨痛，血小板减少' },
-    { title: '庞贝病', symptoms: '我最近呼吸困难，肌肉无力，爬楼梯都费劲，心脏也有些问题' },
-    { title: '法布雷病', symptoms: '我手脚经常烧灼样疼痛，出汗少，尿里有泡沫' },
-    { title: '渐冻症', symptoms: '我最近手部肌肉萎缩，握东西没力气，说话有些含糊' },
-  ];
 
   return (
     <div className="chat-page">
-      <div className="doctor-bar">
-        <div className="avatar" style={{ background: currentDoctor.color }}>{currentDoctor.name.charAt(0)}</div>
-        <div className="info">
-          <h3>{currentDoctor.name}医生</h3>
-          <p>{currentDoctor.title} · {currentDoctor.dept} · {currentDoctor.hospital}</p>
-        </div>
+      <div className="chat-header">
+        <Icons.chat />
+        <h2>AI医学助手</h2>
+        <span className="chat-badge">MIMO驱动</span>
       </div>
-      <div className="quick-bar">
-        {['头痛', '发热', '咳嗽', '腹痛', '关节痛', '皮疹'].map(s => (
-          <button key={s} className="quick-chip" onClick={() => setInput(s)}>{s}</button>
-        ))}
-      </div>
-      <div className="messages-area">
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`msg ${msg.role}`}>
-            {msg.role === 'agent' && msg.doctor && (
-              <div className="msg-meta">
-                <div className="msg-avatar" style={{ background: msg.doctor.color }}>{msg.doctor.name.charAt(0)}</div>
-                <span className="msg-name">{msg.doctor.name}医生</span>
-              </div>
-            )}
-            <div className="msg-bubble">{msg.content}</div>
-            {msg.suggestions && (
-              <div className="suggestions">
-                {msg.suggestions.map((s, i) => (
-                  <button key={i} className="suggestion-btn" onClick={() => { setInput(s); }}>{s}</button>
-                ))}
-              </div>
-            )}
+      <div className="chat-messages">
+        {messages.map((msg, i) => (
+          <div key={i} className={`message ${msg.role}`}>
+            <div className="message-avatar">
+              {msg.role === 'assistant' ? 'AI' : '您'}
+            </div>
+            <div className="message-content">
+              {msg.content.split('\n').map((line, j) => (
+                <p key={j}>{line || <br />}</p>
+              ))}
+            </div>
           </div>
         ))}
         {loading && (
-          <div className="msg agent">
-            <div className="msg-meta">
-              <div className="msg-avatar" style={{ background: currentDoctor.color }}>{currentDoctor.name.charAt(0)}</div>
-              <span className="msg-name">{currentDoctor.name}医生 正在思考...</span>
+          <div className="message assistant">
+            <div className="message-avatar">AI</div>
+            <div className="message-content">
+              <div className="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
             </div>
-            <div className="loading-dots"><span></span><span></span><span></span></div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="quick-bar">
-        {rareCases.map((c, i) => (
-          <button key={i} className="quick-chip" onClick={() => setInput(c.symptoms)} title={c.symptoms}>🧬 {c.title}</button>
-        ))}
+      <div className="chat-input">
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder="输入您的问题..."
+          disabled={loading}
+        />
+        <button onClick={sendMessage} disabled={loading || !input.trim()}>
+          <Icons.send />
+        </button>
       </div>
-      <div className="input-area">
-        <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder="请描述您的症状..." rows={1} />
-        <button className="send-btn" onClick={sendMessage} disabled={loading || !input.trim()}>↑</button>
-      </div>
-    </div>
-  );
-}
-
-// ===== 知识中心 =====
-function KnowledgePage() {
-  return <KnowledgeCenter />;
-}
-
-// ===== 社群页 =====
-function CommunityPage() {
-  const [tab, setTab] = useState('disease');
-  return (
-    <div className="page">
-      <div className="avatar-card">
-        <h3>🤖 我的数字分身</h3>
-        <p>已就绪，随时帮您在社群中交流</p>
-        <div className="btn-row">
-          <button className="btn btn-primary">管理分身</button>
-          <button className="btn btn-secondary">Bridge匹配</button>
-        </div>
-      </div>
-      <div className="community-tabs">
-        {[{ key: 'mine', label: '我的社群' }, { key: 'disease', label: '疾病社群' }, { key: 'topic', label: '主题社群' }].map(t => (
-          <button key={t.key} className={`community-tab ${tab === t.key ? 'active' : ''}`} onClick={() => setTab(t.key)}>{t.label}</button>
-        ))}
-      </div>
-      {COMMUNITIES.map((g, i) => (
-        <div key={i} className="group-card">
-          <div className="group-row">
-            <div className="group-avatar">{g.icon}</div>
-            <div className="group-info">
-              <div className="group-header">
-                <span className="group-name">{g.name}</span>
-                <span className="group-count">👥 {g.count.toLocaleString()}</span>
-              </div>
-              <div className="group-activity">今日活跃：{g.activity}</div>
-            </div>
-          </div>
-        </div>
-      ))}
-      <div className="card" style={{ marginTop: 16 }}>
-        <div className="card-header"><span className="card-title">🔥 热门帖子</span></div>
-        {[{ title: '确诊3年，分享我的治疗经历', likes: 234, comments: 56 }, { title: '新药临床试验招募信息', likes: 189, comments: 34 }, { title: '康复训练日记分享', likes: 156, comments: 28 }].map((p, i) => (
-          <div key={i} style={{ padding: '10px 0', borderBottom: i < 2 ? '1px solid var(--border)' : 'none' }}>
-            <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>💬 {p.title}</div>
-            <div style={{ fontSize: 11, color: 'var(--text-light)' }}>👍 {p.likes} · 💬 {p.comments}</div>
-          </div>
-        ))}
+      <div className="chat-disclaimer">
+        AI回复仅供参考，不构成医疗诊断。如有紧急情况，请立即就医。
       </div>
     </div>
   );
 }
 
-// ===== 个人中心 =====
-function ProfilePage() {
-  const [location, setLocation] = useState(null);
-  const [nearbyHospitals, setNearbyHospitals] = useState([]);
-  const [loadingLocation, setLoadingLocation] = useState(false);
-  const [locationError, setLocationError] = useState('');
+// ═══════════════════════════════════════════════════
+// 症状自查组件
+// ═══════════════════════════════════════════════════
+function SymptomCheckPage() {
+  const [symptoms, setSymptoms] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const requestLocation = async () => {
-    setLoadingLocation(true);
-    setLocationError('');
-    
-    if (!navigator.geolocation) {
-      setLocationError('您的浏览器不支持定位功能');
-      setLoadingLocation(false);
-      return;
+  const check = async () => {
+    if (!symptoms.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/v2/symptom-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          symptoms,
+          age: age ? parseInt(age) : null,
+          gender: gender || null,
+        }),
+      });
+      setResult(await res.json());
+    } catch (err) {
+      setResult({ error: '服务暂时不可用，请稍后再试' });
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const loc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          timestamp: new Date().toISOString()
-        };
-        setLocation(loc);
-        
-        // 获取就近医院
-        try {
-          const response = await fetch(`/api/v1/location/nearby-hospitals?lat=${loc.latitude}&lng=${loc.longitude}&radius=5000`);
-          const data = await response.json();
-          setNearbyHospitals(data.hospitals || []);
-        } catch (error) {
-          console.error('获取就近医院失败:', error);
-        }
-        
-        setLoadingLocation(false);
-      },
-      (error) => {
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            setLocationError('定位权限被拒绝，请在浏览器设置中允许定位');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setLocationError('无法获取位置信息');
-            break;
-          case error.TIMEOUT:
-            setLocationError('定位请求超时');
-            break;
-          default:
-            setLocationError('定位失败');
-        }
-        setLoadingLocation(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000
-      }
-    );
+    setLoading(false);
   };
 
-  const menus = [
-    { icon: '📍', label: '我的位置', action: requestLocation, value: location ? '已定位' : '点击定位' },
-    { icon: '📋', label: '健康档案' },
-    { icon: '👨‍👩‍👧', label: '家庭成员管理' },
-    { icon: '💊', label: '用药记录' },
-    { icon: '📅', label: '复诊日历' },
-    { icon: '💰', label: '医保信息' },
-    { icon: '🤖', label: '数字分身设置' },
-    { icon: '🔒', label: '隐私与合规' },
-    { icon: '⚙️', label: '系统设置' },
+  return (
+    <div className="symptom-page">
+      <div className="page-header">
+        <h2>智能症状自查</h2>
+        <p>描述您的症状，AI将分析可能的罕见病方向</p>
+      </div>
+      
+      <div className="symptom-form">
+        <div className="form-row">
+          <div className="form-group">
+            <label>年龄（选填）</label>
+            <input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="如：35" />
+          </div>
+          <div className="form-group">
+            <label>性别（选填）</label>
+            <select value={gender} onChange={e => setGender(e.target.value)}>
+              <option value="">请选择</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+        </div>
+        <div className="form-group">
+          <label>症状描述</label>
+          <textarea
+            value={symptoms}
+            onChange={e => setSymptoms(e.target.value)}
+            placeholder="请详细描述您的症状，例如：&#10;- 双眼皮下垂3个月&#10;- 下午疲劳加重&#10;- 吞咽困难"
+            rows={5}
+          />
+        </div>
+        <button className="btn-primary" onClick={check} disabled={loading || !symptoms.trim()}>
+          {loading ? '分析中...' : '开始自查'}
+        </button>
+      </div>
+
+      {result && !result.error && (
+        <div className="result-card">
+          <h3>自查结果</h3>
+          <div className="result-content">
+            {result.analysis?.split('\n').map((line, i) => (
+              <p key={i}>{line || <br />}</p>
+            ))}
+          </div>
+          <div className="disclaimer-box">
+            <Icons.alert />
+            <span>{result.disclaimer}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// 疾病研究组件
+// ═══════════════════════════════════════════════════
+function DiseaseResearchPage() {
+  const [disease, setDisease] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const research = async () => {
+    if (!disease.trim()) return;
+    setLoading(true);
+    setResult(null);
+    try {
+      const res = await fetch('/api/v2/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disease_name: disease }),
+      });
+      setResult(await res.json());
+    } catch (err) {
+      setResult({ error: '研究服务暂时不可用' });
+    }
+    setLoading(false);
+  };
+
+  const tabs = [
+    { id: 'overview', label: '疾病概述' },
+    { id: 'targets', label: '靶点' },
+    { id: 'drugs', label: '药物' },
+    { id: 'trials', label: '临床试验' },
+    { id: 'analysis', label: 'AI分析' },
   ];
 
   return (
-    <div className="page">
-      <div className="profile-header">
-        <div className="profile-avatar">🧑‍⚕️</div>
-        <h2>小林医生</h2>
-        <p>患者 · 罕见病关注者</p>
-      </div>
-      
-      {/* 定位状态卡片 */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)', color: 'white', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>📍 患者定位</div>
-            <div style={{ fontSize: 12, opacity: 0.9 }}>
-              {location ? `已获取位置 (${Math.round(location.accuracy)}m精度)` : '获取位置以查找就近医院'}
-            </div>
-          </div>
-          <button 
-            onClick={requestLocation}
-            disabled={loadingLocation}
-            style={{
-              padding: '10px 16px',
-              borderRadius: 'var(--radius-full)',
-              border: 'none',
-              background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: 'pointer',
-              backdropFilter: 'blur(10px)'
-            }}
-          >
-            {loadingLocation ? '定位中...' : location ? '重新定位' : '开始定位'}
-          </button>
-        </div>
-        {locationError && (
-          <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-sm)', fontSize: 12 }}>
-            ⚠️ {locationError}
-          </div>
-        )}
+    <div className="research-page">
+      <div className="page-header">
+        <h2>疾病研究一站通</h2>
+        <p>靶点、药物、临床试验、AI分析，一键生成完整报告</p>
       </div>
 
-      {/* 就近医院 */}
-      {location && nearbyHospitals.length > 0 && (
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">🏥 就近医院</span>
-            <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{nearbyHospitals.length}家</span>
-          </div>
-          {nearbyHospitals.slice(0, 3).map((hospital, i) => (
-            <div key={i} style={{ 
-              padding: '12px 0', 
-              borderBottom: i < 2 ? '1px solid var(--border)' : 'none',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{hospital.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{hospital.address}</div>
-              </div>
-              <div style={{ 
-                padding: '4px 10px', 
-                background: 'var(--primary-bg)', 
-                borderRadius: 'var(--radius-full)',
-                fontSize: 12,
-                color: 'var(--accent)',
-                fontWeight: 600
-              }}>
-                {hospital.distance}km
-              </div>
-            </div>
-          ))}
+      <div className="search-bar">
+        <input
+          value={disease}
+          onChange={e => setDisease(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && research()}
+          placeholder="输入疾病名称，如：Myasthenia Gravis"
+        />
+        <button className="btn-primary" onClick={research} disabled={loading}>
+          {loading ? '研究中...' : '开始研究'}
+        </button>
+      </div>
+
+      {loading && (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>正在整合多源数据并生成分析报告...</p>
         </div>
       )}
 
-      <div className="card">
-        <div className="card-header"><span className="card-title">📊 健康概览</span></div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, textAlign: 'center' }}>
-          <div><div style={{ fontSize: 20, fontWeight: 700, color: 'var(--primary)' }}>12</div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>问诊次数</div></div>
-          <div><div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>3</div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>加入社群</div></div>
-          <div><div style={{ fontSize: 20, fontWeight: 700, color: 'var(--warn)' }}>5</div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>用药提醒</div></div>
-        </div>
-      </div>
-      <div className="menu-list">
-        {menus.map((m, i) => (
-          <div key={i} className="menu-item" onClick={m.action}>
-            <div className="menu-left">
-              <span className="menu-icon">{m.icon}</span>
-              <span>{m.label}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {m.value && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}>{m.value}</span>}
-              <span className="menu-arrow">›</span>
-            </div>
+      {result && !result.error && (
+        <div className="research-result">
+          <div className="tabs">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                className={`tab ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="disclaimer">MediChat-RD v1.0 · 中国首个AI驱动罕见病诊疗平台<br/>数据安全 · HIPAA合规 · 端到端加密</div>
+
+          <div className="tab-content">
+            {activeTab === 'overview' && result.stages?.disease_info && (
+              <div className="overview-card">
+                <h3>{result.stages.disease_info.name}</h3>
+                <p>{result.stages.disease_info.description}</p>
+                <div className="meta">
+                  <span>ID: {result.stages.disease_info.id}</span>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'targets' && result.stages?.targets && (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>基因</th>
+                      <th>名称</th>
+                      <th>关联分数</th>
+                      <th>遗传关联</th>
+                      <th>临床证据</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.stages.targets.map((t, i) => (
+                      <tr key={i}>
+                        <td><code>{t.gene_id.split(':').pop()}</code></td>
+                        <td>{t.gene_name}</td>
+                        <td><span className="score">{t.score}</span></td>
+                        <td>{t.genetic_association ? t.genetic_association.toFixed(3) : '-'}</td>
+                        <td>{t.clinical ? t.clinical.toFixed(3) : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {activeTab === 'drugs' && result.stages?.drugs && (
+              <div className="drugs-grid">
+                {result.stages.drugs.map((d, i) => (
+                  <div key={i} className="drug-card">
+                    <div className="drug-phase">
+                      <span className={`phase-badge phase-${d.max_phase?.replace('.', '')}`}>
+                        {d.phase_label}
+                      </span>
+                    </div>
+                    <div className="drug-id"><code>{d.chembl_id}</code></div>
+                    <div className="drug-name">{d.mesh_heading}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'trials' && result.stages?.clinical_trials && (
+              <div className="trials-list">
+                {result.stages.clinical_trials.map((t, i) => (
+                  <div key={i} className="trial-card">
+                    <div className="trial-header">
+                      <code className="nct-id">{t.nct_id}</code>
+                      <span className={`status-badge status-${t.status?.toLowerCase()}`}>
+                        {t.status_cn}
+                      </span>
+                    </div>
+                    <h4>{t.title}</h4>
+                    <p className="trial-sponsor">{t.sponsor}</p>
+                    {t.summary && <p className="trial-summary">{t.summary}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'analysis' && result.stages?.analysis && (
+              <div className="analysis-card">
+                <div className="analysis-content">
+                  {result.stages.analysis.split('\n').map((line, i) => (
+                    <p key={i}>{line || <br />}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// ========== 主应用 ==========
+// ═══════════════════════════════════════════════════
+// 药物重定位组件
+// ═══════════════════════════════════════════════════
+function DrugResearchPage() {
+  const [disease, setDisease] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const research = async () => {
+    if (!disease.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v2/drug-repurposing?disease_name=${encodeURIComponent(disease)}`, {
+        method: 'POST',
+      });
+      setResult(await res.json());
+    } catch (err) {
+      setResult({ error: '服务暂时不可用' });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="drug-page">
+      <div className="page-header">
+        <h2>药物重定位研究</h2>
+        <p>发现老药新用的机会，加速罕见病治疗进展</p>
+      </div>
+
+      <div className="search-bar">
+        <input
+          value={disease}
+          onChange={e => setDisease(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && research()}
+          placeholder="输入疾病名称"
+        />
+        <button className="btn-primary" onClick={research} disabled={loading}>
+          {loading ? '分析中...' : '开始分析'}
+        </button>
+      </div>
+
+      {loading && (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>正在分析药物重定位机会...</p>
+        </div>
+      )}
+
+      {result && !result.error && (
+        <div className="drug-result">
+          <h3>{result.disease} - 药物重定位分析</h3>
+          <div className="analysis-card">
+            <div className="analysis-content">
+              {result.repurposing_analysis?.split('\n').map((line, i) => (
+                <p key={i}>{line || <br />}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// 主应用
+// ═══════════════════════════════════════════════════
 function App() {
   const [page, setPage] = useState('home');
-  const [consultSymptom, setConsultSymptom] = useState('');
-  const handleNavigate = (p, symptom) => { if (symptom) setConsultSymptom(symptom); else setConsultSymptom(''); setPage(p); };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navItems = [
+    { id: 'home', label: '首页', icon: 'home' },
+    { id: 'ai-chat', label: 'AI助手', icon: 'chat' },
+    { id: 'symptom-check', label: '症状自查', icon: 'search' },
+    { id: 'disease-research', label: '疾病研究', icon: 'file' },
+    { id: 'drug-research', label: '药物重定位', icon: 'pill' },
+  ];
+
+  const renderPage = () => {
+    switch (page) {
+      case 'ai-chat': return <AIChatPage />;
+      case 'symptom-check': return <SymptomCheckPage />;
+      case 'disease-research': return <DiseaseResearchPage />;
+      case 'drug-research': return <DrugResearchPage />;
+      default: return <HomePage onNavigate={setPage} />;
+    }
+  };
 
   return (
     <div className="app">
-      <TopBar />
-      {page === 'home' && <HomePage onNavigate={handleNavigate} />}
-      {page === 'consult' && <ConsultPage initialSymptom={consultSymptom} />}
-      {page === 'knowledge' && <KnowledgePage />}
-      {page === 'community' && <CommunityPage />}
-      {page === 'profile' && <ProfilePage />}
-      <TabBar active={page} onChange={handleNavigate} />
+      {/* Top Nav */}
+      <nav className="topnav">
+        <button className="menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+          {sidebarOpen ? <Icons.x /> : <Icons.menu />}
+        </button>
+        <div className="nav-brand" onClick={() => setPage('home')}>
+          <Icons.dna />
+          <span>MediChat-RD</span>
+        </div>
+        <div className="nav-right">
+          <span className="nav-version">v4.0</span>
+        </div>
+      </nav>
+
+      {/* Sidebar */}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        {navItems.map(item => {
+          const Icon = Icons[item.icon];
+          return (
+            <button
+              key={item.id}
+              className={`nav-item ${page === item.id ? 'active' : ''}`}
+              onClick={() => { setPage(item.id); setSidebarOpen(false); }}
+            >
+              <Icon />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </aside>
+
+      {/* Main Content */}
+      <main className="main-content">
+        {renderPage()}
+      </main>
     </div>
   );
 }

@@ -31,3 +31,15 @@ Thumbs.db
 # Logs
 *.log
 nohup.out
+
+# Demo视频和帧（太大不推GitHub）
+demo-video/frames*/
+demo-video/*.mp4
+demo-video/screenshots/
+pages/*.mp4
+
+# 临时文件
+*.pyc
+__pycache__/
+.env
+*.log

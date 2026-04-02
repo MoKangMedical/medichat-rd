@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediChat-RD Demo视频下载</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .video-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .info-value {
+            color: #667eea;
+        }
+        
+        .download-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 20px 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .download-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+        
+        .download-button.secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .download-button.secondary:hover {
+            background: #f8f9fa;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .feature-text {
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #333;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 MediChat-RD Demo视频</h1>
+        <p class="subtitle">专业级1分钟平台展示视频</p>
+        
+        <div class="video-info">
+            <div class="info-item">
+                <span class="info-label">📹 视频时长</span>
+                <span class="info-value">60秒</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📐 分辨率</span>
+                <span class="info-value">1920x1080 (Full HD)</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🎬 帧率</span>
+                <span class="info-value">30fps</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📦 文件大小</span>
+                <span class="info-value">0.55 MB</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🎯 格式</span>
+                <span class="info-value">MP4 (H.264)</span>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-text">真实数据展示</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✨</div>
+                <div class="feature-text">平滑转场效果</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-text">逐条动画显示</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📈</div>
+                <div class="feature-text">实时进度指示</div>
+            </div>
+        </div>
+        
+        <a href="medichat_rd_demo_v2_transitions.mp4" download="MediChat-RD_Demo_v2.mp4" class="download-button">
+            📥 下载视频
+        </a>
+        
+        <a href="http://43.128.114.201:8001/medichat_demo_v2.mp4" class="download-button secondary">
+            🌐 在线观看
+        </a>
+        
+        <div class="instructions">
+            <h3>📋 使用说明</h3>
+            <ol>
+                <li>点击"下载视频"按钮保存到本地</li>
+                <li>使用任意视频播放器打开（推荐VLC、PotPlayer）</li>
+                <li>可用于产品演示、路演、分享</li>
+                <li>支持手机和电脑播放</li>
+                <li>可上传到视频平台推广</li>
+            </ol>
+        </div>
+        
+        <footer>
+            <p>MediChat-RD v2.0.0 | 罕见病在线诊疗平台</p>
+            <p>由小林医生 + 贾维斯共同开发</p>
+        </footer>
+    </div>
+</body>
+</html>
