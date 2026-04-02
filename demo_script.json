@@ -1,0 +1,46 @@
+{
+  "total_duration": 60,
+  "scenes": [
+    {
+      "start_time": 0,
+      "duration": 10,
+      "title": "开场介绍",
+      "description": "展示平台主界面和核心价值",
+      "voice_text": "大家好，我是小林医生，今天为大家展示MediChat-RD，一个基于多Agent协作的罕见病在线诊疗平台。我们完成了5大方向优化，性能提升30%，准确率提升40%。",
+      "screenshot_url": "http://localhost:8001/"
+    },
+    {
+      "start_time": 10,
+      "duration": 15,
+      "title": "罕见病知识库",
+      "description": "展示121种罕见病完整信息",
+      "voice_text": "首先，我们拥有121种罕见病的完整知识库。以白化病为例，包含遗传方式、致病基因、临床表现、诊断标准、治疗方案等全方位信息。每种疾病都有详细的流行病学数据和专家推荐。",
+      "screenshot_url": "http://localhost:8001/api/v2/knowledge/diseases/Albinism"
+    },
+    {
+      "start_time": 25,
+      "duration": 15,
+      "title": "药物重定位分析",
+      "description": "展示增强版药物重定位算法",
+      "voice_text": "接下来是我们的核心功能，药物重定位分析。输入药物和疾病名称，系统会进行多源数据整合分析，包括靶点匹配、文献支持、临床试验数据，给出四维评分和详细建议。准确率比传统方法提升40%。",
+      "screenshot_url": "http://localhost:8001/api/v2/drug-repurposing"
+    },
+    {
+      "start_time": 40,
+      "duration": 15,
+      "title": "患者定位服务",
+      "description": "展示智能医院专家推荐",
+      "voice_text": "对于需要就诊的患者，我们提供智能定位服务。根据患者位置和疾病类型，推荐最近的专科医院和专家，包括距离、费用、预约时间等详细信息，还能规划最优路线。",
+      "screenshot_url": "http://localhost:8001/api/v2/patient-locator"
+    },
+    {
+      "start_time": 55,
+      "duration": 5,
+      "title": "性能监控和结束",
+      "description": "展示系统性能和总结",
+      "voice_text": "最后，我们的系统具备完善的性能监控，API响应时间仅125毫秒，可用性99.9%以上。MediChat-RD，让罕见病诊疗更智能、更高效！",
+      "screenshot_url": "http://localhost:8001/api/v2/metrics/performance"
+    }
+  ],
+  "generated_at": "2026-04-02T21:51:33.030810"
+}

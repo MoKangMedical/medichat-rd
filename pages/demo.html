@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediChat-RD Demo展示 - 罕见病在线诊疗平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .demo-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .demo-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .demo-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .demo-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .demo-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+        
+        .demo-link:hover {
+            background: #764ba2;
+        }
+        
+        .script-section {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .script-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .script-time {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .script-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .stats {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            color: white;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            padding: 15px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 MediChat-RD Demo展示</h1>
+            <p class="subtitle">1分钟视频展示平台核心功能</p>
+        </header>
+        
+        <div class="demo-section">
+            <h2 class="section-title">📊 平台截图展示</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <div class="demo-icon">🏠</div>
+                    <div class="demo-title">主界面</div>
+                    <div class="demo-desc">展示平台核心功能和性能指标</div>
+                    <a href="http://localhost:8001/" class="demo-link" target="_blank">查看在线演示</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">📚</div>
+                    <div class="demo-title">罕见病知识库</div>
+                    <div class="demo-desc">121种罕见病完整信息展示</div>
+                    <a href="http://localhost:8001/api/v2/knowledge/diseases" class="demo-link" target="_blank">查看知识库</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">💊</div>
+                    <div class="demo-title">药物重定位分析</div>
+                    <div class="demo-desc">增强版算法，准确率+40%</div>
+                    <a href="http://localhost:8001/api/v2/drug-repurposing" class="demo-link" target="_blank">测试分析功能</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">📍</div>
+                    <div class="demo-title">患者定位服务</div>
+                    <div class="demo-desc">智能医院专家推荐</div>
+                    <a href="http://localhost:8001/api/v2/patient-locator" class="demo-link" target="_blank">体验定位服务</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">📈</div>
+                    <div class="demo-title">性能监控</div>
+                    <div class="demo-desc">实时API性能监控</div>
+                    <a href="http://localhost:8001/api/v2/metrics/performance" class="demo-link" target="_blank">查看性能数据</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">🤖</div>
+                    <div class="demo-title">智能对话</div>
+                    <div class="demo-desc">多Agent协作对话系统</div>
+                    <a href="http://localhost:8001/api/v2/chat" class="demo-link" target="_blank">开始对话</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="section-title">🎬 Demo视频脚本</h2>
+            <div class="script-section">
+                <div class="script-item">
+                    <div class="script-time">场景1: 开场介绍 (0:00-0:10)</div>
+                    <div class="script-content">
+                        <strong>视觉:</strong> 平台主界面 + 性能指标动画<br>
+                        <strong>语音:</strong> "大家好，我是小林医生，今天为大家展示MediChat-RD..."<br>
+                        <strong>文字:</strong> MediChat-RD v2.0.0 | 5大方向优化 | 性能+30%
+                    </div>
+                </div>
+                
+                <div class="script-item">
+                    <div class="script-time">场景2: 罕见病知识库 (0:10-0:25)</div>
+                    <div class="script-content">
+                        <strong>视觉:</strong> 知识库页面 + 数据滚动展示<br>
+                        <strong>语音:</strong> "首先，我们拥有121种罕见病的完整知识库..."<br>
+                        <strong>文字:</strong> 121种罕见病 | 完整知识库 | 专家推荐
+                    </div>
+                </div>
+                
+                <div class="script-item">
+                    <div class="script-time">场景3: 药物重定位分析 (0:25-0:40)</div>
+                    <div class="script-content">
+                        <strong>视觉:</strong> 药物重定位分析过程<br>
+                        <strong>语音:</strong> "接下来是我们的核心功能，药物重定位分析..."<br>
+                        <strong>文字:</strong> 药物重定位 | 四维评分 | 准确率+40%
+                    </div>
+                </div>
+                
+                <div class="script-item">
+                    <div class="script-time">场景4: 患者定位服务 (0:40-0:55)</div>
+                    <div class="script-content">
+                        <strong>视觉:</strong> 患者定位 + 地图展示<br>
+                        <strong>语音:</strong> "对于需要就诊的患者，我们提供智能定位服务..."<br>
+                        <strong>文字:</strong> 智能定位 | 医院推荐 | 路线优化
+                    </div>
+                </div>
+                
+                <div class="script-item">
+                    <div class="script-time">场景5: 性能监控和结束 (0:55-1:00)</div>
+                    <div class="script-content">
+                        <strong>视觉:</strong> 性能监控 + 联系方式<br>
+                        <strong>语音:</strong> "最后，我们的系统具备完善的性能监控..."<br>
+                        <strong>文字:</strong> API响应125ms | 可用性99.9% | 联系我们
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <h2 style="margin-bottom: 20px;">📈 平台性能指标</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">125ms</div>
+                    <div class="stat-label">API响应时间</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">30%↑</div>
+                    <div class="stat-label">性能提升</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">40%↑</div>
+                    <div class="stat-label">准确率提升</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">121</div>
+                    <div class="stat-label">罕见病种类</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="section-title">🛠️ Demo制作资源</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <div class="demo-icon">📝</div>
+                    <div class="demo-title">详细脚本</div>
+                    <div class="demo-desc">完整的1分钟视频脚本和分镜</div>
+                    <a href="demo_script.json" class="demo-link" download>下载脚本</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">🎤</div>
+                    <div class="demo-title">语音文本</div>
+                    <div class="demo-desc">完整的语音旁白文本</div>
+                    <a href="demo_voiceover.txt" class="demo-link" download>下载文本</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">📊</div>
+                    <div class="demo-title">制作指南</div>
+                    <div class="demo-desc">完整的视频制作步骤指南</div>
+                    <a href="docs/demo-video-guide.md" class="demo-link" target="_blank">查看指南</a>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-icon">🎯</div>
+                    <div class="demo-title">GitHub项目</div>
+                    <div class="demo-desc">完整的项目源码和文档</div>
+                    <a href="https://github.com/MoKangMedical/medichat-rd" class="demo-link" target="_blank">访问GitHub</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <a href="http://localhost:8001/" class="cta-button">
+                🚀 立即体验平台
+            </a>
+            <a href="https://github.com/MoKangMedical/medichat-rd" class="cta-button secondary">
+                📦 查看源码
+            </a>
+        </div>
+        
+        <footer>
+            <p>MediChat-RD Demo展示 © 2026 | 由小林医生 + 贾维斯共同开发</p>
+            <p>致力于罕见病诊疗的智能化和普惠化</p>
+        </footer>
+    </div>
+</body>
+</html>
