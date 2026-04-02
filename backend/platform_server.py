@@ -434,6 +434,13 @@ async def search_literature(
     })
     return result
 
+# --- Landing Page (介绍主页) ---
+@app.get("/landing")
+async def landing_page():
+    landing_path = os.path.join(os.path.dirname(__file__), "..", "pages", "landing.html")
+    from fastapi.responses import FileResponse
+    return FileResponse(landing_path, media_type="text/html")
+
 # --- 挂载前端静态文件 ---
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 if os.path.exists(FRONTEND_DIR):
