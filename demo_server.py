@@ -7,13 +7,14 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'agents'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from rare_disease_api import router as rare_disease_router
 from community_api import router as community_router
 from knowledge_api import router as knowledge_router
+from crawler_service import router as crawler_router
 from rare_disease_agent import RARE_DISEASES_DB, search_rare_disease_by_symptoms
 from datetime import datetime
 from pydantic import BaseModel
@@ -25,6 +26,65 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 app.include_router(rare_disease_router)
 app.include_router(community_router)
 app.include_router(knowledge_router)
+app.include_router(crawler_router)
+
+# ============================================================
+# 患者定位API
+# ============================================================
+
+from location_service import PatientLocationService
+location_service = PatientLocationService()
+
+@app.post("/api/v1/location")
+async def update_location(location: dict):
+    """更新患者位置"""
+    lat = location.get("latitude")
+    lng = location.get("longitude")
+    
+    if not lat or not lng:
+        return {"error": "缺少经纬度信息"}
+    
+    # 逆地理编码
+    location_info = location_service.get_location_from_browser(lat, lng)
+    
+    return {
+        "location": {
+            "latitude": location_info.latitude,
+            "longitude": location_info.longitude,
+            "address": location_info.address,
+            "city": location_info.city,
+            "province": location_info.province,
+            "district": location_info.district,
+            "timestamp": location_info.timestamp
+        }
+    }
+
+@app.get("/api/v1/location/nearby-hospitals")
+async def get_nearby_hospitals(
+    lat: float = Query(..., description="纬度"),
+    lng: float = Query(..., description="经度"),
+    radius: int = Query(5000, description="搜索半径（米）")
+):
+    """获取就近医院"""
+    hospitals = location_service.find_nearby_hospitals(lat, lng, radius)
+    
+    return {
+        "total": len(hospitals),
+        "hospitals": [
+            {
+                "name": h.name,
+                "address": h.address,
+                "distance": h.distance,
+                "phone": h.phone,
+                "departments": h.departments,
+                "specialty": h.specialty,
+                "rating": h.rating,
+                "source": h.source,
+                "url": h.url
+            }
+            for h in hospitals
+        ]
+    }
 
 @app.get("/health")
 async def health():
