@@ -1,18 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
+import KnowledgeCenter from './components/KnowledgeCenter';
 
 // ========== 数据 ==========
-const DISEASES = [
-  { name: '戈谢病', icon: '🫁', icd: 'E75.22', type: '溶酶体贮积症', gene: 'GBA', rate: '1/50,000', symptoms: ['脾脏肿大','骨痛','血小板减少','贫血','生长迟缓'] },
-  { name: '庞贝病', icon: '💪', icd: 'E74.02', type: '糖原贮积症', gene: 'GAA', rate: '1/40,000', symptoms: ['肌无力','呼吸困难','心脏肥大','运动发育迟缓'] },
-  { name: '法布雷病', icon: '🔥', icd: 'E75.21', type: '溶酶体贮积症', gene: 'GLA', rate: '1/40,000', symptoms: ['肢端疼痛','少汗','肾功能异常','心肌肥厚'] },
-  { name: '渐冻症', icon: '🧊', icd: 'G12.21', type: '运动神经元病', gene: 'SOD1', rate: '1/50,000', symptoms: ['肌肉萎缩','肌无力','吞咽困难','言语不清'] },
-  { name: '血友病', icon: '🩸', icd: 'D66/D67', type: '凝血障碍', gene: 'F8/F9', rate: '1/10,000', symptoms: ['出血不止','关节血肿','术后出血','牙龈出血'] },
-  { name: '多发性硬化', icon: '🧠', icd: 'G35', type: '自身免疫', gene: '多基因', rate: '1/2,000', symptoms: ['视力下降','肢体麻木','行走困难','疲劳'] },
-  { name: '白化病', icon: '👤', icd: 'E70.3', type: '遗传代谢', gene: 'TYR', rate: '1/20,000', symptoms: ['皮肤白化','视力下降','眼球震颤','畏光'] },
-  { name: '苯丙酮尿症', icon: '🧪', icd: 'E70.0', type: '氨基酸代谢', gene: 'PAH', rate: '1/10,000', symptoms: ['智力障碍','发育迟缓','湿疹','尿液异味'] },
-];
-
 const DISEASE_CATEGORIES = [
   { icon: '🧬', label: '遗传病', count: 45 },
   { icon: '⚗️', label: '代谢病', count: 32 },
@@ -268,78 +258,7 @@ function ConsultPage({ initialSymptom }) {
 
 // ===== 知识中心 =====
 function KnowledgePage() {
-  const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(null);
-  const filtered = DISEASES.filter(d => d.name.includes(search) || d.symptoms.some(s => s.includes(search)) || d.type.includes(search));
-
-  return (
-    <div className="page">
-      <div className="search-bar">
-        <span className="search-icon">🔍</span>
-        <input placeholder="搜索疾病名称、症状、基因..." value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
-      <div className="card">
-        <div className="card-header">
-          <span className="card-title">📊 罕见病知识库</span>
-          <span style={{ fontSize: 12, color: 'var(--text-light)' }}>121种疾病</span>
-        </div>
-        <div className="disease-grid">
-          {DISEASE_CATEGORIES.slice(0, 4).map((cat, i) => (
-            <div key={i} className="disease-chip">
-              <span className="chip-icon">{cat.icon}</span>
-              <span className="chip-label">{cat.label}</span>
-              <span className="chip-count">{cat.count}种</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="section-title">🧬 疾病列表</div>
-      <div className="disease-list">
-        {filtered.map((d, i) => (
-          <div key={i} className="disease-item" onClick={() => setSelected(d)}>
-            <h4>{d.icon} {d.name}</h4>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.symptoms.slice(0, 3).join(' · ')}</div>
-            <div className="disease-tags">
-              <span className="tag type">{d.type}</span>
-              <span className="tag gene">{d.gene}</span>
-              <span className="tag">发病率 {d.rate}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="card" style={{ marginTop: 16 }}>
-        <div className="card-header">
-          <span className="card-title">🗺️ 全国专家医院</span>
-          <button className="card-more">查看地图 →</button>
-        </div>
-        {['📍 北京协和医院', '📍 上海瑞金医院', '📍 广州中山一院', '📍 四川华西医院'].map((h, i) => (
-          <div key={i} style={{ padding: '8px 0', borderBottom: i < 3 ? '1px solid var(--border)' : 'none', fontSize: 13 }}>{h}</div>
-        ))}
-      </div>
-      {selected && (
-        <div className="disease-detail-overlay" onClick={() => setSelected(null)}>
-          <div className="disease-detail" onClick={e => e.stopPropagation()}>
-            <h2>{selected.icon} {selected.name}</h2>
-            <div className="icd">ICD-10: {selected.icd}</div>
-            <div className="info-grid">
-              <div className="info-item"><div className="label">发病率</div><div className="value">{selected.rate}</div></div>
-              <div className="info-item"><div className="label">疾病类型</div><div className="value">{selected.type}</div></div>
-              <div className="info-item"><div className="label">关键基因</div><div className="value">{selected.gene}</div></div>
-              <div className="info-item"><div className="label">遗传模式</div><div className="value">常隐/常显</div></div>
-            </div>
-            <div className="symptoms">
-              <h4>🔍 典型症状</h4>
-              {selected.symptoms.map((s, i) => (<span key={i} className="symptom-tag">{s}</span>))}
-            </div>
-            <div className="action-btns">
-              <button className="action-btn primary" onClick={() => setSelected(null)}>AI问诊</button>
-              <button className="action-btn secondary" onClick={() => setSelected(null)}>找专家</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <KnowledgeCenter />;
 }
 
 // ===== 社群页 =====

@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from rare_disease_api import router as rare_disease_router
 from community_api import router as community_router
+from knowledge_api import router as knowledge_router
 from rare_disease_agent import RARE_DISEASES_DB, search_rare_disease_by_symptoms
 from datetime import datetime
 from pydantic import BaseModel
@@ -23,10 +24,22 @@ app = FastAPI(title="MediChat-RD Demo")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(rare_disease_router)
 app.include_router(community_router)
+app.include_router(knowledge_router)
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "timestamp": datetime.now().isoformat(), "diseases_loaded": len(RARE_DISEASES_DB)}
+    try:
+        from knowledge_api import EXTENDED_DB
+        diseases_count = len(EXTENDED_DB) if EXTENDED_DB else len(RARE_DISEASES_DB)
+    except:
+        diseases_count = len(RARE_DISEASES_DB)
+    
+    return {
+        "status": "healthy", 
+        "timestamp": datetime.now().isoformat(), 
+        "diseases_loaded": diseases_count,
+        "extended_knowledge": diseases_count >= 121
+    }
 
 @app.get("/api/v1/agents")
 async def agents():
