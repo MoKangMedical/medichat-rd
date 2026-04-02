@@ -308,12 +308,78 @@ function CommunityPage() {
 
 // ===== 个人中心 =====
 function ProfilePage() {
+  const [location, setLocation] = useState(null);
+  const [nearbyHospitals, setNearbyHospitals] = useState([]);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState('');
+
+  const requestLocation = async () => {
+    setLoadingLocation(true);
+    setLocationError('');
+    
+    if (!navigator.geolocation) {
+      setLocationError('您的浏览器不支持定位功能');
+      setLoadingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const loc = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          timestamp: new Date().toISOString()
+        };
+        setLocation(loc);
+        
+        // 获取就近医院
+        try {
+          const response = await fetch(`/api/v1/location/nearby-hospitals?lat=${loc.latitude}&lng=${loc.longitude}&radius=5000`);
+          const data = await response.json();
+          setNearbyHospitals(data.hospitals || []);
+        } catch (error) {
+          console.error('获取就近医院失败:', error);
+        }
+        
+        setLoadingLocation(false);
+      },
+      (error) => {
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError('定位权限被拒绝，请在浏览器设置中允许定位');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError('无法获取位置信息');
+            break;
+          case error.TIMEOUT:
+            setLocationError('定位请求超时');
+            break;
+          default:
+            setLocationError('定位失败');
+        }
+        setLoadingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  };
+
   const menus = [
-    { icon: '📋', label: '健康档案' }, { icon: '👨‍👩‍👧', label: '家庭成员管理' },
-    { icon: '💊', label: '用药记录' }, { icon: '📅', label: '复诊日历' },
-    { icon: '💰', label: '医保信息' }, { icon: '🤖', label: '数字分身设置' },
-    { icon: '🔒', label: '隐私与合规' }, { icon: '⚙️', label: '系统设置' },
+    { icon: '📍', label: '我的位置', action: requestLocation, value: location ? '已定位' : '点击定位' },
+    { icon: '📋', label: '健康档案' },
+    { icon: '👨‍👩‍👧', label: '家庭成员管理' },
+    { icon: '💊', label: '用药记录' },
+    { icon: '📅', label: '复诊日历' },
+    { icon: '💰', label: '医保信息' },
+    { icon: '🤖', label: '数字分身设置' },
+    { icon: '🔒', label: '隐私与合规' },
+    { icon: '⚙️', label: '系统设置' },
   ];
+
   return (
     <div className="page">
       <div className="profile-header">
@@ -321,6 +387,75 @@ function ProfilePage() {
         <h2>小林医生</h2>
         <p>患者 · 罕见病关注者</p>
       </div>
+      
+      {/* 定位状态卡片 */}
+      <div className="card" style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)', color: 'white', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>📍 患者定位</div>
+            <div style={{ fontSize: 12, opacity: 0.9 }}>
+              {location ? `已获取位置 (${Math.round(location.accuracy)}m精度)` : '获取位置以查找就近医院'}
+            </div>
+          </div>
+          <button 
+            onClick={requestLocation}
+            disabled={loadingLocation}
+            style={{
+              padding: '10px 16px',
+              borderRadius: 'var(--radius-full)',
+              border: 'none',
+              background: 'rgba(255,255,255,0.2)',
+              color: 'white',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            {loadingLocation ? '定位中...' : location ? '重新定位' : '开始定位'}
+          </button>
+        </div>
+        {locationError && (
+          <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-sm)', fontSize: 12 }}>
+            ⚠️ {locationError}
+          </div>
+        )}
+      </div>
+
+      {/* 就近医院 */}
+      {location && nearbyHospitals.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">🏥 就近医院</span>
+            <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{nearbyHospitals.length}家</span>
+          </div>
+          {nearbyHospitals.slice(0, 3).map((hospital, i) => (
+            <div key={i} style={{ 
+              padding: '12px 0', 
+              borderBottom: i < 2 ? '1px solid var(--border)' : 'none',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{hospital.name}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{hospital.address}</div>
+              </div>
+              <div style={{ 
+                padding: '4px 10px', 
+                background: 'var(--primary-bg)', 
+                borderRadius: 'var(--radius-full)',
+                fontSize: 12,
+                color: 'var(--accent)',
+                fontWeight: 600
+              }}>
+                {hospital.distance}km
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="card">
         <div className="card-header"><span className="card-title">📊 健康概览</span></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, textAlign: 'center' }}>
@@ -331,9 +466,15 @@ function ProfilePage() {
       </div>
       <div className="menu-list">
         {menus.map((m, i) => (
-          <div key={i} className="menu-item">
-            <div className="menu-left"><span className="menu-icon">{m.icon}</span><span>{m.label}</span></div>
-            <span className="menu-arrow">›</span>
+          <div key={i} className="menu-item" onClick={m.action}>
+            <div className="menu-left">
+              <span className="menu-icon">{m.icon}</span>
+              <span>{m.label}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {m.value && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}>{m.value}</span>}
+              <span className="menu-arrow">›</span>
+            </div>
           </div>
         ))}
       </div>

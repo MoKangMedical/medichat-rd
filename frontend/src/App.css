@@ -1,574 +1,1206 @@
-/* MediChat-RD Design System - 生命之蓝 */
+/* MediChat-RD Design System - 深邃高端蓝 */
 :root {
-  --primary: #2563EB;
-  --primary-light: #3B82F6;
-  --primary-dark: #1D4ED8;
-  --primary-bg: #EFF6FF;
-  --accent: #10B981;
-  --accent-light: #34D399;
-  --accent-dark: #059669;
-  --warn: #F59E0B;
+  /* 主色调 - 深邃蓝 */
+  --primary: #0F172A;        /* 深邃海军蓝 */
+  --primary-light: #1E293B;  /* 稍浅深蓝 */
+  --primary-dark: #020617;   /* 最深蓝黑 */
+  --primary-bg: #0F172A;     /* 深蓝背景 */
+  
+  /* 强调色 - 科技蓝 */
+  --accent: #3B82F6;         /* 明亮科技蓝 */
+  --accent-light: #60A5FA;   /* 浅科技蓝 */
+  --accent-dark: #2563EB;    /* 深科技蓝 */
+  
+  /* 功能色 */
+  --success: #10B981;        /* 翠绿 */
+  --success-light: #34D399;
+  --warn: #F59E0B;           /* 琥珀 */
   --warn-light: #FCD34D;
-  --danger: #EF4444;
-  --bg: #F8FAFC;
-  --bg-card: #FFFFFF;
-  --bg-hover: #F1F5F9;
-  --border: #E2E8F0;
-  --text: #1E293B;
-  --text-secondary: #64748B;
-  --text-light: #94A3B8;
+  --danger: #EF4444;         /* 红色 */
+  --danger-light: #FCA5A5;
+  
+  /* 中性色 */
+  --bg: #F8FAFC;             /* 背景 */
+  --bg-card: #FFFFFF;        /* 卡片背景 */
+  --bg-hover: #F1F5F9;       /* 悬停 */
+  --bg-dark: #0F172A;        /* 深色背景 */
+  --border: #E2E8F0;         /* 边框 */
+  --border-dark: #334155;     /* 深色边框 */
+  
+  /* 文字 */
+  --text: #0F172A;           /* 主文字 */
+  --text-secondary: #475569; /* 次要文字 */
+  --text-light: #94A3B8;     /* 浅文字 */
+  --text-white: #FFFFFF;     /* 白色文字 */
+  
+  /* 圆角 */
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-full: 9999px;
+  
+  /* 阴影 */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  --shadow-blue: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  
+  /* 安全区域 */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* 全局样式 */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
-.app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--bg); position: relative; padding-bottom: calc(72px + var(--safe-bottom)); }
-
-/* 顶部 */
-.top-bar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
-.top-bar .logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; }
-.top-bar .logo-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.top-bar .subtitle { font-size: 11px; opacity: 0.8; font-weight: 400; }
-
-/* 底部Tab */
-.tab-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-.tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px 6px; cursor: pointer; transition: all 0.2s; border: none; background: none; color: var(--text-light); font-size: 10px; gap: 2px; }
-.tab-item.active { color: var(--primary); }
-.tab-item .tab-icon { font-size: 22px; line-height: 1; }
-.tab-item .tab-label { font-size: 10px; font-weight: 500; }
-
-/* 页面 */
-.page { padding: 16px; animation: fadeIn 0.2s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-/* 卡片 */
-.card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 12px; }
-.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.card-title { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
-.card-more { font-size: 12px; color: var(--primary); cursor: pointer; background: none; border: none; }
-
-/* Hero */
-.hero-banner { background: linear-gradient(135deg, var(--primary) 0%, #1E40AF 50%, var(--accent-dark) 100%); border-radius: var(--radius-xl); padding: 24px 20px; color: white; margin-bottom: 16px; position: relative; overflow: hidden; }
-.hero-banner::after { content: ''; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); }
-.hero-banner h2 { font-size: 20px; margin-bottom: 6px; position: relative; }
-.hero-banner p { font-size: 13px; opacity: 0.9; position: relative; }
-
-/* 4C */
-.grid-4c { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.c-card { background: var(--bg-card); border-radius: var(--radius); padding: 16px 14px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); position: relative; overflow: hidden; }
-.c-card:active { transform: scale(0.97); }
-.c-card .c-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-.c-card .c-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.c-card .c-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
-.c-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-.c-card.connect::after { background: var(--primary); }
-.c-card.consult::after { background: var(--accent); }
-.c-card.care::after { background: var(--warn); }
-.c-card.community::after { background: #8B5CF6; }
-
-/* 疾病分类 */
-.disease-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.disease-chip { display: flex; flex-direction: column; align-items: center; padding: 12px 4px; border-radius: var(--radius); background: var(--primary-bg); cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
-.disease-chip:hover { border-color: var(--primary); background: white; }
-.disease-chip .chip-icon { font-size: 24px; margin-bottom: 4px; }
-.disease-chip .chip-label { font-size: 11px; font-weight: 500; color: var(--text); text-align: center; }
-.disease-chip .chip-count { font-size: 9px; color: var(--text-light); }
-
-/* 统计 */
-.stat-bar { display: flex; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 16px; }
-.stat-item { flex: 1; text-align: center; padding: 12px 8px; border-right: 1px solid var(--border); }
-.stat-item:last-child { border-right: none; }
-.stat-item .stat-num { font-size: 20px; font-weight: 700; color: var(--primary); }
-.stat-item .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-
-/* 聊天 */
-.chat-page { display: flex; flex-direction: column; height: calc(100vh - 56px - 72px); }
-.doctor-bar { padding: 12px 16px; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-.doctor-bar .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; flex-shrink: 0; }
-.doctor-bar .info h3 { font-size: 14px; font-weight: 600; }
-.doctor-bar .info p { font-size: 11px; color: var(--text-secondary); }
-.messages-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.msg { max-width: 85%; animation: msgIn 0.3s ease; }
-@keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.msg.agent { align-self: flex-start; }
-.msg.patient { align-self: flex-end; }
-.msg .msg-bubble { padding: 12px 16px; border-radius: var(--radius-lg); font-size: 14px; line-height: 1.6; }
-.msg.agent .msg-bubble { background: var(--bg-card); border: 1px solid var(--border); border-bottom-left-radius: 4px; box-shadow: var(--shadow-sm); }
-.msg.patient .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-.msg .msg-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.msg .msg-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; }
-.msg .msg-name { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
-.msg .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.msg .suggestion-btn { padding: 6px 12px; border-radius: var(--radius-full); background: var(--primary-bg); color: var(--primary); font-size: 12px; border: 1px solid var(--primary-light); cursor: pointer; transition: all 0.2s; }
-.msg .suggestion-btn:hover { background: var(--primary); color: white; }
-
-/* 输入 */
-.input-area { padding: 12px 16px; background: white; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end; }
-.input-area textarea { flex: 1; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; resize: none; outline: none; font-family: inherit; min-height: 40px; max-height: 100px; transition: border-color 0.2s; }
-.input-area textarea:focus { border-color: var(--primary); }
-.send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
-.send-btn:disabled { background: var(--border); cursor: not-allowed; }
-.quick-bar { padding: 8px 16px; display: flex; gap: 8px; overflow-x: auto; background: white; border-bottom: 1px solid var(--border); }
-.quick-chip { padding: 6px 14px; border-radius: var(--radius-full); background: var(--bg); color: var(--text); font-size: 12px; border: 1px solid var(--border); cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-.quick-chip:hover { background: var(--primary-bg); border-color: var(--primary); color: var(--primary); }
-
-/* 搜索 */
-.search-bar { display: flex; align-items: center; background: var(--bg); border-radius: var(--radius-full); padding: 10px 16px; gap: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
-.search-bar input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--text); }
-.search-bar .search-icon { font-size: 16px; color: var(--text-light); }
-
-/* 疾病列表 */
-.disease-list { display: flex; flex-direction: column; gap: 8px; }
-.disease-item { background: var(--bg-card); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
-.disease-item:active { background: var(--bg-hover); }
-.disease-item h4 { font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-.disease-item .disease-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.disease-item .tag { padding: 2px 8px; border-radius: var(--radius-full); font-size: 10px; background: var(--primary-bg); color: var(--primary); }
-.disease-item .tag.type { background: #FEF3C7; color: #92400E; }
-.disease-item .tag.gene { background: #ECFDF5; color: #065F46; }
-
-/* 社群 */
-.community-tabs { display: flex; background: var(--bg-card); border-radius: var(--radius); padding: 4px; margin-bottom: 16px; border: 1px solid var(--border); }
-.community-tab { flex: 1; padding: 8px; text-align: center; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-secondary); border: none; background: none; transition: all 0.2s; }
-.community-tab.active { background: var(--primary); color: white; }
-.group-card { background: var(--bg-card); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
-.group-card:active { background: var(--bg-hover); }
-.group-card .group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.group-card .group-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.group-card .group-count { font-size: 11px; color: var(--text-light); background: var(--bg); padding: 2px 8px; border-radius: var(--radius-full); }
-.group-card .group-activity { font-size: 12px; color: var(--text-secondary); }
-.group-card .group-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.group-card .group-row { display: flex; align-items: center; gap: 12px; }
-.group-card .group-info { flex: 1; }
-
-/* 数字分身 */
-.avatar-card { background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%); border-radius: var(--radius-lg); padding: 20px; color: white; margin-bottom: 16px; position: relative; overflow: hidden; }
-.avatar-card::after { content: ''; position: absolute; right: -20px; bottom: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); }
-.avatar-card h3 { font-size: 16px; margin-bottom: 8px; position: relative; }
-.avatar-card p { font-size: 12px; opacity: 0.9; position: relative; }
-.avatar-card .btn-row { display: flex; gap: 8px; margin-top: 12px; position: relative; }
-.avatar-card .btn { padding: 8px 16px; border-radius: var(--radius-full); font-size: 12px; border: none; cursor: pointer; font-weight: 500; }
-.avatar-card .btn-primary { background: white; color: #8B5CF6; }
-.avatar-card .btn-secondary { background: rgba(255,255,255,0.2); color: white; }
-
-/* 健康管理 */
-.health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.health-item { background: var(--bg-card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); cursor: pointer; text-align: center; transition: all 0.2s; }
-.health-item:active { background: var(--bg-hover); }
-.health-item .h-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-.health-item .h-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-.health-item .h-desc { font-size: 11px; color: var(--text-secondary); }
-
-/* 个人中心 */
-.profile-header { text-align: center; padding: 24px 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; margin: -16px -16px 16px; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
-.profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; }
-.profile-header h2 { font-size: 18px; margin-bottom: 4px; }
-.profile-header p { font-size: 12px; opacity: 0.8; }
-.menu-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
-.menu-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-card); cursor: pointer; transition: background 0.2s; }
-.menu-item:active { background: var(--bg-hover); }
-.menu-item .menu-left { display: flex; align-items: center; gap: 10px; font-size: 14px; }
-.menu-item .menu-icon { font-size: 18px; }
-.menu-item .menu-arrow { color: var(--text-light); font-size: 14px; }
-
-/* 通用 */
-.section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-.loading-dots { display: flex; gap: 4px; padding: 8px 0; }
-.loading-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--text-light); animation: bounce 1.4s infinite ease-in-out; }
-.loading-dots span:nth-child(1) { animation-delay: 0s; }
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
-.disclaimer { text-align: center; padding: 16px; font-size: 11px; color: var(--text-light); line-height: 1.6; }
-::-webkit-scrollbar { width: 0; height: 0; }
-
-/* 疾病详情弹窗 */
-.disease-detail-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s ease; }
-.disease-detail { background: white; border-radius: var(--radius-xl) var(--radius-xl) 0 0; max-width: 480px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 24px 20px; animation: slideUp 0.3s ease; position: relative; }
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.disease-detail h2 { font-size: 20px; margin-bottom: 4px; }
-.disease-detail .icd { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
-.disease-detail .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-.disease-detail .info-item { background: var(--bg); border-radius: var(--radius-sm); padding: 10px; }
-.disease-detail .info-item .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
-.disease-detail .info-item .value { font-size: 14px; font-weight: 600; color: var(--text); }
-.disease-detail .symptoms { margin-bottom: 16px; }
-.disease-detail .symptoms h4 { font-size: 14px; margin-bottom: 8px; }
-.disease-detail .symptom-tag { display: inline-block; padding: 4px 10px; border-radius: var(--radius-full); background: #FEE2E2; color: #991B1B; font-size: 12px; margin: 2px 4px 2px 0; }
-.disease-detail .action-btns { display: flex; gap: 8px; margin-top: 16px; }
-.disease-detail .action-btn { flex: 1; padding: 12px; border-radius: var(--radius); border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.disease-detail .action-btn.primary { background: var(--primary); color: white; }
-.disease-detail .action-btn.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-
-/* 医保卡片 */
-.insurance-card { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); border-radius: var(--radius-lg); padding: 16px; color: white; margin-bottom: 12px; }
-.insurance-card h4 { font-size: 14px; margin-bottom: 8px; }
-.insurance-card .ins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.insurance-card .ins-item { background: rgba(255,255,255,0.15); border-radius: var(--radius-sm); padding: 8px; }
-.insurance-card .ins-item .label { font-size: 10px; opacity: 0.8; }
-.insurance-card .ins-item .value { font-size: 14px; font-weight: 600; }
-
-/* 知识中心组件样式 */
-.knowledge-center {
-  padding: 16px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.knowledge-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  padding-bottom: calc(72px + var(--safe-bottom));
 }
 
-.stat-card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 16px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+/* 顶部导航 - 深邃蓝渐变 */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: var(--text-white);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-lg);
 }
 
-.stat-number {
-  font-size: 24px;
+.top-bar .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 4px;
+  letter-spacing: -0.5px;
 }
 
-.stat-label {
-  font-size: 12px;
-  color: var(--text-secondary);
+.top-bar .logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: var(--shadow-blue);
 }
 
-.knowledge-controls {
+.top-bar .subtitle {
+  font-size: 11px;
+  opacity: 0.7;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+/* 底部Tab - 玻璃拟态 */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  padding-bottom: var(--safe-bottom);
+  z-index: 100;
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.tab-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  font-size: 10px;
+  gap: 4px;
+}
+
+.tab-item.active {
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.tab-item .tab-icon {
+  font-size: 24px;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.tab-item.active .tab-icon {
+  transform: scale(1.1);
+}
+
+.tab-item .tab-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* 页面容器 */
+.page {
+  padding: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero Banner - 深邃蓝渐变 */
+.hero-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent-dark) 100%);
+  border-radius: var(--radius-xl);
+  padding: 28px 20px;
+  color: var(--text-white);
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: shimmer 15s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hero-banner h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-banner p {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+
+/* 4C网格 */
+.grid-4c {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 20px;
 }
 
-.search-box {
-  display: flex;
-  gap: 8px;
-}
-
-.search-box input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 14px;
-  outline: none;
-}
-
-.search-box input:focus {
-  border-color: var(--primary);
-}
-
-.search-box button {
-  padding: 12px 20px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.category-filter {
-  width: 100%;
-}
-
-.category-filter select {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 14px;
-  background: white;
-  outline: none;
-}
-
-.disease-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.disease-card {
+.c-card {
   background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 16px;
+  border-radius: var(--radius-lg);
+  padding: 18px 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
 }
 
-.disease-card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+.c-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
-.disease-name h4 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 4px;
+.c-card:hover::before,
+.c-card:active::before {
+  transform: scaleX(1);
 }
 
-.disease-name .name-en {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
+.c-card:hover,
+.c-card:active {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+
+.c-card .c-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
   display: block;
 }
 
-.disease-meta {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
+.c-card .c-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text);
 }
 
-.disease-meta .category {
-  background: #DBEAFE;
-  color: #1E40AF;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
+.c-card .c-desc {
   font-size: 11px;
-}
-
-.disease-meta .gene {
-  background: #FEF3C7;
-  color: #92400E;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-}
-
-.disease-preview {
-  font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
-/* 知识详情弹窗 */
-.knowledge-detail-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 200;
+/* 统计条 */
+.stat-bar {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
   padding: 16px;
-}
-
-.knowledge-detail-modal {
-  background: white;
-  border-radius: var(--radius-xl);
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 24px;
-  position: relative;
-}
-
-.knowledge-detail-modal .close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: var(--bg);
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.disease-header {
   margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
-.disease-header h2 {
+.stat-item {
+  flex: 1;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-num {
   font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
   margin-bottom: 4px;
+  letter-spacing: -0.5px;
 }
 
-.disease-header h3 {
-  font-size: 14px;
+.stat-label {
+  font-size: 11px;
   color: var(--text-secondary);
-  font-weight: 400;
-  margin-bottom: 12px;
-}
-
-.disease-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.disease-tags .tag {
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
   font-weight: 500;
 }
 
-.disease-tags .tag.category {
-  background: #DBEAFE;
-  color: #1E40AF;
-}
-
-.disease-tags .tag.gene {
-  background: #FEF3C7;
-  color: #92400E;
-}
-
-.disease-tags .tag.inheritance {
-  background: #D1FAE5;
-  color: #065F46;
-}
-
-.disease-info {
-  margin-bottom: 24px;
-}
-
-.info-section {
-  margin-bottom: 20px;
-}
-
-.info-section h4 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text);
-}
-
-.info-section p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-.info-section ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.info-section li {
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--text-secondary);
-}
-
-.hospitals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.hospital-tag {
-  background: #F3E8FF;
-  color: #6B21A8;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-}
-
-/* 药物重定位模块 */
-.drug-repurposing {
-  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+/* 卡片 */
+.card {
+  background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 20px;
-  margin-top: 20px;
-}
-
-.drug-repurposing h4 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #166534;
-}
-
-.repurposing-input {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.repurposing-input input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 14px;
-  outline: none;
-}
-
-.repurposing-input button {
-  padding: 12px 20px;
-  background: #166534;
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.repurposing-input button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.repurposing-result {
-  background: white;
-  border-radius: var(--radius);
   padding: 16px;
+  margin-bottom: 16px;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
-.result-header {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.result-header h5 {
+.card-title {
   font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.card-more {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.card-more:hover {
+  color: var(--accent-dark);
+}
+
+/* 疾病网格 */
+.disease-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.disease-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.disease-chip:hover {
+  background: var(--primary-bg);
+  border-color: var(--accent);
+}
+
+.chip-icon {
+  font-size: 20px;
+}
+
+.chip-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chip-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+/* 快捷症状芯片 */
+.quick-chip {
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.quick-chip:hover, .quick-chip:active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-blue);
+}
+
+/* 医保卡片 */
+.insurance-card {
+  background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  color: white;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.insurance-card h4 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.insurance-card .ins-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.insurance-card .ins-item {
+  background: rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.insurance-card .ins-item .label {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.insurance-card .ins-item .value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 声明 */
+.disclaimer {
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 11px;
+  color: var(--text-light);
+  line-height: 1.8;
+}
+
+/* ===== 问诊页 ===== */
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px - 72px);
+}
+
+.doctor-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.doctor-bar .avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+}
+
+.doctor-bar .info h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.doctor-bar .info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.quick-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.quick-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg);
+}
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 85%;
+  animation: msgIn 0.3s ease;
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg.patient {
+  align-self: flex-end;
+}
+
+.msg.agent {
+  align-self: flex-start;
+}
+
+.msg.error {
+  align-self: center;
+  max-width: 90%;
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.msg-name {
+  font-size: 12px;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
-.confidence {
+.msg-bubble {
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.msg.patient .msg-bubble {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: white;
+  border-bottom-right-radius: 4px;
+  box-shadow: var(--shadow-blue);
+}
+
+.msg.agent .msg-bubble {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.msg.error .msg-bubble {
+  background: #FEF2F2;
+  color: var(--danger);
+  border: 1px solid var(--danger-light);
+  font-size: 13px;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.suggestion-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--accent);
+  background: var(--bg-card);
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.suggestion-btn:hover, .suggestion-btn:active {
+  background: var(--accent);
+  color: white;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.loading-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: 0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.input-area textarea {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: var(--bg);
+}
+
+.input-area textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.send-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-blue);
+  flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ===== 知识中心 ===== */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-full);
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+  font-size: 18px;
+  color: var(--text-light);
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: var(--text);
+}
+
+.search-bar input::placeholder {
+  color: var(--text-light);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.disease-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.disease-item {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+}
+
+.disease-item:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.disease-item h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.disease-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tag.type {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.tag.gene {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+/* ===== 社群页 ===== */
+.avatar-card {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  color: white;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.avatar-card h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.avatar-card p {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: white;
+  color: var(--primary);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.community-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: var(--bg);
+  padding: 4px;
+  border-radius: var(--radius);
+}
+
+.community-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.community-tab.active {
+  background: var(--bg-card);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.group-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.group-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.group-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.group-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.group-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.group-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text);
 }
 
-.result-details p {
-  font-size: 13px;
-  line-height: 1.6;
-  margin-bottom: 8px;
+.group-count {
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
-.result-details strong {
+.group-activity {
+  font-size: 11px;
+  color: var(--success);
+  font-weight: 500;
+}
+
+/* ===== 个人中心 ===== */
+.profile-header {
+  text-align: center;
+  padding: 28px 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  margin: -16px -16px 16px;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 14px;
+  border: 3px solid rgba(255,255,255,0.3);
+}
+
+.profile-header h2 {
+  font-size: 20px;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.profile-header p {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-item:active {
+  background: var(--bg-hover);
+}
+
+.menu-item .menu-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.menu-item .menu-icon {
+  font-size: 20px;
+}
+
+.menu-item .menu-arrow {
+  color: var(--text-light);
+  font-size: 16px;
+}
+
+/* ===== 疾病详情弹窗 ===== */
+.disease-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.disease-detail {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px 20px;
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.disease-detail h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+  font-weight: 800;
   color: var(--text);
+}
+
+.disease-detail .icd {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.disease-detail .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.disease-detail .info-item {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.disease-detail .info-item .label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.disease-detail .info-item .value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.disease-detail .symptoms {
+  margin-bottom: 16px;
+}
+
+.disease-detail .symptoms h4 {
+  font-size: 15px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.disease-detail .symptom-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: #FEE2E2;
+  color: #991B1B;
+  font-size: 12px;
+  margin: 3px 4px 3px 0;
+  font-weight: 500;
+}
+
+.disease-detail .action-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.disease-detail .action-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.disease-detail .action-btn.primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-blue);
+}
+
+.disease-detail .action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.disease-detail .action-btn.secondary {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.disease-detail .action-btn.secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 滚动条隐藏 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 响应式 */
+@media (max-width: 375px) {
+  .hero-banner h2 {
+    font-size: 20px;
+  }
+  
+  .stat-num {
+    font-size: 18px;
+  }
+  
+  .c-card {
+    padding: 14px 10px;
+  }
+  
+  .c-card .c-icon {
+    font-size: 24px;
+  }
+  
+  .c-card .c-title {
+    font-size: 13px;
+  }
 }

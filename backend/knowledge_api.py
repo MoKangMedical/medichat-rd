@@ -7,7 +7,7 @@ import json
 import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime
 
 router = APIRouter(prefix="/api/v1/knowledge", tags=["知识库"])
@@ -49,7 +49,7 @@ class DiseaseDetailResponse(BaseModel):
     inheritance: Optional[str]
     gene: str
     prevalence: Optional[str]
-    symptoms: Optional[str]
+    symptoms: Optional[Union[str, List[str]]]  # 支持字符串或数组
     diagnosis_criteria: Optional[str]
     treatment_summary: Optional[str]
     specialist_hospitals: List[str]
