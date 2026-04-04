@@ -1,694 +1,1005 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediChat-RD - AI驱动的罕见病研究与诊疗平台</title>
-<style>
-/* ═══════════════════════════════════════════════════
-   MediChat-RD Landing Page
-   参考 MedRoundTable 设计语言
-   ═══════════════════════════════════════════════════ */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediChat-RD | 顶级罕见病 A2A 平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-elevated: #0b1c33;
+      --bg-soft: #102744;
+      --card: rgba(13, 29, 52, 0.72);
+      --card-strong: rgba(11, 24, 45, 0.92);
+      --line: rgba(148, 186, 255, 0.18);
+      --line-strong: rgba(115, 205, 255, 0.28);
+      --text: #f5f8ff;
+      --muted: #a9bad6;
+      --cyan: #73cdfb;
+      --teal: #49dcb1;
+      --violet: #9a8cff;
+      --amber: #ffcc76;
+      --rose: #ff8f9e;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+      --radius: 26px;
+      --max: 1180px;
+    }
 
-:root {
-  --bg-dark: #0f172a;
-  --bg-dark-2: #1e293b;
-  --bg-card: #1e293b;
-  --bg-card-hover: #334155;
-  --bg-light: #f8fafc;
-  --bg-white: #ffffff;
-  --text-white: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-dark: #1e293b;
-  --text-secondary: #64748b;
-  --accent: #10b981;
-  --accent-light: #34d399;
-  --accent-glow: rgba(16, 185, 129, 0.15);
-  --blue: #3b82f6;
-  --amber: #f59e0b;
-  --purple: #8b5cf6;
-  --rose: #f43f5e;
-  --border: rgba(255,255,255,0.08);
-  --border-light: #e2e8f0;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.4);
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+    }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  background: var(--bg-dark);
-  color: var(--text-white);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
+    body {
+      font-family: "Noto Sans SC", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(73, 220, 177, 0.12), transparent 26%),
+        radial-gradient(circle at 88% 14%, rgba(115, 205, 251, 0.14), transparent 24%),
+        linear-gradient(180deg, #040b15 0%, #091628 35%, #08111f 100%);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { color: var(--accent-light); }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
 
-/* ═══════════════════════════════════════════════════
-   导航
-   ═══════════════════════════════════════════════════ */
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(18px);
+      background: rgba(4, 10, 18, 0.76);
+      border-bottom: 1px solid rgba(148, 186, 255, 0.1);
+    }
 
-.nav-brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-white);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.nav-brand .icon { color: var(--accent); }
+    .nav-inner {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
 
-.nav-links {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-.nav-links a {
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--text-white); }
-.nav-links .btn-enter {
-  padding: 8px 16px;
-  background: var(--accent);
-  color: white;
-  border-radius: 8px;
-  font-weight: 600;
-}
-.nav-links .btn-enter:hover { background: #0ea472; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-/* ═══════════════════════════════════════════════════
-   Hero 区域
-   ═══════════════════════════════════════════════════ */
-.hero {
-  padding: 140px 24px 80px;
-  text-align: center;
-  position: relative;
-  background: linear-gradient(180deg, #0f172a 0%, #1a1f3a 100%);
-}
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(115, 205, 251, 0.24), rgba(73, 220, 177, 0.2));
+      border: 1px solid rgba(115, 205, 251, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      color: var(--cyan);
+      font-size: 20px;
+    }
 
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
-  pointer-events: none;
-}
+    .brand strong,
+    h1,
+    h2,
+    h3 {
+      font-family: "Sora", "Noto Sans SC", sans-serif;
+      letter-spacing: -0.03em;
+    }
 
-.hero-content { position: relative; z-index: 1; }
+    .brand-text strong {
+      display: block;
+      font-size: 16px;
+    }
 
-.hero-badge {
-  display: inline-block;
-  padding: 6px 16px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--accent-light);
-  margin-bottom: 24px;
-  letter-spacing: 0.5px;
-}
+    .brand-text span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
 
-.hero h1 {
-  font-size: 48px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 16px;
-}
-.hero h1 .gradient {
-  background: linear-gradient(135deg, var(--accent), var(--blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
 
-.hero-subtitle {
-  font-size: 18px;
-  color: var(--text-muted);
-  max-width: 640px;
-  margin: 0 auto 48px;
-  line-height: 1.7;
-}
+    .nav-links a:hover {
+      color: var(--text);
+    }
 
-/* 数据统计 */
-.stats {
-  display: flex;
-  justify-content: center;
-  gap: 48px;
-  flex-wrap: wrap;
-}
-.stat { text-align: center; }
-.stat-num {
-  font-size: 42px;
-  font-weight: 800;
-  color: var(--text-white);
-  letter-spacing: -0.02em;
-}
-.stat-num .unit {
-  font-size: 20px;
-  color: var(--accent);
-  font-weight: 600;
-}
-.stat-label {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--teal), var(--cyan));
+      color: #05111d;
+      font-weight: 700;
+      box-shadow: 0 16px 30px rgba(73, 220, 177, 0.22);
+    }
 
-/* ═══════════════════════════════════════════════════
-   公共 Section
-   ═══════════════════════════════════════════════════ */
-section {
-  padding: 80px 24px;
-}
+    section {
+      padding: 88px 0;
+    }
 
-.section-title {
-  font-size: 32px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
-}
+    .hero {
+      padding-top: 72px;
+    }
 
-.section-desc {
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 16px;
-  max-width: 640px;
-  margin: 0 auto 48px;
-}
+    .hero-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+      gap: 28px;
+      align-items: stretch;
+    }
 
-/* ═══════════════════════════════════════════════════
-   能力模块
-   ═══════════════════════════════════════════════════ */
-.capabilities {
-  background: var(--bg-dark);
-}
+    .hero-panel,
+    .hero-side {
+      border-radius: 34px;
+      background: linear-gradient(180deg, rgba(9, 22, 40, 0.84), rgba(7, 17, 31, 0.92));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
 
-.cap-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
+    .hero-panel {
+      padding: 38px;
+      min-height: 600px;
+    }
 
-.cap-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-  transition: all 0.3s ease;
-}
-.cap-card:hover {
-  background: var(--bg-card-hover);
-  border-color: rgba(16, 185, 129, 0.3);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(115, 205, 251, 0.18), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(154, 140, 255, 0.14), transparent 28%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 55%);
+      pointer-events: none;
+    }
 
-.cap-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  margin-bottom: 20px;
-}
-.cap-icon.green { background: rgba(16, 185, 129, 0.15); }
-.cap-icon.blue { background: rgba(59, 130, 246, 0.15); }
-.cap-icon.purple { background: rgba(139, 92, 246, 0.15); }
-.cap-icon.amber { background: rgba(245, 158, 11, 0.15); }
-.cap-icon.rose { background: rgba(244, 63, 94, 0.15); }
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: rgba(115, 205, 251, 0.08);
+      color: #d7f1ff;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 22px;
+    }
 
-.cap-card h3 {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
+    .hero-title {
+      max-width: 760px;
+      font-size: clamp(40px, 6vw, 74px);
+      line-height: 1.05;
+    }
 
-.cap-card p {
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
+    .hero-title span {
+      display: block;
+      color: var(--cyan);
+      margin-top: 8px;
+    }
 
-.cap-tag {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 4px 10px;
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-}
+    .hero-description {
+      max-width: 720px;
+      margin-top: 22px;
+      font-size: 18px;
+      color: var(--muted);
+    }
 
-/* ═══════════════════════════════════════════════════
-   3步流程
-   ═══════════════════════════════════════════════════ */
-.flow-section {
-  background: var(--bg-dark-2);
-}
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 30px;
+    }
 
-.flow-steps {
-  display: flex;
-  gap: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+    .button,
+    .button-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      font-weight: 700;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
 
-.flow-step {
-  flex: 1;
-  min-width: 220px;
-  text-align: center;
-  padding: 32px 20px;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  position: relative;
-}
+    .button {
+      background: linear-gradient(135deg, var(--teal), var(--cyan));
+      color: #05111d;
+      box-shadow: 0 16px 30px rgba(73, 220, 177, 0.22);
+    }
 
-.step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--accent);
-  color: white;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 16px;
-  margin-bottom: 16px;
-}
+    .button-outline {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
 
-.flow-step h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
+    .button:hover,
+    .button-outline:hover,
+    .cap-card:hover,
+    .flow-card:hover,
+    .data-card:hover,
+    .tech-card:hover,
+    .action-card:hover {
+      transform: translateY(-3px);
+    }
 
-.flow-step p {
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 36px;
+    }
 
-/* ═══════════════════════════════════════════════════
-   数据源
-   ═══════════════════════════════════════════════════ */
-.data-section {
-  background: var(--bg-dark);
-}
+    .hero-stat {
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      padding: 20px 18px;
+    }
 
-.data-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  max-width: 900px;
-  margin: 0 auto;
-}
+    .hero-stat strong {
+      display: block;
+      font-family: "Sora", "Noto Sans SC", sans-serif;
+      font-size: 32px;
+    }
 
-.data-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 16px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-.data-card:hover {
-  border-color: rgba(16, 185, 129, 0.3);
-  background: var(--bg-card-hover);
-}
+    .hero-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
 
-.data-card .name {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
+    .hero-side {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      justify-content: space-between;
+      background:
+        radial-gradient(circle at top right, rgba(115, 205, 251, 0.12), transparent 24%),
+        linear-gradient(180deg, rgba(10, 24, 44, 0.95), rgba(7, 17, 31, 0.96));
+    }
 
-.data-card .desc {
-  font-size: 12px;
-  color: var(--text-muted);
-}
+    .side-kicker {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      font-weight: 700;
+    }
 
-/* ═══════════════════════════════════════════════════
-   技术栈
-   ═══════════════════════════════════════════════════ */
-.tech-section {
-  background: var(--bg-dark-2);
-}
+    .mode-list {
+      display: grid;
+      gap: 14px;
+    }
 
-.tech-stack {
-  display: flex;
-  gap: 32px;
-  max-width: 900px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+    .mode-card {
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+    }
 
-.tech-item {
-  text-align: center;
-  min-width: 100px;
-}
+    .mode-card strong {
+      display: block;
+      font-size: 18px;
+    }
 
-.tech-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
+    .mode-card p {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
 
-.tech-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-muted);
-}
+    .mode-chain {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
-/* ═══════════════════════════════════════════════════
-   入口区域
-   ═══════════════════════════════════════════════════ */
-.start-section {
-  background: var(--bg-dark);
-  text-align: center;
-  padding: 80px 24px 100px;
-}
+    .mode-chain span {
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(115, 205, 251, 0.08);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      color: #d7f1ff;
+    }
 
-.start-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 32px;
-}
+    .section-head {
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 44px;
+    }
 
-.btn-lg {
-  padding: 14px 32px;
-  border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
+    .section-head .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.26em;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
 
-.btn-primary-lg {
-  background: var(--accent);
-  color: white;
-}
-.btn-primary-lg:hover { background: #0ea472; transform: translateY(-2px); }
+    .section-head h2 {
+      font-size: clamp(30px, 4vw, 54px);
+    }
 
-.btn-secondary-lg {
-  background: transparent;
-  color: var(--text-white);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-.btn-secondary-lg:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+    .section-head p {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 17px;
+    }
 
-/* ═══════════════════════════════════════════════════
-   页脚
-   ═══════════════════════════════════════════════════ */
-.footer {
-  padding: 40px 24px;
-  text-align: center;
-  border-top: 1px solid var(--border);
-  background: var(--bg-dark);
-}
-.footer p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
+    .cap-grid,
+    .flow-grid,
+    .data-grid,
+    .tech-grid,
+    .action-grid {
+      display: grid;
+      gap: 18px;
+    }
 
-/* ═══════════════════════════════════════════════════
-   响应式
-   ═══════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-  .hero h1 { font-size: 32px; }
-  .hero-subtitle { font-size: 16px; }
-  .stats { gap: 24px; }
-  .stat-num { font-size: 32px; }
-  .section-title { font-size: 24px; }
-  .nav-links { display: none; }
-}
-</style>
+    .cap-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .cap-card,
+    .flow-card,
+    .data-card,
+    .tech-card,
+    .action-card {
+      border-radius: 28px;
+      padding: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transition: transform 180ms ease, border-color 180ms ease;
+    }
+
+    .cap-card:nth-child(1) { border-color: rgba(115, 205, 251, 0.22); }
+    .cap-card:nth-child(2) { border-color: rgba(73, 220, 177, 0.22); }
+    .cap-card:nth-child(3) { border-color: rgba(154, 140, 255, 0.22); }
+    .cap-card:nth-child(4) { border-color: rgba(255, 204, 118, 0.22); }
+    .cap-card:nth-child(5) { border-color: rgba(255, 143, 158, 0.22); }
+
+    .cap-card span,
+    .flow-card span,
+    .data-card span,
+    .tech-card span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 42px;
+      padding: 0 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--line);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .cap-card h3,
+    .flow-card h3,
+    .tech-card h3,
+    .action-card h3 {
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+
+    .cap-card p,
+    .flow-card p,
+    .data-card p,
+    .tech-card p,
+    .action-card p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .a2a-band {
+      margin-top: 26px;
+      border-radius: 30px;
+      padding: 26px;
+      background: linear-gradient(180deg, rgba(12, 31, 56, 0.92), rgba(7, 17, 31, 0.96));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .a2a-band-inner {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .a2a-copy h3 {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .a2a-copy p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .a2a-nodes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .a2a-node {
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+    }
+
+    .a2a-node strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .a2a-node p,
+    .a2a-summary p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .a2a-summary {
+      border-radius: 26px;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 16px;
+    }
+
+    .a2a-summary strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .flow-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .data-grid {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .data-card strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .tech-shell {
+      display: grid;
+      grid-template-columns: minmax(340px, 0.92fr) minmax(0, 1.08fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .tech-lead {
+      border-radius: 32px;
+      padding: 28px;
+      background:
+        radial-gradient(circle at top right, rgba(115, 205, 251, 0.12), transparent 28%),
+        linear-gradient(180deg, rgba(12, 31, 56, 0.94), rgba(7, 17, 31, 0.98));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .tech-lead h3 {
+      font-size: 32px;
+      margin-top: 10px;
+    }
+
+    .tech-lead p {
+      margin-top: 14px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .tech-route {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .tech-route span {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--line);
+      color: #d7f1ff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .tech-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .action-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .action-card strong {
+      display: block;
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      padding: 34px 0 48px;
+      border-top: 1px solid rgba(148, 186, 255, 0.1);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 1200px) {
+      .cap-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .data-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .action-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero-shell,
+      .tech-shell,
+      .a2a-band-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .nav-inner {
+        flex-wrap: wrap;
+        padding: 14px 0;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero-panel,
+      .hero-side {
+        padding: 24px;
+      }
+
+      .hero-stats,
+      .flow-grid,
+      .tech-grid,
+      .a2a-nodes {
+        grid-template-columns: 1fr;
+      }
+
+      .cap-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .data-grid,
+      .action-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      section {
+        padding: 72px 0;
+      }
+
+      .container {
+        width: min(var(--max), calc(100% - 26px));
+      }
+
+      .hero-title {
+        font-size: 34px;
+      }
+
+      .hero-description,
+      .section-head p {
+        font-size: 15px;
+      }
+
+      .hero-actions,
+      .hero-stats,
+      .mode-chain,
+      .tech-route {
+        gap: 12px;
+      }
+
+      .data-grid,
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top">
+        <div class="brand-mark">🧬</div>
+        <div class="brand-text">
+          <strong>MediChat-RD</strong>
+          <span>Rare Disease A2A Platform</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="#capabilities">核心能力</a>
+        <a href="#flow">使用流程</a>
+        <a href="#data">数据源</a>
+        <a href="#architecture">技术架构</a>
+        <a href="#actions">行动入口</a>
+      </nav>
+      <a class="nav-cta" href="./">进入平台</a>
+    </div>
+  </header>
 
-<!-- 导航 -->
-<nav class="nav">
-  <div class="nav-brand">
-    <span class="icon">🧬</span> MediChat-RD
-  </div>
-  <div class="nav-links">
-    <a href="#capabilities">核心能力</a>
-    <a href="#flow">使用流程</a>
-    <a href="#data">数据源</a>
-    <a href="./" class="btn-enter">进入平台 →</a>
-  </div>
-</nav>
+  <main>
+    <section id="top" class="hero">
+      <div class="container hero-shell">
+        <div class="hero-panel">
+          <div class="hero-kicker">MedRoundTable 同款深色设计 + A2A Rare Disease Layer</div>
+          <h1 class="hero-title">
+            顶级罕见病平台
+            <span>把患者入口、研究工作台与 A2A 协作总线合并为一个系统</span>
+          </h1>
+          <p class="hero-description">
+            MediChat-RD 不只是一个会聊天的医疗页面，而是一套可持续扩展的罕见病基础设施。
+            它将 AI 对话、症状自查、疾病研究、药物重定位和临床试验匹配放进同一个工作台，
+            同时吸收 MedRoundTable 的 A2A 模式，让“一句话启动协作”成为真正的产品能力。
+          </p>
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-badge">MediChat-RD v4.0 | MIMO AI 驱动</div>
-    <h1>AI驱动的<br><span class="gradient">罕见病研究与诊疗平台</span></h1>
-    <p class="hero-subtitle">
-      整合14+全球顶级生物医学数据库，搭载小米MIMO大模型，<br>
-      为患者、医生、研究者提供从症状自查到药物重定位的全链路AI服务
-    </p>
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num">121<span class="unit">+</span></div>
-        <div class="stat-label">覆盖罕见病种类</div>
+          <div class="hero-actions">
+            <a class="button" href="./">进入平台应用</a>
+            <a class="button-outline" href="https://github.com/MoKangMedical/medichat-rd" target="_blank" rel="noreferrer">查看 GitHub 仓库</a>
+            <a class="button-outline" href="https://mokangmedical.github.io/medroundtable/" target="_blank" rel="noreferrer">体验 A2A 参考页</a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong>121+</strong>
+              <span>覆盖罕见病知识包</span>
+            </div>
+            <div class="hero-stat">
+              <strong>14+</strong>
+              <span>全球生物医学数据源</span>
+            </div>
+            <div class="hero-stat">
+              <strong>5</strong>
+              <span>核心能力入口</span>
+            </div>
+            <div class="hero-stat">
+              <strong>A2A</strong>
+              <span>多智能体协作模式</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="hero-side">
+          <div>
+            <div class="side-kicker">A2A Modes</div>
+            <div class="mode-list" style="margin-top: 18px;">
+              <article class="mode-card">
+                <strong>Auto Orchestrator</strong>
+                <p>一句症状、一个疾病名或一个研究目标即可启动默认链路，由平台自动路由到合适 Agent。</p>
+              </article>
+              <article class="mode-card">
+                <strong>Lead Agent First</strong>
+                <p>继承 MedRoundTable 的首位介入设计，先判断该由患者入口、研究入口还是试验入口接手。</p>
+              </article>
+              <article class="mode-card">
+                <strong>Patient Community Roundtable</strong>
+                <p>把患者、家属、医生、研究者与社群回访节点放进同一个协作循环，形成罕见病长期支持体系。</p>
+              </article>
+            </div>
+          </div>
+
+          <div>
+            <div class="side-kicker">Current Chain</div>
+            <div class="mode-chain" style="margin-top: 16px;">
+              <span>患者入口 Agent</span>
+              <span>表型 Agent</span>
+              <span>证据 Agent</span>
+              <span>药物重定位 Agent</span>
+              <span>Trial Agent</span>
+              <span>Community Agent</span>
+            </div>
+          </div>
+        </aside>
       </div>
-      <div class="stat">
-        <div class="stat-num">47<span class="unit">万+</span></div>
-        <div class="stat-label">药物化合物数据</div>
+    </section>
+
+    <section id="capabilities">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">5 大核心能力</div>
+          <h2>一个页面，覆盖患者咨询、疾病研究到试验匹配的完整主路径</h2>
+          <p>平台保留真正能落地的 5 个核心入口，每个入口都能被 A2A 编排层接管，而不是互相割裂的静态按钮。</p>
+        </div>
+
+        <div class="cap-grid">
+          <article class="cap-card">
+            <span>01</span>
+            <h3>AI 对话</h3>
+            <p>为患者、医生与研究者提供统一对话入口，承接咨询、研究目标定义和多轮问题澄清。</p>
+          </article>
+          <article class="cap-card">
+            <span>02</span>
+            <h3>症状自查</h3>
+            <p>把自然语言主诉转成结构化表型线索，为后续罕见病方向判断和重点追问提供依据。</p>
+          </article>
+          <article class="cap-card">
+            <span>03</span>
+            <h3>疾病研究</h3>
+            <p>整合靶点、药物、文献和试验信息，一键生成面向研究与讨论的疾病图谱。</p>
+          </article>
+          <article class="cap-card">
+            <span>04</span>
+            <h3>药物重定位</h3>
+            <p>从靶点与既有药物池出发，寻找值得验证的再利用候选和下一步实验假设。</p>
+          </article>
+          <article class="cap-card">
+            <span>05</span>
+            <h3>临床试验匹配</h3>
+            <p>围绕疾病和研究重点快速筛选 ClinicalTrials 条目，形成进一步跟进的行动清单。</p>
+          </article>
+        </div>
+
+        <div class="a2a-band">
+          <div class="a2a-band-inner">
+            <div class="a2a-copy">
+              <div class="eyebrow" style="margin-bottom: 10px;">A2A 协作模式</div>
+              <h3>把 MedRoundTable 的入口逻辑纳入 Rare Disease 平台，而不是只放一个外链</h3>
+              <p>
+                这个 A2A 模式的关键不是“多几个 Agent”，而是让入口先接住真实问题。患者可以从症状和社群进入，
+                医生和研究者可以从首位 Agent 或研究工作台切入，平台再决定后续该由哪些节点参与。
+              </p>
+
+              <div class="a2a-nodes">
+                <article class="a2a-node">
+                  <strong>Patient Intake</strong>
+                  <p>收集主诉、病程、检查和家族史。</p>
+                </article>
+                <article class="a2a-node">
+                  <strong>Phenotype</strong>
+                  <p>结构化表型，整理关键疑点与追问。</p>
+                </article>
+                <article class="a2a-node">
+                  <strong>Evidence</strong>
+                  <p>汇总疾病、文献、药物与指南证据。</p>
+                </article>
+                <article class="a2a-node">
+                  <strong>Repurposing</strong>
+                  <p>评估药物重定位与靶点机会。</p>
+                </article>
+                <article class="a2a-node">
+                  <strong>Trial</strong>
+                  <p>对应试验机会，输出下一步联络清单。</p>
+                </article>
+                <article class="a2a-node">
+                  <strong>Community</strong>
+                  <p>把结果回流到患者社群和长期随访。</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="a2a-summary">
+              <div>
+                <strong>一句话开始</strong>
+                <p>“我家孩子疑似神经肌肉疾病，想先看方向” 就能触发默认链路。</p>
+              </div>
+              <div>
+                <strong>先选首位 Agent</strong>
+                <p>沿用 MedRoundTable 的首位专家思路，适合已经明确阶段的用户。</p>
+              </div>
+              <div>
+                <strong>患者社群圆桌</strong>
+                <p>把患者、医生、研究者和社群支持放进同一回路，形成长期罕见病平台逻辑。</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-num">48<span class="unit">万+</span></div>
-        <div class="stat-label">临床试验数据</div>
+    </section>
+
+    <section id="flow">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">3 步使用流程</div>
+          <h2>描述问题 → AI 分析 → 获取报告</h2>
+          <p>这三步是外部用户最容易理解的平台使用心智，也对应产品从入口到交付的基本闭环。</p>
+        </div>
+
+        <div class="flow-grid">
+          <article class="flow-card">
+            <span>01</span>
+            <h3>描述问题</h3>
+            <p>输入症状、疾病名、研究问题或试验匹配目标，平台先接住问题，再决定工作流。</p>
+          </article>
+          <article class="flow-card">
+            <span>02</span>
+            <h3>AI 分析</h3>
+            <p>A2A 编排层串联 MIMO、MCP、ToolUniverse 和多源数据库，形成多节点协作分析。</p>
+          </article>
+          <article class="flow-card">
+            <span>03</span>
+            <h3>获取报告</h3>
+            <p>输出患者友好版解释、研究摘要、候选药物、试验清单和下一步行动建议。</p>
+          </article>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-num">14<span class="unit">+</span></div>
-        <div class="stat-label">生物医学数据库</div>
+    </section>
+
+    <section id="data">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">14+ 数据源</div>
+          <h2>OpenTargets / ChEMBL / ClinicalTrials / PubMed / OMIM / KEGG 等全部挂到同一平台能力树上</h2>
+          <p>数据源不是用来堆名词，而是明确进入靶点、药物、文献、表型和试验不同节点，从而支撑真正的多智能体协同。</p>
+        </div>
+
+        <div class="data-grid">
+          <article class="data-card"><strong>OpenTargets</strong><p>靶点与疾病关联</p></article>
+          <article class="data-card"><strong>ChEMBL</strong><p>药物与化合物</p></article>
+          <article class="data-card"><strong>ClinicalTrials</strong><p>临床试验登记</p></article>
+          <article class="data-card"><strong>PubMed</strong><p>文献证据</p></article>
+          <article class="data-card"><strong>OMIM</strong><p>遗传病知识</p></article>
+          <article class="data-card"><strong>KEGG</strong><p>通路与机制</p></article>
+          <article class="data-card"><strong>Orphanet</strong><p>罕见病目录</p></article>
+          <article class="data-card"><strong>GeneReviews</strong><p>临床综述</p></article>
+          <article class="data-card"><strong>HPO</strong><p>表型词表</p></article>
+          <article class="data-card"><strong>ClinVar</strong><p>变异证据</p></article>
+          <article class="data-card"><strong>DrugBank</strong><p>药物知识</p></article>
+          <article class="data-card"><strong>UniProt</strong><p>蛋白功能</p></article>
+          <article class="data-card"><strong>NCBI</strong><p>基础生信资源</p></article>
+          <article class="data-card"><strong>Guidelines</strong><p>指南与共识</p></article>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- 核心能力 -->
-<section class="capabilities" id="capabilities">
-  <h2 class="section-title">5 大核心能力</h2>
-  <p class="section-desc">从症状识别到药物发现，覆盖罕见病研究与诊疗的完整链条</p>
-  <div class="cap-grid">
-    <div class="cap-card">
-      <div class="cap-icon green">💬</div>
-      <h3>AI 医学对话</h3>
-      <p>小米 MIMO 大模型驱动的专业医学问答，支持罕见病知识咨询、诊疗方案讨论、患者教育</p>
-      <span class="cap-tag">MIMO-V2-Pro</span>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon blue">🔍</div>
-      <h3>智能症状自查</h3>
-      <p>描述症状后，AI 分析可能的罕见病方向，建议进一步检查项目，提供就医指导</p>
-      <span class="cap-tag">零门槛使用</span>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon purple">📊</div>
-      <h3>疾病研究一站通</h3>
-      <p>输入疾病名称，一键获取靶点、药物、临床试验、AI 分析报告，整合多源数据</p>
-      <span class="cap-tag">OpenTargets + ChEMBL</span>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon amber">💊</div>
-      <h3>药物重定位分析</h3>
-      <p>基于靶点关联、药物活性、安全性数据，发现老药新用机会，加速罕见病治疗进展</p>
-      <span class="cap-tag">14+数据库整合</span>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon rose">📋</div>
-      <h3>临床试验匹配</h3>
-      <p>根据患者特征匹配正在招募的临床试验，提供 Trial Match Score 量化评分</p>
-      <span class="cap-tag">ClinicalTrials.gov</span>
-    </div>
-  </div>
-</section>
+    <section id="architecture">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">技术架构</div>
+          <h2>MIMO / FastAPI / React / MCP / ToolUniverse / CrewAI，再叠一层 A2A Orchestrator</h2>
+          <p>底层工具保留，顶层产品逻辑升级。真正的变化是让这些技术组件围绕罕见病场景形成统一编排，而不是各自为战。</p>
+        </div>
 
-<!-- 使用流程 -->
-<section class="flow-section" id="flow">
-  <h2 class="section-title">3 步开始使用</h2>
-  <p class="section-desc">无需注册，打开即用，输入问题即可获得专业AI分析</p>
-  <div class="flow-steps">
-    <div class="flow-step">
-      <div class="step-num">1</div>
-      <h3>描述问题</h3>
-      <p>输入症状、疾病名称或临床问题，支持中英文</p>
-    </div>
-    <div class="flow-step">
-      <div class="step-num">2</div>
-      <h3>AI 自动分析</h3>
-      <p>系统自动检索 14+ 数据库，整合靶点、药物、临床试验等多维数据</p>
-    </div>
-    <div class="flow-step">
-      <div class="step-num">3</div>
-      <h3>获取报告</h3>
-      <p>生成结构化分析报告，包含疾病概述、靶点分析、药物评价、研究建议</p>
-    </div>
-  </div>
-</section>
+        <div class="tech-shell">
+          <article class="tech-lead">
+            <div class="eyebrow" style="margin-bottom: 0;">A2A Core</div>
+            <h3>以协作为中心的 Rare Disease Operating System</h3>
+            <p>
+              A2A Orchestrator 负责决定由谁先接住问题、调用哪些数据库和工具、如何输出结果，以及如何把结果回流到患者社群与下一步行动中。
+            </p>
+            <div class="tech-route">
+              <span>患者入口</span>
+              <span>研究入口</span>
+              <span>Trial 入口</span>
+              <span>社群回流</span>
+            </div>
+          </article>
 
-<!-- 数据源 -->
-<section class="data-section" id="data">
-  <h2 class="section-title">接入 14+ 全球顶级数据源</h2>
-  <p class="section-desc">通过 ToolUniverse MCP 协议统一接入，数据实时更新</p>
-  <div class="data-grid">
-    <div class="data-card">
-      <div class="name">OpenTargets</div>
-      <div class="desc">疾病-靶点关联</div>
-    </div>
-    <div class="data-card">
-      <div class="name">ChEMBL</div>
-      <div class="desc">药物化合物库</div>
-    </div>
-    <div class="data-card">
-      <div class="name">ClinicalTrials</div>
-      <div class="desc">全球临床试验</div>
-    </div>
-    <div class="data-card">
-      <div class="name">PubMed</div>
-      <div class="desc">医学文献库</div>
-    </div>
-    <div class="data-card">
-      <div class="name">OMIM</div>
-      <div class="desc">遗传病数据库</div>
-    </div>
-    <div class="data-card">
-      <div class="name">Reactome</div>
-      <div class="desc">生物通路</div>
-    </div>
-    <div class="data-card">
-      <div class="name">KEGG</div>
-      <div class="desc">基因组通路</div>
-    </div>
-    <div class="data-card">
-      <div class="name">UniProt</div>
-      <div class="desc">蛋白质数据</div>
-    </div>
-    <div class="data-card">
-      <div class="name">OpenFDA</div>
-      <div class="desc">药品不良反应</div>
-    </div>
-    <div class="data-card">
-      <div class="name">DrugBank</div>
-      <div class="desc">药物综合库</div>
-    </div>
-    <div class="data-card">
-      <div class="name">Orphanet</div>
-      <div class="desc">罕见病门户</div>
-    </div>
-    <div class="data-card">
-      <div class="name">GWAS Catalog</div>
-      <div class="desc">全基因组关联</div>
-    </div>
-  </div>
-</section>
+          <div class="tech-grid">
+            <article class="tech-card">
+              <span>MIMO</span>
+              <h3>模型推理层</h3>
+              <p>负责对话、解释与研究摘要生成。</p>
+            </article>
+            <article class="tech-card">
+              <span>FastAPI</span>
+              <h3>服务中枢</h3>
+              <p>统一承载 `/api/v2` 工作流接口。</p>
+            </article>
+            <article class="tech-card">
+              <span>React</span>
+              <h3>前端工作台</h3>
+              <p>用一个顶级界面承载 5 大能力。</p>
+            </article>
+            <article class="tech-card">
+              <span>MCP</span>
+              <h3>工具协议层</h3>
+              <p>让数据库与检索工具标准化接入。</p>
+            </article>
+            <article class="tech-card">
+              <span>ToolUniverse</span>
+              <h3>数据调用层</h3>
+              <p>统一封装 OpenTargets、ChEMBL 与试验检索。</p>
+            </article>
+            <article class="tech-card">
+              <span>CrewAI</span>
+              <h3>多 Agent 基座</h3>
+              <p>为真正的患者社群协作层保留执行基础。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- 技术栈 -->
-<section class="tech-section">
-  <h2 class="section-title">技术架构</h2>
-  <p class="section-desc">开源技术驱动，安全可靠</p>
-  <div class="tech-stack">
-    <div class="tech-item">
-      <div class="tech-icon">🧠</div>
-      <div class="tech-name">MIMO-V2-Pro</div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-icon">⚡</div>
-      <div class="tech-name">FastAPI</div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-icon">⚛️</div>
-      <div class="tech-name">React</div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-icon">🔗</div>
-      <div class="tech-name">MCP Protocol</div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-icon">🌍</div>
-      <div class="tech-name">ToolUniverse</div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-icon">🐍</div>
-      <div class="tech-name">CrewAI</div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-icon">🐙</div>
-      <div class="tech-name">Open Source</div>
-    </div>
-  </div>
-</section>
+    <section id="actions">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">行动入口</div>
+          <h2>介绍主页、平台应用、GitHub 仓库与 A2A 参考页，全部保留为一级入口</h2>
+          <p>这样外部展示、平台试用和开源协作会保持同一套叙事，不会出现“介绍页和产品像两个项目”的问题。</p>
+        </div>
 
-<!-- 入口 -->
-<section class="start-section">
-  <h2 class="section-title">开始使用 MediChat-RD</h2>
-  <p class="section-desc">无需注册，打开即用</p>
-  <div class="start-buttons">
-    <a href="./" class="btn-lg btn-primary-lg">🚀 进入平台</a>
-    <a href="https://github.com/MoKangMedical/medichat-rd" class="btn-lg btn-secondary-lg" target="_blank">📂 GitHub 仓库</a>
-  </div>
-</section>
+        <div class="action-grid">
+          <a class="action-card" href="./">
+            <h3>进入平台应用</h3>
+            <p>http://43.128.114.201:8000</p>
+          </a>
+          <a class="action-card" href="https://github.com/MoKangMedical/medichat-rd" target="_blank" rel="noreferrer">
+            <h3>GitHub 仓库</h3>
+            <p>MoKangMedical / medichat-rd</p>
+          </a>
+          <a class="action-card" href="https://mokangmedical.github.io/medroundtable/" target="_blank" rel="noreferrer">
+            <h3>A2A 参考页</h3>
+            <p>MedRoundTable 多智能体协作模式</p>
+          </a>
+          <a class="action-card" href="./landing">
+            <h3>当前介绍主页</h3>
+            <p>深色顶级罕见病平台落地页</p>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<!-- 页脚 -->
-<footer class="footer">
-  <p>MediChat-RD 罕见病在线诊疗平台 | 数据仅供参考，不构成医疗建议</p>
-  <p>Powered by MIMO AI + ToolUniverse + OpenTargets + ChEMBL</p>
-  <p style="margin-top: 8px; color: #475569;">© 2026 MoKangMedical</p>
-</footer>
-
+  <footer class="footer">
+    <div class="container">
+      <p>MediChat-RD Rare Disease A2A Platform</p>
+      <p>AI 输出仅供交流与研究参考，不替代专业医疗诊断与治疗决策。</p>
+    </div>
+  </footer>
 </body>
 </html>
