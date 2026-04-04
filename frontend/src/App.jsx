@@ -205,6 +205,13 @@ const workspaceRecommendations = {
   roundtable: '适合要把患者、医生、研究者和社群放进一个协同回路的任务。',
 };
 
+const workspaceLeadAgents = {
+  'symptom-check': 'phenotype_agent',
+  'disease-research': 'evidence_agent',
+  'drug-repurposing': 'repurposing_agent',
+  'trial-matching': 'trial_agent',
+};
+
 function Icon({ name }) {
   const common = {
     fill: 'none',
@@ -338,6 +345,116 @@ async function parseJson(response) {
   }
 
   return payload;
+}
+
+function formatA2ATimestamp(value) {
+  if (!value) return '刚刚';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleString('zh-CN', { hour12: false });
+}
+
+function normalizeA2ASessionState(data) {
+  const session = data?.session;
+  if (!session) return null;
+
+  return {
+    sessionId: session.session_id,
+    title: session.title,
+    mode: session.mode,
+    updatedAt: session.updated_at,
+    executedAgents: data.executed_agents || [],
+    latestReport: data.latest_report || null,
+    artifacts: session.artifacts || [],
+    events: (session.events || []).slice(-6).reverse(),
+  };
+}
+
+async function runA2ASession({
+  sessionId,
+  mode,
+  leadAgent,
+  diseaseContext,
+  patientProfile,
+  source,
+  message,
+}) {
+  const request = sessionId
+    ? fetch(`/api/v2/a2a/sessions/${sessionId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: message,
+          disease_context: diseaseContext || undefined,
+        }),
+      })
+    : fetch('/api/v2/a2a/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode,
+          lead_agent: mode === 'lead-agent' ? leadAgent || undefined : undefined,
+          disease_context: diseaseContext || undefined,
+          patient_profile: patientProfile || undefined,
+          metadata: source ? { source } : undefined,
+          initial_message: message,
+        }),
+      });
+
+  const data = await parseJson(await request);
+  return { data, sessionState: normalizeA2ASessionState(data) };
+}
+
+function getArtifactContent(sessionState, agentId) {
+  const artifact = [...(sessionState?.artifacts || [])]
+    .reverse()
+    .find((item) => item.agent_id === agentId && item.status === 'completed');
+  return artifact?.content || null;
+}
+
+function A2ACompactSummary({ sessionState, modeTitle, title = 'A2A 编排结果' }) {
+  if (!sessionState) return null;
+
+  return (
+    <div className="result-card">
+      <div className="card-topline">{title}</div>
+      <div className="summary-grid">
+        <article className="summary-card">
+          <span>Session</span>
+          <strong>{sessionState.title || '未命名会话'}</strong>
+          <p>{sessionState.sessionId}</p>
+        </article>
+        <article className="summary-card">
+          <span>模式</span>
+          <strong>{modeTitle}</strong>
+          <p>{sessionState.mode}</p>
+        </article>
+        <article className="summary-card">
+          <span>已执行 Agent</span>
+          <strong>{sessionState.executedAgents.length}</strong>
+          <p>当前专用工作台已接入真实 orchestration</p>
+        </article>
+        <article className="summary-card">
+          <span>更新时间</span>
+          <strong>{formatA2ATimestamp(sessionState.updatedAt)}</strong>
+          <p>后端 session 最近一次收敛时间</p>
+        </article>
+      </div>
+
+      <div className="command-chain session-agent-chain">
+        {sessionState.executedAgents.map((agentId) => (
+          <span key={agentId}>{a2aAgentLabelMap[agentId] || agentId}</span>
+        ))}
+      </div>
+
+      {sessionState.latestReport?.summary ? (
+        <div className="prose-card">
+          <div className="card-topline">汇总摘要</div>
+          <TextBlock text={sessionState.latestReport.summary} />
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function AIChatWorkspace({ a2aMode }) {
@@ -635,30 +752,50 @@ function SymptomCheckWorkspace({ a2aMode }) {
   const [symptoms, setSymptoms] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
-  const [result, setResult] = useState(null);
+  const [sessionState, setSessionState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const phenotypeReport = getArtifactContent(sessionState, 'phenotype_agent');
+  const evidenceReport = getArtifactContent(sessionState, 'evidence_agent');
+
+  useEffect(() => {
+    setSessionState(null);
+    setError('');
+  }, [a2aMode]);
 
   const analyze = async () => {
     if (!symptoms.trim() || loading) return;
     setLoading(true);
     setError('');
-    setResult(null);
 
     try {
-      const data = await parseJson(
-        await fetch('/api/v2/symptom-check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            symptoms: symptoms.trim(),
-            age: age ? Number(age) : null,
-            gender: gender || null,
-          }),
-        }),
-      );
+      const profile = age || gender
+        ? {
+            age: age ? Number(age) : undefined,
+            gender: gender || undefined,
+          }
+        : undefined;
+      const message = [
+        '请从罕见病视角做一次症状分诊和表型分析。',
+        `症状描述：${symptoms.trim()}`,
+        age ? `年龄：${age}` : null,
+        gender ? `性别：${gender}` : null,
+        '请优先输出候选疾病、推荐检查、下一步行动，并在需要时衔接证据与试验方向。',
+      ]
+        .filter(Boolean)
+        .join('\n');
 
-      setResult(data);
+      const { sessionState: nextSessionState } = await runA2ASession({
+        sessionId: sessionState?.sessionId,
+        mode: a2aMode,
+        leadAgent: workspaceLeadAgents['symptom-check'],
+        diseaseContext: '',
+        patientProfile: profile,
+        source: 'symptom-check-workspace',
+        message,
+      });
+      setSessionState(nextSessionState);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -694,79 +831,114 @@ function SymptomCheckWorkspace({ a2aMode }) {
           </label>
           <div className="mini-note">
             <strong>{mode.label}</strong>
-            <p>当前模式下，症状结果会被视为表型入口，后续建议自动回流到 Evidence / Trial 节点。</p>
+            <p>当前工作台会直接创建或续写真实 A2A session，并以表型 Agent 作为症状入口。</p>
           </div>
           <button type="button" className="primary-button full-width" disabled={loading || !symptoms.trim()} onClick={analyze}>
             <Icon name="search" />
-            {loading ? '分析中...' : '开始症状分析'}
+            {loading ? 'A2A 分析中...' : '开始症状分析'}
           </button>
         </div>
       </div>
 
       {error ? <div className="error-card">{error}</div> : null}
 
-      {result ? (
+      {sessionState ? (
         <div className="result-layout">
           <div className="result-card prose-card">
             <div className="card-topline">分析结果</div>
-            <TextBlock text={result.analysis} />
+            <TextBlock text={sessionState.latestReport?.summary || '当前 session 尚未返回最终摘要。'} />
+          </div>
+          <div className="result-card">
+            <div className="card-topline">候选疾病与检查建议</div>
+            {phenotypeReport?.candidate_diseases?.length ? (
+              <div className="list-stack">
+                {phenotypeReport.candidate_diseases.map((candidate) => (
+                  <article key={`${candidate.name_en}-${candidate.omim_id}`} className="list-card">
+                    <div className="list-card-top">
+                      <code>{candidate.omim_id || 'OMIM 待补充'}</code>
+                      <span>{candidate.confidence}%</span>
+                    </div>
+                    <strong>{candidate.name_cn}</strong>
+                    <p>{candidate.name_en}</p>
+                    <p>基因：{candidate.gene || '待确认'}</p>
+                    {candidate.matched_symptoms?.length ? <p>匹配症状：{candidate.matched_symptoms.join('、')}</p> : null}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-card">当前没有产出明确候选疾病，建议补充更完整的病程和检查信息。</div>
+            )}
           </div>
           <div className="result-card">
             <div className="card-topline">A2A 下一步</div>
             <div className="chain-list">
-              <div className="chain-item">
-                <span>01</span>
-                <div>
-                  <strong>Phenotype Agent</strong>
-                  <p>把描述转成结构化表型和重点追问问题。</p>
+              {(phenotypeReport?.recommended_tests || []).map((test, index) => (
+                <div key={`${test}-${index}`} className="chain-item">
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <strong>推荐检查</strong>
+                    <p>{test}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="chain-item">
-                <span>02</span>
-                <div>
-                  <strong>Evidence Agent</strong>
-                  <p>匹配候选疾病方向、文献和指南摘要。</p>
+              ))}
+              {!(phenotypeReport?.recommended_tests || []).length ? (
+                <div className="chain-item">
+                  <span>01</span>
+                  <div>
+                    <strong>继续补充表型</strong>
+                    <p>当前没有结构化检查建议，建议补充病程、家族史和既往检查结果。</p>
+                  </div>
                 </div>
-              </div>
-              <div className="chain-item">
-                <span>03</span>
-                <div>
-                  <strong>Trial / Community Agent</strong>
-                  <p>若需要进一步行动，转入试验匹配或患者社群支持流程。</p>
-                </div>
-              </div>
+              ) : null}
             </div>
-            <div className="warning-box">{result.disclaimer}</div>
+            {evidenceReport?.resolved_disease ? (
+              <div className="warning-box">
+                当前证据链已进一步锁定为 {evidenceReport.resolved_disease.display_name}，可以继续转入研究或试验匹配。
+              </div>
+            ) : (
+              <div className="warning-box">本分析仅供参考，不构成医疗诊断。如有疑虑，请咨询专业医生。</div>
+            )}
           </div>
+          <A2ACompactSummary sessionState={sessionState} modeTitle={mode.title} title="本次症状分析对应的 A2A Session" />
         </div>
       ) : null}
     </div>
   );
 }
 
-function DiseaseResearchWorkspace() {
+function DiseaseResearchWorkspace({ a2aMode }) {
+  const mode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
   const [disease, setDisease] = useState('');
-  const [result, setResult] = useState(null);
+  const [sessionState, setSessionState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+
+  const evidenceReport = getArtifactContent(sessionState, 'evidence_agent');
+  const repurposingReport = getArtifactContent(sessionState, 'repurposing_agent');
+  const trialReport = getArtifactContent(sessionState, 'trial_agent');
+
+  useEffect(() => {
+    setSessionState(null);
+    setError('');
+  }, [a2aMode]);
 
   const research = async () => {
     if (!disease.trim() || loading) return;
     setLoading(true);
     setError('');
-    setResult(null);
 
     try {
-      const data = await parseJson(
-        await fetch('/api/v2/research', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ disease_name: disease.trim() }),
-        }),
-      );
+      const { sessionState: nextSessionState } = await runA2ASession({
+        sessionId: sessionState?.sessionId,
+        mode: a2aMode,
+        leadAgent: workspaceLeadAgents['disease-research'],
+        diseaseContext: disease.trim(),
+        source: 'disease-research-workspace',
+        message: `请对 ${disease.trim()} 做一轮罕见病研究，重点整合疾病概览、靶点、文献、药物重定位与临床试验。`,
+      });
 
-      setResult(data);
+      setSessionState(nextSessionState);
       setActiveTab('overview');
     } catch (requestError) {
       setError(requestError.message);
@@ -775,12 +947,12 @@ function DiseaseResearchWorkspace() {
     }
   };
 
-  const stages = result?.stages || {};
   const tabs = [
     { id: 'overview', label: '疾病概览' },
-    { id: 'targets', label: `靶点 ${stages.targets?.length || 0}` },
-    { id: 'drugs', label: `药物 ${stages.drugs?.length || 0}` },
-    { id: 'trials', label: `试验 ${stages.clinical_trials?.length || 0}` },
+    { id: 'targets', label: `靶点 ${evidenceReport?.targets?.length || 0}` },
+    { id: 'literature', label: `文献 ${evidenceReport?.literature?.length || 0}` },
+    { id: 'drugs', label: `药物 ${repurposingReport?.candidate_drugs?.length || 0}` },
+    { id: 'trials', label: `试验 ${trialReport?.trials?.length || 0}` },
     { id: 'analysis', label: 'AI 报告' },
   ];
 
@@ -805,30 +977,30 @@ function DiseaseResearchWorkspace() {
       </div>
 
       {error ? <div className="error-card">{error}</div> : null}
-      {loading ? <div className="loading-card">正在整合疾病、靶点、药物和试验数据...</div> : null}
+      {loading ? <div className="loading-card">正在通过真实 A2A session 整合疾病、靶点、文献、药物和试验数据...</div> : null}
 
-      {result ? (
+      {sessionState ? (
         <>
           <div className="summary-grid">
             <article className="summary-card">
               <span>疾病</span>
-              <strong>{stages.disease_info?.name || result.disease}</strong>
-              <p>{stages.disease_info?.id || '等待补充 ID'}</p>
+              <strong>{evidenceReport?.resolved_disease?.display_name || disease}</strong>
+              <p>{evidenceReport?.resolved_disease?.disease_id || '等待补充 ID'}</p>
             </article>
             <article className="summary-card">
               <span>靶点候选</span>
-              <strong>{stages.targets?.length || 0}</strong>
-              <p>优先展示前 10 个关联靶点</p>
+              <strong>{evidenceReport?.targets?.length || 0}</strong>
+              <p>当前来自 A2A 证据 Agent 的靶点汇聚</p>
             </article>
             <article className="summary-card">
               <span>药物候选</span>
-              <strong>{stages.drugs?.length || 0}</strong>
-              <p>覆盖已知药物和研发状态</p>
+              <strong>{repurposingReport?.candidate_drugs?.length || 0}</strong>
+              <p>当前来自药物重定位 Agent 的候选池</p>
             </article>
             <article className="summary-card">
               <span>临床试验</span>
-              <strong>{stages.clinical_trials?.length || 0}</strong>
-              <p>可进一步流转到 Trial Navigator</p>
+              <strong>{trialReport?.trials?.length || 0}</strong>
+              <p>当前来自 Trial Agent 的试验导航结果</p>
             </article>
           </div>
 
@@ -849,22 +1021,40 @@ function DiseaseResearchWorkspace() {
             {activeTab === 'overview' ? (
               <div className="prose-card">
                 <div className="card-topline">疾病概览</div>
-                <h3>{stages.disease_info?.name || result.disease}</h3>
-                <p>{stages.disease_info?.description || '当前返回数据未包含描述，可继续查看靶点、药物和试验结果。'}</p>
+                <h3>{evidenceReport?.resolved_disease?.display_name || disease}</h3>
+                <p>疾病查询：{evidenceReport?.resolved_disease?.query || disease}</p>
+                <p>Disease ID：{evidenceReport?.resolved_disease?.disease_id || '待补充'}</p>
+                <p>OMIM：{evidenceReport?.resolved_disease?.omim_id || '待补充'}</p>
+                <p>关键基因：{evidenceReport?.resolved_disease?.gene || '待补充'}</p>
+                <TextBlock text={sessionState.latestReport?.summary || '当前未生成最终汇总，可继续查看结构化研究结果。'} />
               </div>
             ) : null}
 
             {activeTab === 'targets' ? (
               <div className="card-grid">
-                {(stages.targets || []).map((target) => (
+                {(evidenceReport?.targets || []).map((target) => (
                   <article key={target.gene_id} className="mini-card">
                     <div className="mini-card-top">
                       <code>{target.gene_id?.split(':').pop()}</code>
                       <span>{target.score}</span>
                     </div>
                     <strong>{target.gene_name}</strong>
-                    <p>遗传关联：{target.genetic_association?.toFixed(3) || '-'}</p>
-                    <p>临床证据：{target.clinical?.toFixed(3) || '-'}</p>
+                    <p>当前为 A2A 证据图谱中的关联靶点。</p>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+
+            {activeTab === 'literature' ? (
+              <div className="list-stack">
+                {(evidenceReport?.literature || []).map((article) => (
+                  <article key={`${article.pmid}-${article.title}`} className="list-card">
+                    <div className="list-card-top">
+                      <code>{article.pmid || 'PMID'}</code>
+                      <span>{article.journal || 'PubMed'}</span>
+                    </div>
+                    <strong>{article.title}</strong>
+                    {article.summary ? <p>{article.summary}</p> : null}
                   </article>
                 ))}
               </div>
@@ -872,11 +1062,11 @@ function DiseaseResearchWorkspace() {
 
             {activeTab === 'drugs' ? (
               <div className="card-grid">
-                {(stages.drugs || []).map((drug) => (
+                {(repurposingReport?.candidate_drugs || []).map((drug) => (
                   <article key={`${drug.chembl_id}-${drug.mesh_heading}`} className="mini-card">
                     <div className="mini-card-top">
                       <code>{drug.chembl_id}</code>
-                      <span>{drug.phase_label}</span>
+                      <span>{drug.max_phase ?? '阶段未知'}</span>
                     </div>
                     <strong>{drug.mesh_heading}</strong>
                     <p>最高临床阶段：{drug.max_phase ?? '-'}</p>
@@ -887,11 +1077,11 @@ function DiseaseResearchWorkspace() {
 
             {activeTab === 'trials' ? (
               <div className="list-stack">
-                {(stages.clinical_trials || []).map((trial) => (
+                {(trialReport?.trials || []).map((trial) => (
                   <article key={trial.nct_id} className="list-card">
                     <div className="list-card-top">
                       <code>{trial.nct_id}</code>
-                      <span>{trial.status_cn || trial.status}</span>
+                      <span>{trial.status}</span>
                     </div>
                     <strong>{trial.title}</strong>
                     <p>{trial.sponsor}</p>
@@ -904,35 +1094,48 @@ function DiseaseResearchWorkspace() {
             {activeTab === 'analysis' ? (
               <div className="prose-card">
                 <div className="card-topline">AI 研究报告</div>
-                <TextBlock text={stages.analysis || '当前未生成 AI 分析文本。'} />
+                <TextBlock text={sessionState.latestReport?.summary || '当前未生成 A2A 汇总报告。'} />
               </div>
             ) : null}
           </div>
+
+          <A2ACompactSummary sessionState={sessionState} modeTitle={mode.title} title="本次疾病研究对应的 A2A Session" />
         </>
       ) : null}
     </div>
   );
 }
 
-function DrugRepurposingWorkspace() {
+function DrugRepurposingWorkspace({ a2aMode }) {
+  const mode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
   const [disease, setDisease] = useState('');
-  const [result, setResult] = useState(null);
+  const [sessionState, setSessionState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const evidenceReport = getArtifactContent(sessionState, 'evidence_agent');
+  const repurposingReport = getArtifactContent(sessionState, 'repurposing_agent');
+
+  useEffect(() => {
+    setSessionState(null);
+    setError('');
+  }, [a2aMode]);
 
   const analyze = async () => {
     if (!disease.trim() || loading) return;
     setLoading(true);
     setError('');
-    setResult(null);
 
     try {
-      const data = await parseJson(
-        await fetch(`/api/v2/drug-repurposing?disease_name=${encodeURIComponent(disease.trim())}`, {
-          method: 'POST',
-        }),
-      );
-      setResult(data);
+      const { sessionState: nextSessionState } = await runA2ASession({
+        sessionId: sessionState?.sessionId,
+        mode: a2aMode,
+        leadAgent: workspaceLeadAgents['drug-repurposing'],
+        diseaseContext: disease.trim(),
+        source: 'drug-repurposing-workspace',
+        message: `请对 ${disease.trim()} 进行药物重定位分析，输出候选药物、靶点线索、验证假设和风险提示。`,
+      });
+      setSessionState(nextSessionState);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -956,27 +1159,26 @@ function DrugRepurposingWorkspace() {
         />
         <button type="button" className="primary-button" disabled={loading || !disease.trim()} onClick={analyze}>
           <Icon name="pill" />
-          {loading ? '分析中...' : '生成重定位候选'}
+          {loading ? 'A2A 分析中...' : '生成重定位候选'}
         </button>
       </div>
 
       {error ? <div className="error-card">{error}</div> : null}
-      {loading ? <div className="loading-card">正在比对疾病靶点、既有药物和再利用机会...</div> : null}
+      {loading ? <div className="loading-card">正在通过 A2A session 比对疾病靶点、既有药物和再利用机会...</div> : null}
 
-      {result ? (
+      {sessionState ? (
         <div className="result-layout">
           <div className="result-card">
             <div className="card-topline">候选靶点</div>
             <div className="card-grid">
-              {(result.targets || []).map((target) => (
+              {(evidenceReport?.targets || []).map((target) => (
                 <article key={target.gene_id} className="mini-card">
                   <div className="mini-card-top">
                     <code>{target.gene_id?.split(':').pop()}</code>
                     <span>{target.score}</span>
                   </div>
                   <strong>{target.gene_name}</strong>
-                  <p>遗传：{target.genetic_association?.toFixed(3) || '-'}</p>
-                  <p>临床：{target.clinical?.toFixed(3) || '-'}</p>
+                  <p>当前来自 Evidence Agent 的候选靶点。</p>
                 </article>
               ))}
             </div>
@@ -985,11 +1187,11 @@ function DrugRepurposingWorkspace() {
           <div className="result-card">
             <div className="card-topline">已知药物池</div>
             <div className="card-grid">
-              {(result.existing_drugs || []).slice(0, 8).map((drug) => (
+              {(repurposingReport?.candidate_drugs || []).slice(0, 8).map((drug) => (
                 <article key={`${drug.chembl_id}-${drug.mesh_heading}`} className="mini-card">
                   <div className="mini-card-top">
                     <code>{drug.chembl_id}</code>
-                    <span>{drug.phase_label || '阶段未知'}</span>
+                    <span>{drug.max_phase ?? '阶段未知'}</span>
                   </div>
                   <strong>{drug.mesh_heading}</strong>
                   <p>最大临床阶段：{drug.max_phase ?? '-'}</p>
@@ -1000,43 +1202,77 @@ function DrugRepurposingWorkspace() {
 
           <div className="result-card prose-card wide-card">
             <div className="card-topline">重定位分析报告</div>
-            <TextBlock text={result.repurposing_analysis} />
+            <TextBlock text={sessionState.latestReport?.summary || '当前未生成 A2A 汇总报告。'} />
+            {repurposingReport?.target_hints?.length ? (
+              <>
+                <div className="card-topline">靶点线索</div>
+                <div className="command-chain session-agent-chain">
+                  {repurposingReport.target_hints.map((target) => (
+                    <span key={target}>{target}</span>
+                  ))}
+                </div>
+              </>
+            ) : null}
+            {repurposingReport?.recommendation?.length ? (
+              <div className="chain-list">
+                {repurposingReport.recommendation.map((item, index) => (
+                  <div key={`${item}-${index}`} className="chain-item">
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <div>
+                      <strong>验证建议</strong>
+                      <p>{item}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
+
+          <A2ACompactSummary sessionState={sessionState} modeTitle={mode.title} title="本次药物重定位对应的 A2A Session" />
         </div>
       ) : null}
     </div>
   );
 }
 
-function TrialMatchingWorkspace() {
+function TrialMatchingWorkspace({ a2aMode }) {
+  const mode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
   const [disease, setDisease] = useState('');
   const [focus, setFocus] = useState('');
   const [recruitingOnly, setRecruitingOnly] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState(null);
+  const [sessionState, setSessionState] = useState(null);
+
+  const trialReport = getArtifactContent(sessionState, 'trial_agent');
+
+  useEffect(() => {
+    setSessionState(null);
+    setError('');
+  }, [a2aMode]);
 
   const matchTrials = async () => {
     if (!disease.trim() || loading) return;
     setLoading(true);
     setError('');
-    setResult(null);
 
     try {
-      const data = await parseJson(
-        await fetch('/api/v2/research', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            disease_name: disease.trim(),
-            include_targets: false,
-            include_drugs: false,
-            include_trials: true,
-            include_analysis: false,
-          }),
-        }),
-      );
-      setResult(data);
+      const focusText = focus.trim();
+      const { sessionState: nextSessionState } = await runA2ASession({
+        sessionId: sessionState?.sessionId,
+        mode: a2aMode,
+        leadAgent: workspaceLeadAgents['trial-matching'],
+        diseaseContext: disease.trim(),
+        source: 'trial-matching-workspace',
+        message: [
+          `请为 ${disease.trim()} 匹配临床试验。`,
+          focusText ? `匹配重点：${focusText}` : null,
+          recruitingOnly ? '优先保留正在招募中的试验。' : '请返回所有关键试验并说明状态。',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      });
+      setSessionState(nextSessionState);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -1045,7 +1281,7 @@ function TrialMatchingWorkspace() {
   };
 
   const filteredTrials = useMemo(() => {
-    const trials = result?.stages?.clinical_trials || [];
+    const trials = trialReport?.trials || [];
     const keyword = focus.trim().toLowerCase();
     return trials.filter((trial) => {
       const matchesStatus = recruitingOnly ? trial.status?.toLowerCase() === 'recruiting' : true;
@@ -1053,7 +1289,7 @@ function TrialMatchingWorkspace() {
       const matchesKeyword = keyword ? haystack.includes(keyword) : true;
       return matchesStatus && matchesKeyword;
     });
-  }, [focus, recruitingOnly, result]);
+  }, [focus, recruitingOnly, trialReport]);
 
   return (
     <div className="workspace-stack">
@@ -1094,20 +1330,20 @@ function TrialMatchingWorkspace() {
       </button>
 
       {error ? <div className="error-card">{error}</div> : null}
-      {loading ? <div className="loading-card">正在检索 ClinicalTrials 条目并按当前重点筛选...</div> : null}
+      {loading ? <div className="loading-card">正在通过 A2A session 检索 ClinicalTrials 条目并按当前重点筛选...</div> : null}
 
-      {result ? (
+      {sessionState ? (
         <>
           <div className="summary-grid">
             <article className="summary-card">
               <span>疾病</span>
-              <strong>{result.disease}</strong>
+              <strong>{disease}</strong>
               <p>当前匹配以疾病维度进行试验筛选</p>
             </article>
             <article className="summary-card">
               <span>总试验数</span>
-              <strong>{result.stages?.clinical_trials?.length || 0}</strong>
-              <p>ClinicalTrials 检索原始结果</p>
+              <strong>{trialReport?.trials?.length || 0}</strong>
+              <p>Trial Agent 返回的原始试验数</p>
             </article>
             <article className="summary-card">
               <span>筛选后</span>
@@ -1133,6 +1369,25 @@ function TrialMatchingWorkspace() {
               <div className="empty-card">当前过滤条件下没有匹配试验，建议取消“仅看招募中”或换一个关键词。</div>
             )}
           </div>
+
+          {trialReport?.next_steps?.length ? (
+            <div className="result-card">
+              <div className="card-topline">试验跟进建议</div>
+              <div className="chain-list">
+                {trialReport.next_steps.map((step, index) => (
+                  <div key={`${step}-${index}`} className="chain-item">
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <div>
+                      <strong>下一步</strong>
+                      <p>{step}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <A2ACompactSummary sessionState={sessionState} modeTitle={mode.title} title="本次试验匹配对应的 A2A Session" />
         </>
       ) : null}
     </div>
@@ -1198,11 +1453,11 @@ function App() {
       case 'symptom-check':
         return <SymptomCheckWorkspace a2aMode={a2aMode} />;
       case 'disease-research':
-        return <DiseaseResearchWorkspace />;
+        return <DiseaseResearchWorkspace a2aMode={a2aMode} />;
       case 'drug-repurposing':
-        return <DrugRepurposingWorkspace />;
+        return <DrugRepurposingWorkspace a2aMode={a2aMode} />;
       case 'trial-matching':
-        return <TrialMatchingWorkspace />;
+        return <TrialMatchingWorkspace a2aMode={a2aMode} />;
       case 'ai-chat':
       default:
         return <AIChatWorkspace a2aMode={a2aMode} />;
