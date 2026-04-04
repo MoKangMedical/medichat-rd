@@ -1,448 +1,843 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 
-// ═══════════════════════════════════════════════════
-// 图标组件
-// ═══════════════════════════════════════════════════
-const Icons = {
-  dna: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M2 15c6.667-6 13.333 0 20-6M2 9c6.667 6 13.333 0 20 6M7 3v4M17 3v4M7 17v4M17 17v4"/>
-    </svg>
-  ),
-  search: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-    </svg>
-  ),
-  chat: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
-  ),
-  pill: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
-      <path d="m8.5 8.5 7 7"/>
-    </svg>
-  ),
-  file: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-    </svg>
-  ),
-  activity: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-    </svg>
-  ),
-  users: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-  ),
-  send: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-    </svg>
-  ),
-  menu: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-    </svg>
-  ),
-  x: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
-  ),
-  home: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-  ),
-  check: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-  ),
-  alert: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-  ),
+const GITHUB_URL = 'https://github.com/MoKangMedical/medichat-rd';
+const A2A_REFERENCE_URL = 'https://mokangmedical.github.io/medroundtable/';
+const LIVE_PLATFORM_URL = 'http://43.128.114.201:8000';
+
+const platformMetrics = [
+  { value: '121+', label: '覆盖罕见病知识包', note: '围绕患者问题持续扩展' },
+  { value: '14+', label: '全球医学数据源', note: '靶点、文献、临床试验联动' },
+  { value: '5', label: '核心应用入口', note: '从问诊到试验匹配闭环' },
+  { value: 'A2A', label: '多智能体协作模式', note: '一句问题即可拉起工作流' },
+];
+
+const coreCapabilities = [
+  {
+    id: 'ai-chat',
+    badge: '01',
+    title: 'AI 对话',
+    subtitle: 'Rare Disease Copilot',
+    desc: '面向患者、医生、研究者的统一对话入口，支持知识问答、病例讨论和任务引导。',
+    accent: 'cyan',
+  },
+  {
+    id: 'symptom-check',
+    badge: '02',
+    title: '症状自查',
+    subtitle: 'Phenotype Intake',
+    desc: '把自然语言病情描述整理为结构化线索，帮助后续表型分析与问题归因。',
+    accent: 'emerald',
+  },
+  {
+    id: 'disease-research',
+    badge: '03',
+    title: '疾病研究',
+    subtitle: 'Evidence Atlas',
+    desc: '整合疾病、靶点、药物、文献与试验信息，快速形成一份研究级概览。',
+    accent: 'violet',
+  },
+  {
+    id: 'drug-repurposing',
+    badge: '04',
+    title: '药物重定位',
+    subtitle: 'Repurposing Engine',
+    desc: '从疾病靶点和既有药物出发，识别值得验证的再利用候选和关键假设。',
+    accent: 'amber',
+  },
+  {
+    id: 'trial-matching',
+    badge: '05',
+    title: '临床试验匹配',
+    subtitle: 'Trial Navigator',
+    desc: '基于疾病和研究重点筛选 ClinicalTrials 机会，形成下一步联络清单。',
+    accent: 'rose',
+  },
+];
+
+const a2aModes = [
+  {
+    id: 'auto',
+    title: 'Auto Orchestrator',
+    label: '一句问题自动编排',
+    desc: '用户只描述问题，平台自动走 Intake → Evidence → Report 的默认链路。',
+    chain: ['患者入口 Agent', '表型 Agent', '证据 Agent', '报告 Agent'],
+  },
+  {
+    id: 'lead-agent',
+    title: 'Lead Agent First',
+    label: '先选首位 Agent',
+    desc: '借鉴 MedRoundTable 的首位介入逻辑，先选最适合当前阶段的 Agent，再扩展后续节点。',
+    chain: ['首位 Agent', '研究 Agent', '工具 Agent', '协作 Agent'],
+  },
+  {
+    id: 'roundtable',
+    title: 'A2A Roundtable',
+    label: '患者社群圆桌模式',
+    desc: '把患者、家属、医生、研究者与 AI 工具放进同一协作回路，形成真正的罕见病社区工作台。',
+    chain: ['患者社群', '临床 Agent', '研究 Agent', '试验 Agent', '社群回访'],
+  },
+];
+
+const a2aLeadAgents = [
+  { id: 'patient_intake_agent', label: '患者入口 Agent' },
+  { id: 'phenotype_agent', label: '表型 Agent' },
+  { id: 'evidence_agent', label: '证据 Agent' },
+  { id: 'repurposing_agent', label: '药物重定位 Agent' },
+  { id: 'trial_agent', label: '临床试验 Agent' },
+  { id: 'community_agent', label: '患者社群 Agent' },
+];
+
+const a2aAgentLabelMap = {
+  patient_intake_agent: '患者入口 Agent',
+  phenotype_agent: '表型 Agent',
+  evidence_agent: '证据 Agent',
+  repurposing_agent: '药物重定位 Agent',
+  trial_agent: '临床试验 Agent',
+  community_agent: '患者社群 Agent',
+  report_agent: '报告 Agent',
 };
 
-// ═══════════════════════════════════════════════════
-// 首页组件
-// ═══════════════════════════════════════════════════
-function HomePage({ onNavigate }) {
-  const stats = [
-    { label: '覆盖罕见病', value: '121+', icon: 'dna' },
-    { label: '药物数据', value: '47万+', icon: 'pill' },
-    { label: '临床试验', value: '48万+', icon: 'activity' },
-    { label: 'AI分析能力', value: 'MIMO驱动', icon: 'chat' },
-  ];
+const a2aNodes = [
+  {
+    name: 'Patient Intake Agent',
+    role: '患者入口',
+    desc: '收集主诉、病程、既往检查和家族史，统一为可分析输入。',
+  },
+  {
+    name: 'Phenotype Agent',
+    role: '表型结构化',
+    desc: '把症状语言映射成疾病线索、重点表型和候选问题列表。',
+  },
+  {
+    name: 'Evidence Agent',
+    role: '证据汇聚',
+    desc: '整合 OpenTargets、PubMed、OMIM 等多源证据，产出可读摘要。',
+  },
+  {
+    name: 'Repurposing Agent',
+    role: '药物再利用',
+    desc: '识别可重定位药物、潜在靶点重叠和待验证机制假说。',
+  },
+  {
+    name: 'Trial Agent',
+    role: '试验导航',
+    desc: '把疾病阶段与 ClinicalTrials 条目对应起来，筛选值得跟进的机会。',
+  },
+  {
+    name: 'Community Agent',
+    role: '患者社群',
+    desc: '把生成的解释、教育内容和行动清单回流到患者社群与随访场景。',
+  },
+];
 
-  const features = [
-    {
-      icon: 'search',
-      title: '智能症状自查',
-      desc: '描述症状，AI分析可能的罕见病方向，建议进一步检查',
-      action: 'symptom-check',
-    },
-    {
-      icon: 'pill',
-      title: '药物重定位研究',
-      desc: '整合OpenTargets、ChEMBL数据，发现老药新用的机会',
-      action: 'drug-research',
-    },
-    {
-      icon: 'file',
-      title: '疾病研究一站通',
-      desc: '靶点、药物、临床试验、文献，一键生成完整研究报告',
-      action: 'disease-research',
-    },
-    {
-      icon: 'chat',
-      title: 'AI医学助手',
-      desc: '罕见病专业知识问答，患者教育，诊疗方案讨论',
-      action: 'ai-chat',
-    },
-  ];
+const flowSteps = [
+  {
+    step: '01',
+    title: '描述问题',
+    desc: '输入症状、疑似疾病或研究目标，系统自动识别当前属于问诊、研究还是试验匹配任务。',
+  },
+  {
+    step: '02',
+    title: 'AI 分析',
+    desc: 'A2A 编排层决定由哪些 Agent 先介入，并串联 MIMO、MCP 与多源数据库完成分析。',
+  },
+  {
+    step: '03',
+    title: '获取报告',
+    desc: '输出患者友好版结论、研究摘要、候选药物和试验清单，便于继续推进下一步。',
+  },
+];
+
+const dataSources = [
+  { name: 'OpenTargets', type: '靶点与疾病关联' },
+  { name: 'ChEMBL', type: '药物与化合物' },
+  { name: 'ClinicalTrials', type: '临床试验登记' },
+  { name: 'PubMed', type: '文献证据' },
+  { name: 'OMIM', type: '遗传病知识' },
+  { name: 'KEGG', type: '通路与机制' },
+  { name: 'Orphanet', type: '罕见病目录' },
+  { name: 'GeneReviews', type: '临床综述' },
+  { name: 'HPO', type: '表型词表' },
+  { name: 'UniProt', type: '蛋白与功能' },
+  { name: 'ClinVar', type: '变异证据' },
+  { name: 'DrugBank', type: '药物知识' },
+  { name: 'NCBI', type: '基础生物信息' },
+  { name: 'Guidelines', type: '指南与共识' },
+];
+
+const architectureBlocks = [
+  {
+    name: 'MIMO',
+    desc: '对话推理与报告生成核心，承担患者解释和研究型摘要输出。',
+  },
+  {
+    name: 'FastAPI',
+    desc: '统一承载 `/api/v2` 服务接口，负责前后端之间的工作流中枢。',
+  },
+  {
+    name: 'React',
+    desc: '构建平台工作台和顶级入口页，让 5 大能力在一个界面里完成切换。',
+  },
+  {
+    name: 'MCP',
+    desc: '以工具协议方式接入多源数据检索与分析能力，避免把数据库耦死在单一模块中。',
+  },
+  {
+    name: 'ToolUniverse',
+    desc: '作为工具编排层，把 OpenTargets、ChEMBL、ClinicalTrials 等检索统一起来。',
+  },
+  {
+    name: 'CrewAI',
+    desc: '延续多 Agent 协作基础，为后续真正的患者社群 A2A 体系保留执行层。',
+  },
+];
+
+const starterPrompts = [
+  '我有长期肌无力和吞咽困难，想先做罕见病方向判断。',
+  '请帮我快速研究 Duchenne muscular dystrophy 的靶点和药物。',
+  '想看 Fabry disease 还有哪些在招募的临床试验。',
+];
+
+const workspaceRecommendations = {
+  auto: '默认从患者入口开始，由平台自动调度症状、证据和报告链路。',
+  'lead-agent': '优先指定首位 Agent 介入，适合已经明确当前问题阶段的用户。',
+  roundtable: '适合要把患者、医生、研究者和社群放进一个协同回路的任务。',
+};
+
+function Icon({ name }) {
+  const common = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: '1.8',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+  };
+
+  const paths = {
+    spark: (
+      <>
+        <path {...common} d="M12 3l1.9 4.6L18.5 9l-4.6 1.4L12 15l-1.9-4.6L5.5 9l4.6-1.4L12 3Z" />
+        <path {...common} d="M18 15l.8 1.9L21 17.7l-2.2.8L18 20.5l-.8-2-2.2-.8 2.2-.8L18 15Z" />
+      </>
+    ),
+    dna: (
+      <>
+        <path {...common} d="M4 5c5 4 11 10 16 14" />
+        <path {...common} d="M20 5C15 9 9 15 4 19" />
+        <path {...common} d="M8 3v4M16 17v4M16 3v4M8 17v4" />
+      </>
+    ),
+    chat: (
+      <>
+        <path {...common} d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-4 4V7a2 2 0 0 1 2-2Z" />
+        <path {...common} d="M9 10h6M9 14h4" />
+      </>
+    ),
+    search: (
+      <>
+        <circle {...common} cx="11" cy="11" r="6.5" />
+        <path {...common} d="m20 20-4.5-4.5" />
+      </>
+    ),
+    pill: (
+      <>
+        <path {...common} d="m8.5 8.5 7 7" />
+        <path {...common} d="m9.2 20.2 10-10a4.7 4.7 0 1 0-6.6-6.6l-10 10a4.7 4.7 0 1 0 6.6 6.6Z" />
+      </>
+    ),
+    report: (
+      <>
+        <path {...common} d="M8 3h6l4 4v14H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+        <path {...common} d="M14 3v4h4M10 12h6M10 16h6" />
+      </>
+    ),
+    nodes: (
+      <>
+        <circle {...common} cx="6" cy="6" r="2.5" />
+        <circle {...common} cx="18" cy="6" r="2.5" />
+        <circle {...common} cx="12" cy="18" r="2.5" />
+        <path {...common} d="M8.5 7.2 10.6 15M15.5 7.2 13.4 15M8.4 6h7.2" />
+      </>
+    ),
+    database: (
+      <>
+        <ellipse {...common} cx="12" cy="5.5" rx="7" ry="2.8" />
+        <path {...common} d="M5 5.5v6c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-6" />
+        <path {...common} d="M5 11.5v6c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-6" />
+      </>
+    ),
+    github: (
+      <>
+        <path {...common} d="M9 18c-4 1.5-4-2-6-2m12 4v-3.8a3.3 3.3 0 0 0-.9-2.6c3-.3 6.1-1.4 6.1-6.4A5 5 0 0 0 19 3.7 4.7 4.7 0 0 0 18.9 1S17.7.6 15 2.5a13 13 0 0 0-6 0C6.3.6 5.1 1 5.1 1A4.7 4.7 0 0 0 5 3.7 5 5 0 0 0 3.8 7.2c0 5 3.1 6.1 6.1 6.4a3.3 3.3 0 0 0-.9 2.6V20" />
+      </>
+    ),
+    arrow: <path {...common} d="M5 12h14M13 6l6 6-6 6" />,
+    workflow: (
+      <>
+        <rect {...common} x="3" y="4" width="6" height="5" rx="1.5" />
+        <rect {...common} x="15" y="4" width="6" height="5" rx="1.5" />
+        <rect {...common} x="9" y="15" width="6" height="5" rx="1.5" />
+        <path {...common} d="M9 6.5h6M12 9v6" />
+      </>
+    ),
+    target: (
+      <>
+        <circle {...common} cx="12" cy="12" r="7.5" />
+        <circle {...common} cx="12" cy="12" r="3.5" />
+        <path {...common} d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+      </>
+    ),
+  };
 
   return (
-    <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-bg">
-          <div className="hero-gradient"></div>
-          <div className="hero-dna">
-            <Icons.dna />
-          </div>
-        </div>
-        <div className="hero-content">
-          <div className="hero-badge">MediChat-RD v4.0</div>
-          <h1>罕见病在线诊疗平台</h1>
-          <p className="hero-subtitle">
-            AI驱动的罕见病研究与诊疗，连接患者、医生与全球最新医学知识
-          </p>
-          <div className="hero-actions">
-            <button className="btn-primary" onClick={() => onNavigate('ai-chat')}>
-              <Icons.chat /> 开始咨询
-            </button>
-            <button className="btn-secondary" onClick={() => onNavigate('symptom-check')}>
-              <Icons.search /> 症状自查
-            </button>
-          </div>
-        </div>
-      </section>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      {paths[name] || paths.spark}
+    </svg>
+  );
+}
 
-      {/* Stats */}
-      <section className="stats-section">
-        <div className="stats-grid">
-          {stats.map((stat, i) => {
-            const Icon = Icons[stat.icon];
-            return (
-              <div key={i} className="stat-card">
-                <div className="stat-icon"><Icon /></div>
-                <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="features-section">
-        <h2>核心功能</h2>
-        <p className="section-desc">四大功能模块，覆盖罕见病诊疗全流程</p>
-        <div className="features-grid">
-          {features.map((feat, i) => {
-            const Icon = Icons[feat.icon];
-            return (
-              <div key={i} className="feature-card" onClick={() => onNavigate(feat.action)}>
-                <div className="feature-icon"><Icon /></div>
-                <h3>{feat.title}</h3>
-                <p>{feat.desc}</p>
-                <span className="feature-link">立即使用 →</span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Data Sources */}
-      <section className="sources-section">
-        <h2>数据来源</h2>
-        <div className="sources-grid">
-          {['OpenTargets', 'ChEMBL', 'ClinicalTrials.gov', 'PubMed', 'OMIM', 'DrugBank'].map((src, i) => (
-            <div key={i} className="source-tag">{src}</div>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <p>MediChat-RD 罕见病在线诊疗平台 | 数据仅供参考，不构成医疗建议</p>
-        <p>Powered by MIMO AI + ToolUniverse</p>
-      </footer>
+function SectionHeader({ eyebrow, title, description, align = 'left' }) {
+  return (
+    <div className={`section-header ${align === 'center' ? 'centered' : ''}`}>
+      {eyebrow ? <div className="section-eyebrow">{eyebrow}</div> : null}
+      <h2>{title}</h2>
+      {description ? <p>{description}</p> : null}
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════
-// AI 对话组件
-// ═══════════════════════════════════════════════════
-function AIChatPage() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: '您好！我是 MediChat-RD 的AI助手，专注于罕见病领域。我可以帮您：\n\n- 解答罕见病相关问题\n- 解释医学检查结果\n- 提供疾病管理建议\n- 讨论治疗方案\n\n请问有什么可以帮您的？'
-    }
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef(null);
+function TextBlock({ text }) {
+  return (
+    <>
+      {String(text || '')
+        .split('\n')
+        .map((line, index) => (
+          <p key={`${line}-${index}`}>{line || <br />}</p>
+        ))}
+    </>
+  );
+}
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+async function parseJson(response) {
+  const contentType = response.headers.get('content-type') || '';
+  const isJson = contentType.includes('application/json');
+  const payload = isJson ? await response.json() : await response.text();
+
+  if (!response.ok) {
+    if (typeof payload === 'string' && payload) {
+      throw new Error(payload);
+    }
+    if (payload?.detail) {
+      throw new Error(typeof payload.detail === 'string' ? payload.detail : JSON.stringify(payload.detail));
+    }
+    if (payload?.error) {
+      throw new Error(payload.error);
+    }
+    throw new Error(`请求失败 (${response.status})`);
+  }
+
+  return payload;
+}
+
+function AIChatWorkspace({ a2aMode }) {
+  const mode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
+  const initialMessage = useMemo(
+    () => ({
+      role: 'assistant',
+      content: `已进入 ${mode.label}。\n\n接下来发送的每一条消息都会创建或续写真实的 A2A session，由后端编排多个 Agent 执行，而不是普通单轮聊天。`,
+    }),
+    [mode.label],
+  );
+  const [messages, setMessages] = useState([initialMessage]);
+  const [input, setInput] = useState('');
+  const [diseaseContext, setDiseaseContext] = useState('');
+  const [leadAgent, setLeadAgent] = useState('patient_intake_agent');
+  const [patientNickname, setPatientNickname] = useState('');
+  const [sessionState, setSessionState] = useState(null);
+  const [requestError, setRequestError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, loading]);
+
+  useEffect(() => {
+    setMessages([initialMessage]);
+    setSessionState(null);
+    setInput('');
+    setRequestError('');
+    setLeadAgent(a2aMode === 'lead-agent' ? 'patient_intake_agent' : '');
+  }, [a2aMode, initialMessage]);
+
+  const updateSessionState = (data) => {
+    const session = data?.session;
+    if (!session) return;
+
+    setSessionState({
+      sessionId: session.session_id,
+      title: session.title,
+      mode: session.mode,
+      updatedAt: session.updated_at,
+      executedAgents: data.executed_agents || [],
+      latestReport: data.latest_report || null,
+      events: (session.events || []).slice(-6).reverse(),
+    });
   };
 
-  useEffect(scrollToBottom, [messages]);
+  const formatTimestamp = (value) => {
+    if (!value) return '刚刚';
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    return parsed.toLocaleString('zh-CN', { hour12: false });
+  };
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-    
-    const userMsg = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
+  const sendMessage = async (preset) => {
+    const nextContent = typeof preset === 'string' ? preset : input;
+    if (!nextContent.trim() || loading) return;
+
+    const userMessage = { role: 'user', content: nextContent.trim() };
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
     setInput('');
+    setRequestError('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/v2/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
-        }),
-      });
-      const data = await res.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: '抱歉，暂时无法连接到AI服务。请稍后再试。' 
-      }]);
+      const trimmedDisease = diseaseContext.trim();
+      const trimmedNickname = patientNickname.trim();
+      const request = sessionState?.sessionId
+        ? fetch(`/api/v2/a2a/sessions/${sessionState.sessionId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              content: nextContent.trim(),
+              disease_context: trimmedDisease || undefined,
+            }),
+          })
+        : fetch('/api/v2/a2a/sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              mode: a2aMode,
+              lead_agent: a2aMode === 'lead-agent' ? leadAgent || undefined : undefined,
+              disease_context: trimmedDisease || undefined,
+              patient_profile: trimmedNickname
+                ? {
+                    nickname: trimmedNickname,
+                    disease_type: trimmedDisease || undefined,
+                  }
+                : undefined,
+              metadata: {
+                source: 'ai-chat-workspace',
+              },
+              initial_message: nextContent.trim(),
+            }),
+          });
+
+      const data = await parseJson(await request);
+      updateSessionState(data);
+
+      const assistantContent =
+        data.assistant_message || data.latest_report?.summary || 'A2A session 已更新，但当前没有返回文本摘要。';
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: assistantContent }]);
+    } catch (error) {
+      setRequestError(error.message);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: `当前无法完成 A2A 编排请求。\n\n原因：${error.message}\n\n你可以稍后重试，或改用下方专用工作台继续操作。`,
+        },
+      ]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="chat-page">
-      <div className="chat-header">
-        <Icons.chat />
-        <h2>AI医学助手</h2>
-        <span className="chat-badge">MIMO驱动</span>
+    <div className="workspace-stack">
+      <div className="workspace-banner">
+        <div>
+          <span className="workspace-banner-kicker">当前协作模式</span>
+          <strong>{mode.label}</strong>
+        </div>
+        <p>{workspaceRecommendations[mode.id]}</p>
       </div>
-      <div className="chat-messages">
-        {messages.map((msg, i) => (
-          <div key={i} className={`message ${msg.role}`}>
-            <div className="message-avatar">
-              {msg.role === 'assistant' ? 'AI' : '您'}
-            </div>
-            <div className="message-content">
-              {msg.content.split('\n').map((line, j) => (
-                <p key={j}>{line || <br />}</p>
+
+      <div className="field-grid split">
+        <label className="field">
+          <span>疾病上下文</span>
+          <input
+            value={diseaseContext}
+            onChange={(event) => setDiseaseContext(event.target.value)}
+            placeholder="可选，如：Pompe disease / SMA / Fabry disease"
+          />
+        </label>
+        {a2aMode === 'lead-agent' ? (
+          <label className="field">
+            <span>首位 Agent</span>
+            <select value={leadAgent} onChange={(event) => setLeadAgent(event.target.value)}>
+              {a2aLeadAgents.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.label}
+                </option>
               ))}
-            </div>
-          </div>
+            </select>
+          </label>
+        ) : null}
+        {a2aMode === 'roundtable' ? (
+          <label className="field">
+            <span>患者昵称</span>
+            <input
+              value={patientNickname}
+              onChange={(event) => setPatientNickname(event.target.value)}
+              placeholder="可选，用于生成患者社群分身"
+            />
+          </label>
+        ) : null}
+      </div>
+
+      <div className="prompt-row">
+        {starterPrompts.map((prompt) => (
+          <button key={prompt} type="button" className="ghost-chip" onClick={() => sendMessage(prompt)}>
+            {prompt}
+          </button>
         ))}
-        {loading && (
-          <div className="message assistant">
-            <div className="message-avatar">AI</div>
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span><span></span><span></span>
+      </div>
+
+      {requestError ? <div className="error-card">{requestError}</div> : null}
+
+      {sessionState ? (
+        <>
+          <div className="summary-grid">
+            <article className="summary-card">
+              <span>A2A Session</span>
+              <strong>{sessionState.title || '未命名会话'}</strong>
+              <p>{sessionState.sessionId}</p>
+            </article>
+            <article className="summary-card">
+              <span>协作模式</span>
+              <strong>{mode.title}</strong>
+              <p>{sessionState.mode}</p>
+            </article>
+            <article className="summary-card">
+              <span>已执行 Agent</span>
+              <strong>{sessionState.executedAgents.length}</strong>
+              <p>每条消息都会续写同一个 orchestration session</p>
+            </article>
+            <article className="summary-card">
+              <span>最近更新时间</span>
+              <strong>{formatTimestamp(sessionState.updatedAt)}</strong>
+              <p>后端返回的最新 session 时间戳</p>
+            </article>
+          </div>
+
+          <div className="result-layout">
+            <div className="result-card">
+              <div className="card-topline">执行链路</div>
+              <div className="command-chain session-agent-chain">
+                {sessionState.executedAgents.map((agentId) => (
+                  <span key={agentId}>{a2aAgentLabelMap[agentId] || agentId}</span>
+                ))}
+              </div>
+              {sessionState.latestReport?.next_steps?.length ? (
+                <div className="chain-list">
+                  {sessionState.latestReport.next_steps.map((step, index) => (
+                    <div key={`${step}-${index}`} className="chain-item">
+                      <span>{String(index + 1).padStart(2, '0')}</span>
+                      <div>
+                        <strong>下一步行动</strong>
+                        <p>{step}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="result-card prose-card">
+              <div className="card-topline">最新汇总报告</div>
+              <TextBlock text={sessionState.latestReport?.summary || '当前还没有生成报告摘要。'} />
+            </div>
+
+            <div className="result-card wide-card">
+              <div className="card-topline">最近事件</div>
+              <div className="list-stack">
+                {sessionState.events.map((event) => (
+                  <article key={event.event_id} className="list-card">
+                    <div className="list-card-top">
+                      <code>{a2aAgentLabelMap[event.agent_id] || event.agent_id}</code>
+                      <span>{event.status || 'completed'}</span>
+                    </div>
+                    <strong>{event.headline}</strong>
+                    <p>{event.detail}</p>
+                  </article>
+                ))}
               </div>
             </div>
           </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-      <div className="chat-input">
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
-          placeholder="输入您的问题..."
-          disabled={loading}
-        />
-        <button onClick={sendMessage} disabled={loading || !input.trim()}>
-          <Icons.send />
-        </button>
-      </div>
-      <div className="chat-disclaimer">
-        AI回复仅供参考，不构成医疗诊断。如有紧急情况，请立即就医。
+        </>
+      ) : null}
+
+      <div className="chat-shell">
+        <div className="chat-messages">
+          {messages.map((message, index) => (
+            <article key={`${message.role}-${index}`} className={`chat-card ${message.role}`}>
+              <div className="chat-avatar">{message.role === 'assistant' ? 'AI' : '你'}</div>
+              <div className="chat-copy">
+                <TextBlock text={message.content} />
+              </div>
+            </article>
+          ))}
+          {loading ? (
+            <article className="chat-card assistant">
+              <div className="chat-avatar">AI</div>
+              <div className="chat-copy">
+                <div className="typing-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </article>
+          ) : null}
+          <div ref={bottomRef} />
+        </div>
+
+        <div className="chat-compose">
+          <textarea
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="输入你的病例线索、研究目标或社群问题。按 Enter 发送，Shift + Enter 换行。"
+            rows={4}
+          />
+          <button type="button" className="primary-button" disabled={loading || !input.trim()} onClick={() => sendMessage()}>
+            <Icon name="arrow" />
+            发送到 A2A 总线
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════
-// 症状自查组件
-// ═══════════════════════════════════════════════════
-function SymptomCheckPage() {
+function SymptomCheckWorkspace({ a2aMode }) {
+  const mode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
   const [symptoms, setSymptoms] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const check = async () => {
-    if (!symptoms.trim()) return;
+  const analyze = async () => {
+    if (!symptoms.trim() || loading) return;
     setLoading(true);
+    setError('');
+    setResult(null);
+
     try {
-      const res = await fetch('/api/v2/symptom-check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          symptoms,
-          age: age ? parseInt(age) : null,
-          gender: gender || null,
+      const data = await parseJson(
+        await fetch('/api/v2/symptom-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            symptoms: symptoms.trim(),
+            age: age ? Number(age) : null,
+            gender: gender || null,
+          }),
         }),
-      });
-      setResult(await res.json());
-    } catch (err) {
-      setResult({ error: '服务暂时不可用，请稍后再试' });
+      );
+
+      setResult(data);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="symptom-page">
-      <div className="page-header">
-        <h2>智能症状自查</h2>
-        <p>描述您的症状，AI将分析可能的罕见病方向</p>
-      </div>
-      
-      <div className="symptom-form">
-        <div className="form-row">
-          <div className="form-group">
-            <label>年龄（选填）</label>
-            <input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="如：35" />
-          </div>
-          <div className="form-group">
-            <label>性别（选填）</label>
-            <select value={gender} onChange={e => setGender(e.target.value)}>
-              <option value="">请选择</option>
+    <div className="workspace-stack">
+      <div className="field-grid">
+        <label className="field field-large">
+          <span>症状描述</span>
+          <textarea
+            rows={7}
+            value={symptoms}
+            onChange={(event) => setSymptoms(event.target.value)}
+            placeholder="示例：近半年逐渐加重的肌无力，下午更明显，伴吞咽困难和上睑下垂。"
+          />
+        </label>
+
+        <div className="field-column">
+          <label className="field">
+            <span>年龄</span>
+            <input value={age} onChange={(event) => setAge(event.target.value)} placeholder="选填，如 16" type="number" />
+          </label>
+          <label className="field">
+            <span>性别</span>
+            <select value={gender} onChange={(event) => setGender(event.target.value)}>
+              <option value="">选填</option>
               <option value="男">男</option>
               <option value="女">女</option>
             </select>
+          </label>
+          <div className="mini-note">
+            <strong>{mode.label}</strong>
+            <p>当前模式下，症状结果会被视为表型入口，后续建议自动回流到 Evidence / Trial 节点。</p>
           </div>
+          <button type="button" className="primary-button full-width" disabled={loading || !symptoms.trim()} onClick={analyze}>
+            <Icon name="search" />
+            {loading ? '分析中...' : '开始症状分析'}
+          </button>
         </div>
-        <div className="form-group">
-          <label>症状描述</label>
-          <textarea
-            value={symptoms}
-            onChange={e => setSymptoms(e.target.value)}
-            placeholder="请详细描述您的症状，例如：&#10;- 双眼皮下垂3个月&#10;- 下午疲劳加重&#10;- 吞咽困难"
-            rows={5}
-          />
-        </div>
-        <button className="btn-primary" onClick={check} disabled={loading || !symptoms.trim()}>
-          {loading ? '分析中...' : '开始自查'}
-        </button>
       </div>
 
-      {result && !result.error && (
-        <div className="result-card">
-          <h3>自查结果</h3>
-          <div className="result-content">
-            {result.analysis?.split('\n').map((line, i) => (
-              <p key={i}>{line || <br />}</p>
-            ))}
+      {error ? <div className="error-card">{error}</div> : null}
+
+      {result ? (
+        <div className="result-layout">
+          <div className="result-card prose-card">
+            <div className="card-topline">分析结果</div>
+            <TextBlock text={result.analysis} />
           </div>
-          <div className="disclaimer-box">
-            <Icons.alert />
-            <span>{result.disclaimer}</span>
+          <div className="result-card">
+            <div className="card-topline">A2A 下一步</div>
+            <div className="chain-list">
+              <div className="chain-item">
+                <span>01</span>
+                <div>
+                  <strong>Phenotype Agent</strong>
+                  <p>把描述转成结构化表型和重点追问问题。</p>
+                </div>
+              </div>
+              <div className="chain-item">
+                <span>02</span>
+                <div>
+                  <strong>Evidence Agent</strong>
+                  <p>匹配候选疾病方向、文献和指南摘要。</p>
+                </div>
+              </div>
+              <div className="chain-item">
+                <span>03</span>
+                <div>
+                  <strong>Trial / Community Agent</strong>
+                  <p>若需要进一步行动，转入试验匹配或患者社群支持流程。</p>
+                </div>
+              </div>
+            </div>
+            <div className="warning-box">{result.disclaimer}</div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════
-// 疾病研究组件
-// ═══════════════════════════════════════════════════
-function DiseaseResearchPage() {
+function DiseaseResearchWorkspace() {
   const [disease, setDisease] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
   const research = async () => {
-    if (!disease.trim()) return;
+    if (!disease.trim() || loading) return;
     setLoading(true);
+    setError('');
     setResult(null);
+
     try {
-      const res = await fetch('/api/v2/research', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ disease_name: disease }),
-      });
-      setResult(await res.json());
-    } catch (err) {
-      setResult({ error: '研究服务暂时不可用' });
+      const data = await parseJson(
+        await fetch('/api/v2/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ disease_name: disease.trim() }),
+        }),
+      );
+
+      setResult(data);
+      setActiveTab('overview');
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  const stages = result?.stages || {};
   const tabs = [
-    { id: 'overview', label: '疾病概述' },
-    { id: 'targets', label: '靶点' },
-    { id: 'drugs', label: '药物' },
-    { id: 'trials', label: '临床试验' },
-    { id: 'analysis', label: 'AI分析' },
+    { id: 'overview', label: '疾病概览' },
+    { id: 'targets', label: `靶点 ${stages.targets?.length || 0}` },
+    { id: 'drugs', label: `药物 ${stages.drugs?.length || 0}` },
+    { id: 'trials', label: `试验 ${stages.clinical_trials?.length || 0}` },
+    { id: 'analysis', label: 'AI 报告' },
   ];
 
   return (
-    <div className="research-page">
-      <div className="page-header">
-        <h2>疾病研究一站通</h2>
-        <p>靶点、药物、临床试验、AI分析，一键生成完整报告</p>
-      </div>
-
-      <div className="search-bar">
+    <div className="workspace-stack">
+      <div className="search-strip">
         <input
           value={disease}
-          onChange={e => setDisease(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && research()}
-          placeholder="输入疾病名称，如：Myasthenia Gravis"
+          onChange={(event) => setDisease(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              research();
+            }
+          }}
+          placeholder="输入疾病名称，如 Duchenne muscular dystrophy / Pompe disease"
         />
-        <button className="btn-primary" onClick={research} disabled={loading}>
-          {loading ? '研究中...' : '开始研究'}
+        <button type="button" className="primary-button" disabled={loading || !disease.trim()} onClick={research}>
+          <Icon name="target" />
+          {loading ? '研究中...' : '生成研究图谱'}
         </button>
       </div>
 
-      {loading && (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>正在整合多源数据并生成分析报告...</p>
-        </div>
-      )}
+      {error ? <div className="error-card">{error}</div> : null}
+      {loading ? <div className="loading-card">正在整合疾病、靶点、药物和试验数据...</div> : null}
 
-      {result && !result.error && (
-        <div className="research-result">
-          <div className="tabs">
-            {tabs.map(tab => (
+      {result ? (
+        <>
+          <div className="summary-grid">
+            <article className="summary-card">
+              <span>疾病</span>
+              <strong>{stages.disease_info?.name || result.disease}</strong>
+              <p>{stages.disease_info?.id || '等待补充 ID'}</p>
+            </article>
+            <article className="summary-card">
+              <span>靶点候选</span>
+              <strong>{stages.targets?.length || 0}</strong>
+              <p>优先展示前 10 个关联靶点</p>
+            </article>
+            <article className="summary-card">
+              <span>药物候选</span>
+              <strong>{stages.drugs?.length || 0}</strong>
+              <p>覆盖已知药物和研发状态</p>
+            </article>
+            <article className="summary-card">
+              <span>临床试验</span>
+              <strong>{stages.clinical_trials?.length || 0}</strong>
+              <p>可进一步流转到 Trial Navigator</p>
+            </article>
+          </div>
+
+          <div className="tab-row">
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
-                className={`tab ${activeTab === tab.id ? 'active' : ''}`}
+                type="button"
+                className={`tab-pill ${activeTab === tab.id ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
               >
                 {tab.label}
@@ -450,220 +845,705 @@ function DiseaseResearchPage() {
             ))}
           </div>
 
-          <div className="tab-content">
-            {activeTab === 'overview' && result.stages?.disease_info && (
-              <div className="overview-card">
-                <h3>{result.stages.disease_info.name}</h3>
-                <p>{result.stages.disease_info.description}</p>
-                <div className="meta">
-                  <span>ID: {result.stages.disease_info.id}</span>
-                </div>
+          <div className="result-card">
+            {activeTab === 'overview' ? (
+              <div className="prose-card">
+                <div className="card-topline">疾病概览</div>
+                <h3>{stages.disease_info?.name || result.disease}</h3>
+                <p>{stages.disease_info?.description || '当前返回数据未包含描述，可继续查看靶点、药物和试验结果。'}</p>
               </div>
-            )}
+            ) : null}
 
-            {activeTab === 'targets' && result.stages?.targets && (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>基因</th>
-                      <th>名称</th>
-                      <th>关联分数</th>
-                      <th>遗传关联</th>
-                      <th>临床证据</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.stages.targets.map((t, i) => (
-                      <tr key={i}>
-                        <td><code>{t.gene_id.split(':').pop()}</code></td>
-                        <td>{t.gene_name}</td>
-                        <td><span className="score">{t.score}</span></td>
-                        <td>{t.genetic_association ? t.genetic_association.toFixed(3) : '-'}</td>
-                        <td>{t.clinical ? t.clinical.toFixed(3) : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {activeTab === 'drugs' && result.stages?.drugs && (
-              <div className="drugs-grid">
-                {result.stages.drugs.map((d, i) => (
-                  <div key={i} className="drug-card">
-                    <div className="drug-phase">
-                      <span className={`phase-badge phase-${d.max_phase?.replace('.', '')}`}>
-                        {d.phase_label}
-                      </span>
+            {activeTab === 'targets' ? (
+              <div className="card-grid">
+                {(stages.targets || []).map((target) => (
+                  <article key={target.gene_id} className="mini-card">
+                    <div className="mini-card-top">
+                      <code>{target.gene_id?.split(':').pop()}</code>
+                      <span>{target.score}</span>
                     </div>
-                    <div className="drug-id"><code>{d.chembl_id}</code></div>
-                    <div className="drug-name">{d.mesh_heading}</div>
-                  </div>
+                    <strong>{target.gene_name}</strong>
+                    <p>遗传关联：{target.genetic_association?.toFixed(3) || '-'}</p>
+                    <p>临床证据：{target.clinical?.toFixed(3) || '-'}</p>
+                  </article>
                 ))}
               </div>
-            )}
+            ) : null}
 
-            {activeTab === 'trials' && result.stages?.clinical_trials && (
-              <div className="trials-list">
-                {result.stages.clinical_trials.map((t, i) => (
-                  <div key={i} className="trial-card">
-                    <div className="trial-header">
-                      <code className="nct-id">{t.nct_id}</code>
-                      <span className={`status-badge status-${t.status?.toLowerCase()}`}>
-                        {t.status_cn}
-                      </span>
+            {activeTab === 'drugs' ? (
+              <div className="card-grid">
+                {(stages.drugs || []).map((drug) => (
+                  <article key={`${drug.chembl_id}-${drug.mesh_heading}`} className="mini-card">
+                    <div className="mini-card-top">
+                      <code>{drug.chembl_id}</code>
+                      <span>{drug.phase_label}</span>
                     </div>
-                    <h4>{t.title}</h4>
-                    <p className="trial-sponsor">{t.sponsor}</p>
-                    {t.summary && <p className="trial-summary">{t.summary}</p>}
-                  </div>
+                    <strong>{drug.mesh_heading}</strong>
+                    <p>最高临床阶段：{drug.max_phase ?? '-'}</p>
+                  </article>
                 ))}
               </div>
-            )}
+            ) : null}
 
-            {activeTab === 'analysis' && result.stages?.analysis && (
-              <div className="analysis-card">
-                <div className="analysis-content">
-                  {result.stages.analysis.split('\n').map((line, i) => (
-                    <p key={i}>{line || <br />}</p>
-                  ))}
-                </div>
+            {activeTab === 'trials' ? (
+              <div className="list-stack">
+                {(stages.clinical_trials || []).map((trial) => (
+                  <article key={trial.nct_id} className="list-card">
+                    <div className="list-card-top">
+                      <code>{trial.nct_id}</code>
+                      <span>{trial.status_cn || trial.status}</span>
+                    </div>
+                    <strong>{trial.title}</strong>
+                    <p>{trial.sponsor}</p>
+                    {trial.summary ? <p>{trial.summary}</p> : null}
+                  </article>
+                ))}
               </div>
-            )}
+            ) : null}
+
+            {activeTab === 'analysis' ? (
+              <div className="prose-card">
+                <div className="card-topline">AI 研究报告</div>
+                <TextBlock text={stages.analysis || '当前未生成 AI 分析文本。'} />
+              </div>
+            ) : null}
           </div>
-        </div>
-      )}
+        </>
+      ) : null}
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════
-// 药物重定位组件
-// ═══════════════════════════════════════════════════
-function DrugResearchPage() {
+function DrugRepurposingWorkspace() {
   const [disease, setDisease] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const research = async () => {
-    if (!disease.trim()) return;
+  const analyze = async () => {
+    if (!disease.trim() || loading) return;
     setLoading(true);
+    setError('');
+    setResult(null);
+
     try {
-      const res = await fetch(`/api/v2/drug-repurposing?disease_name=${encodeURIComponent(disease)}`, {
-        method: 'POST',
-      });
-      setResult(await res.json());
-    } catch (err) {
-      setResult({ error: '服务暂时不可用' });
+      const data = await parseJson(
+        await fetch(`/api/v2/drug-repurposing?disease_name=${encodeURIComponent(disease.trim())}`, {
+          method: 'POST',
+        }),
+      );
+      setResult(data);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="drug-page">
-      <div className="page-header">
-        <h2>药物重定位研究</h2>
-        <p>发现老药新用的机会，加速罕见病治疗进展</p>
-      </div>
-
-      <div className="search-bar">
+    <div className="workspace-stack">
+      <div className="search-strip">
         <input
           value={disease}
-          onChange={e => setDisease(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && research()}
-          placeholder="输入疾病名称"
+          onChange={(event) => setDisease(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              analyze();
+            }
+          }}
+          placeholder="输入待分析疾病，如 Fabry disease / ALS / Gaucher disease"
         />
-        <button className="btn-primary" onClick={research} disabled={loading}>
-          {loading ? '分析中...' : '开始分析'}
+        <button type="button" className="primary-button" disabled={loading || !disease.trim()} onClick={analyze}>
+          <Icon name="pill" />
+          {loading ? '分析中...' : '生成重定位候选'}
         </button>
       </div>
 
-      {loading && (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>正在分析药物重定位机会...</p>
-        </div>
-      )}
+      {error ? <div className="error-card">{error}</div> : null}
+      {loading ? <div className="loading-card">正在比对疾病靶点、既有药物和再利用机会...</div> : null}
 
-      {result && !result.error && (
-        <div className="drug-result">
-          <h3>{result.disease} - 药物重定位分析</h3>
-          <div className="analysis-card">
-            <div className="analysis-content">
-              {result.repurposing_analysis?.split('\n').map((line, i) => (
-                <p key={i}>{line || <br />}</p>
+      {result ? (
+        <div className="result-layout">
+          <div className="result-card">
+            <div className="card-topline">候选靶点</div>
+            <div className="card-grid">
+              {(result.targets || []).map((target) => (
+                <article key={target.gene_id} className="mini-card">
+                  <div className="mini-card-top">
+                    <code>{target.gene_id?.split(':').pop()}</code>
+                    <span>{target.score}</span>
+                  </div>
+                  <strong>{target.gene_name}</strong>
+                  <p>遗传：{target.genetic_association?.toFixed(3) || '-'}</p>
+                  <p>临床：{target.clinical?.toFixed(3) || '-'}</p>
+                </article>
               ))}
             </div>
           </div>
+
+          <div className="result-card">
+            <div className="card-topline">已知药物池</div>
+            <div className="card-grid">
+              {(result.existing_drugs || []).slice(0, 8).map((drug) => (
+                <article key={`${drug.chembl_id}-${drug.mesh_heading}`} className="mini-card">
+                  <div className="mini-card-top">
+                    <code>{drug.chembl_id}</code>
+                    <span>{drug.phase_label || '阶段未知'}</span>
+                  </div>
+                  <strong>{drug.mesh_heading}</strong>
+                  <p>最大临床阶段：{drug.max_phase ?? '-'}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="result-card prose-card wide-card">
+            <div className="card-topline">重定位分析报告</div>
+            <TextBlock text={result.repurposing_analysis} />
+          </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════
-// 主应用
-// ═══════════════════════════════════════════════════
+function TrialMatchingWorkspace() {
+  const [disease, setDisease] = useState('');
+  const [focus, setFocus] = useState('');
+  const [recruitingOnly, setRecruitingOnly] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+
+  const matchTrials = async () => {
+    if (!disease.trim() || loading) return;
+    setLoading(true);
+    setError('');
+    setResult(null);
+
+    try {
+      const data = await parseJson(
+        await fetch('/api/v2/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            disease_name: disease.trim(),
+            include_targets: false,
+            include_drugs: false,
+            include_trials: true,
+            include_analysis: false,
+          }),
+        }),
+      );
+      setResult(data);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredTrials = useMemo(() => {
+    const trials = result?.stages?.clinical_trials || [];
+    const keyword = focus.trim().toLowerCase();
+    return trials.filter((trial) => {
+      const matchesStatus = recruitingOnly ? trial.status?.toLowerCase() === 'recruiting' : true;
+      const haystack = `${trial.title || ''} ${trial.summary || ''} ${trial.sponsor || ''}`.toLowerCase();
+      const matchesKeyword = keyword ? haystack.includes(keyword) : true;
+      return matchesStatus && matchesKeyword;
+    });
+  }, [focus, recruitingOnly, result]);
+
+  return (
+    <div className="workspace-stack">
+      <div className="field-grid compact-grid">
+        <label className="field">
+          <span>疾病</span>
+          <input
+            value={disease}
+            onChange={(event) => setDisease(event.target.value)}
+            placeholder="如 SMA / Pompe disease"
+          />
+        </label>
+        <label className="field">
+          <span>匹配重点</span>
+          <input
+            value={focus}
+            onChange={(event) => setFocus(event.target.value)}
+            placeholder="可选，如 gene therapy / pediatric / respiratory"
+          />
+        </label>
+        <label className="field checkbox-field">
+          <span>状态过滤</span>
+          <div className="checkbox-chip">
+            <input
+              id="recruitingOnly"
+              type="checkbox"
+              checked={recruitingOnly}
+              onChange={(event) => setRecruitingOnly(event.target.checked)}
+            />
+            <label htmlFor="recruitingOnly">仅看招募中试验</label>
+          </div>
+        </label>
+      </div>
+
+      <button type="button" className="primary-button fit-button" disabled={loading || !disease.trim()} onClick={matchTrials}>
+        <Icon name="workflow" />
+        {loading ? '匹配中...' : '开始试验匹配'}
+      </button>
+
+      {error ? <div className="error-card">{error}</div> : null}
+      {loading ? <div className="loading-card">正在检索 ClinicalTrials 条目并按当前重点筛选...</div> : null}
+
+      {result ? (
+        <>
+          <div className="summary-grid">
+            <article className="summary-card">
+              <span>疾病</span>
+              <strong>{result.disease}</strong>
+              <p>当前匹配以疾病维度进行试验筛选</p>
+            </article>
+            <article className="summary-card">
+              <span>总试验数</span>
+              <strong>{result.stages?.clinical_trials?.length || 0}</strong>
+              <p>ClinicalTrials 检索原始结果</p>
+            </article>
+            <article className="summary-card">
+              <span>筛选后</span>
+              <strong>{filteredTrials.length}</strong>
+              <p>按关键词与状态过滤后的候选</p>
+            </article>
+          </div>
+
+          <div className="list-stack">
+            {filteredTrials.length ? (
+              filteredTrials.map((trial) => (
+                <article key={trial.nct_id} className="list-card">
+                  <div className="list-card-top">
+                    <code>{trial.nct_id}</code>
+                    <span>{trial.status_cn || trial.status}</span>
+                  </div>
+                  <strong>{trial.title}</strong>
+                  <p>{trial.sponsor}</p>
+                  {trial.summary ? <p>{trial.summary}</p> : null}
+                </article>
+              ))
+            ) : (
+              <div className="empty-card">当前过滤条件下没有匹配试验，建议取消“仅看招募中”或换一个关键词。</div>
+            )}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 function App() {
-  const [page, setPage] = useState('home');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeCapability, setActiveCapability] = useState('ai-chat');
+  const [a2aMode, setA2AMode] = useState('auto');
+  const [health, setHealth] = useState({ state: 'loading', detail: '连接平台中...' });
+  const workbenchRef = useRef(null);
 
-  const navItems = [
-    { id: 'home', label: '首页', icon: 'home' },
-    { id: 'ai-chat', label: 'AI助手', icon: 'chat' },
-    { id: 'symptom-check', label: '症状自查', icon: 'search' },
-    { id: 'disease-research', label: '疾病研究', icon: 'file' },
-    { id: 'drug-research', label: '药物重定位', icon: 'pill' },
-  ];
+  useEffect(() => {
+    let cancelled = false;
 
-  const renderPage = () => {
-    switch (page) {
-      case 'ai-chat': return <AIChatPage />;
-      case 'symptom-check': return <SymptomCheckPage />;
-      case 'disease-research': return <DiseaseResearchPage />;
-      case 'drug-research': return <DrugResearchPage />;
-      default: return <HomePage onNavigate={setPage} />;
+    const loadHealth = async () => {
+      try {
+        const data = await parseJson(await fetch('/api/health'));
+        if (cancelled) return;
+        setHealth({
+          state: 'healthy',
+          detail: data.a2a_available
+            ? data.mimo_configured
+              ? 'API 在线，A2A 与 MIMO 已就绪'
+              : 'API 在线，A2A 已就绪，等待模型配置'
+            : 'API 在线，A2A 尚未接通',
+        });
+      } catch (error) {
+        if (cancelled) return;
+        setHealth({
+          state: 'degraded',
+          detail: 'API 状态未知，界面仍可继续使用',
+        });
+      }
+    };
+
+    loadHealth();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const activeCapabilityMeta = useMemo(
+    () => coreCapabilities.find((item) => item.id === activeCapability) || coreCapabilities[0],
+    [activeCapability],
+  );
+  const activeMode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
+
+  const openWorkbench = (capabilityId = 'ai-chat') => {
+    setActiveCapability(capabilityId);
+    requestAnimationFrame(() => {
+      workbenchRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  const activateMode = (modeId, capabilityId = activeCapability) => {
+    setA2AMode(modeId);
+    openWorkbench(capabilityId);
+  };
+
+  const renderWorkspace = () => {
+    switch (activeCapability) {
+      case 'symptom-check':
+        return <SymptomCheckWorkspace a2aMode={a2aMode} />;
+      case 'disease-research':
+        return <DiseaseResearchWorkspace />;
+      case 'drug-repurposing':
+        return <DrugRepurposingWorkspace />;
+      case 'trial-matching':
+        return <TrialMatchingWorkspace />;
+      case 'ai-chat':
+      default:
+        return <AIChatWorkspace a2aMode={a2aMode} />;
     }
   };
 
   return (
-    <div className="app">
-      {/* Top Nav */}
-      <nav className="topnav">
-        <button className="menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-          {sidebarOpen ? <Icons.x /> : <Icons.menu />}
-        </button>
-        <div className="nav-brand" onClick={() => setPage('home')}>
-          <Icons.dna />
-          <span>MediChat-RD</span>
-        </div>
-        <div className="nav-right">
-          <span className="nav-version">v4.0</span>
-        </div>
-      </nav>
+    <div className="platform-shell">
+      <header className="platform-nav">
+        <a href="#top" className="brand-mark">
+          <span className="brand-icon">
+            <Icon name="dna" />
+          </span>
+          <span>
+            <strong>MediChat-RD</strong>
+            <small>Rare Disease A2A Platform</small>
+          </span>
+        </a>
 
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        {navItems.map(item => {
-          const Icon = Icons[item.icon];
-          return (
-            <button
-              key={item.id}
-              className={`nav-item ${page === item.id ? 'active' : ''}`}
-              onClick={() => { setPage(item.id); setSidebarOpen(false); }}
-            >
-              <Icon />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </aside>
+        <nav className="nav-links">
+          <a href="#capabilities">核心能力</a>
+          <a href="#a2a">A2A 模式</a>
+          <a href="#sources">数据源</a>
+          <a href="#architecture">技术架构</a>
+          <a href="#workbench">工作台</a>
+        </nav>
 
-      {/* Main Content */}
-      <main className="main-content">
-        {renderPage()}
+        <div className="nav-actions">
+          <a className="nav-link-button" href="/landing">
+            介绍页
+          </a>
+          <a className="nav-link-button" href={GITHUB_URL} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </div>
+      </header>
+
+      <main>
+        <section id="top" className="hero-panel">
+          <div className="hero-copy">
+            <div className="hero-kicker">
+              <span className={`status-dot ${health.state}`}></span>
+              {health.detail}
+            </div>
+            <h1>
+              顶级罕见病平台
+              <span>把患者入口、A2A 协作和研究工作台放在同一个界面里</span>
+            </h1>
+            <p className="hero-description">
+              这是一个面向患者、医生、研究者与患者社群的罕见病智能平台。它既保留 MediChat-RD 的研究能力，
+              也吸收 MedRoundTable 的 A2A 入口逻辑，让你可以一句问题直接开始，或先选首位 Agent 再启动完整流程。
+            </p>
+
+            <div className="hero-actions">
+              <button type="button" className="primary-button" onClick={() => openWorkbench('ai-chat')}>
+                <Icon name="chat" />
+                进入工作台
+              </button>
+              <button type="button" className="secondary-button" onClick={() => activateMode('roundtable', 'symptom-check')}>
+                <Icon name="nodes" />
+                启动 A2A 圆桌模式
+              </button>
+            </div>
+
+            <div className="hero-links">
+              <a href={LIVE_PLATFORM_URL} target="_blank" rel="noreferrer">
+                在线平台
+              </a>
+              <a href={A2A_REFERENCE_URL} target="_blank" rel="noreferrer">
+                MedRoundTable A2A 参考
+              </a>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                仓库源码
+              </a>
+            </div>
+          </div>
+
+          <aside className="hero-command-card">
+            <div className="command-topline">
+              <span>平台主控台</span>
+              <strong>{activeMode.label}</strong>
+            </div>
+            <div className="mode-grid">
+              {a2aModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  className={`mode-card ${a2aMode === mode.id ? 'active' : ''}`}
+                  onClick={() => activateMode(mode.id)}
+                >
+                  <strong>{mode.title}</strong>
+                  <p>{mode.desc}</p>
+                </button>
+              ))}
+            </div>
+            <div className="command-chain">
+              {activeMode.chain.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </aside>
+        </section>
+
+        <section className="metric-strip">
+          {platformMetrics.map((metric) => (
+            <article key={metric.label} className="metric-card">
+              <strong>{metric.value}</strong>
+              <span>{metric.label}</span>
+              <p>{metric.note}</p>
+            </article>
+          ))}
+        </section>
+
+        <section id="capabilities" className="content-section">
+          <SectionHeader
+            eyebrow="5 大核心能力"
+            title="从一条主诉到一份可执行报告，全部落在同一个平台工作台里"
+            description="平台保留对话、症状、研究、重定位和试验匹配 5 个入口。每个入口都能被 A2A 编排层接管，而不是孤立的单点工具。"
+            align="center"
+          />
+
+          <div className="capability-grid">
+            {coreCapabilities.map((capability) => (
+              <button
+                key={capability.id}
+                type="button"
+                className={`capability-card accent-${capability.accent} ${activeCapability === capability.id ? 'selected' : ''}`}
+                onClick={() => openWorkbench(capability.id)}
+              >
+                <div className="capability-badge">{capability.badge}</div>
+                <strong>{capability.title}</strong>
+                <span>{capability.subtitle}</span>
+                <p>{capability.desc}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section id="a2a" className="content-section section-contrast">
+          <SectionHeader
+            eyebrow="A2A 模式"
+            title="把 MedRoundTable 的 A2A 入口逻辑真正并入罕见病平台"
+            description="这里不只是加一个“多人模式”按钮，而是让平台支持三种启动方式：自动编排、先选首位 Agent、患者社群圆桌。"
+            align="center"
+          />
+
+          <div className="a2a-layout">
+            <div className="node-grid">
+              {a2aNodes.map((node, index) => (
+                <article key={node.name} className="node-card">
+                  <span className="node-index">0{index + 1}</span>
+                  <strong>{node.role}</strong>
+                  <h3>{node.name}</h3>
+                  <p>{node.desc}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className="a2a-summary">
+              <div className="summary-panel">
+                <span className="summary-kicker">协作解释</span>
+                <h3>一句话就能开始，或先指定谁来带队</h3>
+                <p>
+                  这套 A2A 模式复用了 MedRoundTable 的关键思想：入口先服务于“问题如何被接住”，而不是先让用户学习整个平台。
+                  对罕见病平台来说，这意味着患者也能从社群入口进入，而医生和研究者则可以从首位 Agent 入口切入。
+                </p>
+              </div>
+              <div className="summary-panel">
+                <span className="summary-kicker">当前工作台建议</span>
+                <h3>{activeCapabilityMeta.title}</h3>
+                <p>{activeCapabilityMeta.desc}</p>
+                <button type="button" className="secondary-button full-width" onClick={() => openWorkbench(activeCapabilityMeta.id)}>
+                  打开当前能力
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="content-section">
+          <SectionHeader
+            eyebrow="3 步使用流程"
+            title="描述问题 → AI 分析 → 获取报告"
+            description="无论是患者问题、疾病研究还是试验匹配，统一使用三段式交互，确保平台对外有一致的操作心智。"
+            align="center"
+          />
+
+          <div className="flow-grid">
+            {flowSteps.map((step) => (
+              <article key={step.step} className="flow-card">
+                <span>{step.step}</span>
+                <strong>{step.title}</strong>
+                <p>{step.desc}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="sources" className="content-section">
+          <SectionHeader
+            eyebrow="14+ 数据源"
+            title="不只写名字，而是把数据源清楚地挂到能力与流程上"
+            description="OpenTargets、ChEMBL、ClinicalTrials、PubMed、OMIM、KEGG 等会分别进入靶点、药物、文献和试验不同节点，而不是统一丢给一个黑盒。"
+            align="center"
+          />
+
+          <div className="source-grid">
+            {dataSources.map((source) => (
+              <article key={source.name} className="source-card">
+                <strong>{source.name}</strong>
+                <p>{source.type}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="architecture" className="content-section section-contrast">
+          <SectionHeader
+            eyebrow="技术架构"
+            title="MIMO / FastAPI / React / MCP / ToolUniverse / CrewAI，再往上叠一层 A2A Orchestrator"
+            description="平台的关键升级不是单独再加几个工具，而是把这些底座统一放进 A2A 协作层，让功能入口、数据工具和社群流程成为一套体系。"
+            align="center"
+          />
+
+          <div className="architecture-shell">
+            <div className="architecture-orbit">
+              <div className="orbit-core">
+                <Icon name="nodes" />
+                <strong>A2A Orchestrator</strong>
+                <p>编排入口、Agent、数据库和最终交付</p>
+              </div>
+              <div className="orbit-tags">
+                <span>患者入口</span>
+                <span>研究入口</span>
+                <span>试验入口</span>
+                <span>社群入口</span>
+              </div>
+            </div>
+
+            <div className="architecture-grid">
+              {architectureBlocks.map((block) => (
+                <article key={block.name} className="architecture-card">
+                  <strong>{block.name}</strong>
+                  <p>{block.desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="workbench" ref={workbenchRef} className="content-section">
+          <SectionHeader
+            eyebrow="平台工作台"
+            title="现在就用同一个前端，接住 5 个核心能力"
+            description="这里开始是实际可操作区域。你可以切换 A2A 模式，再选择具体能力。"
+          />
+
+          <div className="workbench-shell">
+            <aside className="workbench-sidebar">
+              <div className="sidebar-panel">
+                <span className="sidebar-kicker">A2A 模式</span>
+                <div className="sidebar-mode-list">
+                  {a2aModes.map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      className={`sidebar-mode ${a2aMode === mode.id ? 'active' : ''}`}
+                      onClick={() => setA2AMode(mode.id)}
+                    >
+                      <strong>{mode.label}</strong>
+                      <p>{mode.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sidebar-panel">
+                <span className="sidebar-kicker">功能入口</span>
+                <div className="sidebar-cap-list">
+                  {coreCapabilities.map((capability) => (
+                    <button
+                      key={capability.id}
+                      type="button"
+                      className={`sidebar-cap ${activeCapability === capability.id ? 'active' : ''}`}
+                      onClick={() => setActiveCapability(capability.id)}
+                    >
+                      <strong>{capability.title}</strong>
+                      <p>{capability.subtitle}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            <div className="workbench-main">
+              <div className="workbench-topbar">
+                <div>
+                  <span className="workbench-kicker">{activeMode.label}</span>
+                  <h3>{activeCapabilityMeta.title}</h3>
+                </div>
+                <p>{activeCapabilityMeta.desc}</p>
+              </div>
+
+              {renderWorkspace()}
+            </div>
+          </div>
+        </section>
+
+        <section className="content-section section-contrast">
+          <SectionHeader
+            eyebrow="行动入口"
+            title="介绍主页、平台应用、GitHub 仓库和 A2A 参考页都保留为一级入口"
+            description="这保证对外展示、实际使用和后续开源协作是同一套叙事，而不是分散在多个不一致页面里。"
+            align="center"
+          />
+
+          <div className="action-grid">
+            <a className="action-card" href="/landing">
+              <strong>介绍主页</strong>
+              <p>{`${LIVE_PLATFORM_URL}/landing`}</p>
+            </a>
+            <a className="action-card" href={LIVE_PLATFORM_URL} target="_blank" rel="noreferrer">
+              <strong>平台应用</strong>
+              <p>{LIVE_PLATFORM_URL}</p>
+            </a>
+            <a className="action-card" href={GITHUB_URL} target="_blank" rel="noreferrer">
+              <strong>GitHub 仓库</strong>
+              <p>{GITHUB_URL}</p>
+            </a>
+            <a className="action-card" href={A2A_REFERENCE_URL} target="_blank" rel="noreferrer">
+              <strong>A2A 参考页</strong>
+              <p>{A2A_REFERENCE_URL}</p>
+            </a>
+          </div>
+        </section>
       </main>
+
+      <footer className="platform-footer">
+        <p>MediChat-RD Rare Disease Platform</p>
+        <p>AI 输出仅供研究与交流参考，不替代专业医疗诊断与治疗决策。</p>
+      </footer>
     </div>
   );
 }

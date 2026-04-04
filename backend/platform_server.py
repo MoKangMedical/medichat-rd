@@ -8,13 +8,18 @@ import json
 import asyncio
 import requests
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Literal
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from openai import OpenAI
+
+try:
+    from .a2a_orchestrator import A2AOrchestrator
+except ImportError:
+    from a2a_orchestrator import A2AOrchestrator
 
 # ═══════════════════════════════════════════════════
 # 配置
@@ -102,6 +107,31 @@ class SymptomCheckRequest(BaseModel):
     age: Optional[int] = Field(None, description="年龄")
     gender: Optional[str] = Field(None, description="性别")
 
+
+class A2APatientProfile(BaseModel):
+    patient_id: Optional[str] = Field(None, description="患者ID")
+    nickname: Optional[str] = Field(None, description="昵称")
+    age: Optional[int] = Field(None, description="年龄")
+    gender: Optional[str] = Field(None, description="性别")
+    diagnosis: Optional[str] = Field(None, description="诊断结果")
+    disease_type: Optional[str] = Field(None, description="疾病类型")
+    symptoms: Optional[str] = Field(None, description="主要症状")
+    treatment_history: Optional[str] = Field(None, description="治疗经历")
+
+
+class A2ASessionCreateRequest(BaseModel):
+    mode: Literal["auto", "lead-agent", "roundtable"] = Field("auto", description="A2A模式")
+    lead_agent: Optional[str] = Field(None, description="首位Agent")
+    disease_context: Optional[str] = Field(None, description="疾病上下文")
+    patient_profile: Optional[A2APatientProfile] = Field(None, description="患者档案")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="扩展元数据")
+    initial_message: Optional[str] = Field(None, description="初始消息")
+
+
+class A2AMessageRequest(BaseModel):
+    content: str = Field(..., description="用户消息")
+    disease_context: Optional[str] = Field(None, description="可选疾病上下文")
+
 # ═══════════════════════════════════════════════════
 # 知识库（121种罕见病）
 # ═══════════════════════════════════════════════════
@@ -120,6 +150,15 @@ def load_disease_knowledge(disease_name: str) -> dict:
         pass
     return {}
 
+
+a2a_orchestrator = A2AOrchestrator(
+    mcp_call=mcp_call,
+    get_mimo_client=get_mimo_client,
+    model_name=MIMO_MODEL,
+    load_disease_knowledge=load_disease_knowledge,
+    mimo_available=bool(MIMO_API_KEY),
+)
+
 # ═══════════════════════════════════════════════════
 # API 路由
 # ═══════════════════════════════════════════════════
@@ -132,7 +171,8 @@ async def health_check():
         "service": "MediChat-RD v4.0",
         "timestamp": datetime.now().isoformat(),
         "mimo_configured": bool(MIMO_API_KEY),
-        "mcp_available": True
+        "mcp_available": True,
+        "a2a_available": True,
     }
 
 # --- AI 对话 ---
@@ -433,6 +473,59 @@ async def search_literature(
         "max_results": max_results
     })
     return result
+
+
+# --- A2A Orchestration ---
+@app.get("/api/v2/a2a/agents")
+async def list_a2a_agents():
+    return {"agents": a2a_orchestrator.list_agents()}
+
+
+@app.get("/api/v2/a2a/sessions")
+async def list_a2a_sessions():
+    return {"sessions": a2a_orchestrator.list_sessions()}
+
+
+@app.post("/api/v2/a2a/sessions")
+async def create_a2a_session(request: A2ASessionCreateRequest):
+    return await a2a_orchestrator.create_session(
+        mode=request.mode,
+        lead_agent=request.lead_agent,
+        disease_context=request.disease_context,
+        patient_profile=request.patient_profile.model_dump(exclude_none=True) if request.patient_profile else None,
+        metadata=request.metadata,
+        initial_message=request.initial_message,
+    )
+
+
+@app.get("/api/v2/a2a/sessions/{session_id}")
+async def get_a2a_session(session_id: str):
+    try:
+        session = a2a_orchestrator.get_session(session_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"A2A session not found: {session_id}")
+
+    latest_report = next(
+        (artifact for artifact in reversed(session["artifacts"]) if artifact["agent_id"] == "report_agent"),
+        None,
+    )
+    return {
+        "session": session,
+        "latest_report": latest_report["content"] if latest_report else None,
+        "executed_agents": session.get("orchestration", {}).get("executed_chain", []),
+    }
+
+
+@app.post("/api/v2/a2a/sessions/{session_id}/messages")
+async def add_a2a_message(session_id: str, request: A2AMessageRequest):
+    try:
+        return await a2a_orchestrator.add_message(
+            session_id,
+            request.content,
+            disease_context=request.disease_context,
+        )
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"A2A session not found: {session_id}")
 
 # --- Landing Page (介绍主页) ---
 @app.get("/landing")
