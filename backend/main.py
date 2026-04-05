@@ -45,6 +45,7 @@ from rare_disease_api import router as rare_disease_router
 from deeprare_api import router as deeprare_router
 from community_api import router as community_router
 from doctor_api import router as doctor_router
+from openevidence_api import router as openevidence_router
 
 app = FastAPI(
     title="MediChat API",
@@ -79,6 +80,7 @@ app.include_router(rare_disease_router)
 app.include_router(deeprare_router)
 app.include_router(community_router)
 app.include_router(doctor_router)
+app.include_router(openevidence_router)
 
 # ============================================================
 # 前端静态文件服务
