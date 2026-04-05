@@ -1,280 +1,222 @@
 """
-MediChat-RD 社群API
-患者数字分身 + 社群互动 + Bridge连接
+MediChat-RD — 罕见病社群API
+Second Me集成 + 社群管理
 """
 
-import sys, os
-
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict
 from datetime import datetime
-from uuid import uuid4
+import sys
+import os
 
-from secondme_integration import (
-    SecondMeClient, CommunityManager, CommunityType, PostType,
-    PatientAvatar, CommunityPost, LOCAL_MODE
-)
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
 
-router = APIRouter(prefix="/api/v1/community", tags=["患者社群"])
+router = APIRouter(prefix="/api/v1/community", tags=["罕见病社群"])
 
-# 全局实例
-secondme = SecondMeClient()
-community_mgr = CommunityManager()
+# ========== 数据模型 ==========
+class CreateAvatarInput(BaseModel):
+    nickname: str = Field(..., description="昵称")
+    disease_type: str = Field(..., description="疾病类型")
+    age: Optional[int] = Field(None, description="年龄")
+    symptoms: Optional[str] = Field(None, description="主要症状")
+    diagnosis: Optional[str] = Field(None, description="诊断结果")
+    treatment_history: Optional[str] = Field(None, description="治疗经历")
 
-# 内存存储
-avatars: dict = {}      # patient_id -> PatientAvatar
+class CreatePostInput(BaseModel):
+    community_id: str = Field(..., description="社群ID")
+    avatar_id: str = Field(..., description="分身ID")
+    nickname: str = Field(..., description="昵称")
+    content: str = Field(..., description="内容")
+    post_type: str = Field("经验分享", description="帖子类型")
 
+class ChatInput(BaseModel):
+    avatar_id: str = Field(..., description="分身ID")
+    message: str = Field(..., description="消息内容")
 
-# ============================================================
-# 数据模型
-# ============================================================
-
-class CreateAvatarRequest(BaseModel):
-    patient_id: str
-    nickname: str
-    disease_type: str
-    diagnosis: Optional[str] = None
-    symptoms: Optional[str] = None
-    treatment_history: Optional[str] = None
-    age: Optional[int] = None
-
-
-class CreatePostRequest(BaseModel):
-    community_id: str
-    avatar_id: str
-    nickname: str
-    content: str
-    post_type: str = "经验分享"
+class BridgeInput(BaseModel):
+    avatar_id: str = Field(..., description="自己的分身ID")
+    target_avatar_id: str = Field(..., description="目标分身ID")
+    context: Optional[str] = Field("", description="连接原因")
 
 
-class BridgeRequest(BaseModel):
-    avatar_id: str
-    target_avatar_id: str
-    context: str = ""
+# ========== 全局实例 ==========
+# 延迟导入以避免循环依赖
+_community_mgr = None
+_second_me_client = None
+
+def get_community_manager():
+    global _community_mgr
+    if _community_mgr is None:
+        from secondme_integration import CommunityManager
+        _community_mgr = CommunityManager()
+    return _community_mgr
+
+def get_second_me_client():
+    global _second_me_client
+    if _second_me_client is None:
+        from secondme_integration import SecondMeClient
+        _second_me_client = SecondMeClient()
+    return _second_me_client
 
 
-# ============================================================
-# API端点
-# ============================================================
-
-@router.get("/status")
-async def community_status():
-    """社群系统状态"""
-    sm_online = await secondme.health_check()
-    return {
-        "status": "online",
-        "mode": "local" if LOCAL_MODE else "remote",
-        "secondme_connected": sm_online,
-        "total_communities": len(community_mgr.communities),
-        "total_avatars": len(avatars),
-        "communities": [
-            {
-                "id": c.community_id,
-                "name": c.name,
-                "type": c.community_type.value,
-                "members": c.member_count
-            }
-            for c in sorted(community_mgr.communities.values(), key=lambda x: -x.member_count)[:10]
-        ]
-    }
-
-
-@router.post("/avatar")
-async def create_avatar(req: CreateAvatarRequest):
-    """创建患者数字分身"""
-    avatar = await secondme.create_avatar({
-        "patient_id": req.patient_id,
-        "nickname": req.nickname,
-        "disease_type": req.disease_type,
-        "diagnosis": req.diagnosis or "",
-        "symptoms": req.symptoms or "",
-        "treatment_history": req.treatment_history or "",
-        "age": req.age
-    })
-    
-    if not avatar:
-        raise HTTPException(status_code=500, detail="创建分身失败")
-    
-    # 存储
-    avatars[req.patient_id] = avatar
-    
-    # 自动加入社群
-    joined = community_mgr.auto_join(avatar)
-    
-    # 获取推荐病友
-    matches = community_mgr.find_matches(avatar)
-    
-    return {
-        "avatar": {
-            "id": avatar.avatar_id,
-            "nickname": avatar.nickname,
-            "disease_type": avatar.disease_type,
-            "bio": avatar.bio
-        },
-        "joined_communities": joined,
-        "recommended_matches": matches,
-        "message": f"数字分身已创建，自动加入{len(joined)}个社群"
-    }
-
-
-@router.get("/avatar/{patient_id}")
-async def get_avatar(patient_id: str):
-    """获取患者数字分身信息"""
-    if patient_id not in avatars:
-        raise HTTPException(status_code=404, detail="未找到分身")
-    
-    avatar = avatars[patient_id]
-    return {
-        "id": avatar.avatar_id,
-        "nickname": avatar.nickname,
-        "disease_type": avatar.disease_type,
-        "bio": avatar.bio,
-        "created_at": avatar.created_at.isoformat()
-    }
-
-
-@router.get("/avatar/{patient_id}/communities")
-async def get_my_communities(patient_id: str):
-    """获取分身所在社群列表"""
-    if patient_id not in avatars:
-        raise HTTPException(status_code=404, detail="未找到分身")
-    
-    avatar = avatars[patient_id]
-    my_communities = []
-    for cid, members in community_mgr.members.items():
-        if avatar.avatar_id in members:
-            comm = community_mgr.communities[cid]
-            my_communities.append({
-                "id": comm.community_id,
-                "name": comm.name,
-                "members": comm.member_count
-            })
-    
-    return {"communities": my_communities}
-
-
-@router.get("/communities")
+# ========== 社群API ==========
+@router.get("/list")
 async def list_communities(disease_type: Optional[str] = None):
-    """列出社群"""
-    communities = list(community_mgr.communities.values())
-    
-    if disease_type:
-        communities = [c for c in communities if (c.disease_type and disease_type in c.name) or c.community_type == CommunityType.BY_TOPIC]
-    
-    return {
-        "total": len(communities),
-        "communities": [
-            {
-                "id": c.community_id,
-                "name": c.name,
-                "type": c.community_type.value,
-                "description": c.description,
-                "members": c.member_count
-            }
-            for c in sorted(communities, key=lambda x: -x.member_count)
-        ]
-    }
+    """获取社群列表"""
+    mgr = get_community_manager()
+    communities = []
+    for cid, comm in mgr.communities.items():
+        if disease_type and comm.disease_type and disease_type not in comm.name:
+            continue
+        communities.append({
+            "id": comm.community_id,
+            "name": comm.name,
+            "type": comm.community_type.value if hasattr(comm.community_type, 'value') else str(comm.community_type),
+            "description": comm.description,
+            "disease_type": comm.disease_type,
+            "member_count": comm.member_count,
+            "post_count": len(mgr.posts.get(cid, [])),
+        })
+    return {"ok": True, "communities": communities}
 
 
-@router.get("/communities/{community_id}/posts")
-async def get_posts(community_id: str, limit: int = 20):
+@router.get("/{community_id}/posts")
+async def get_posts(community_id: str, page: int = 1, page_size: int = 20):
     """获取社群帖子"""
-    posts = community_mgr.posts.get(community_id, [])
+    mgr = get_community_manager()
+    posts = mgr.get_posts(community_id, page, page_size)
     return {
-        "community_id": community_id,
-        "total": len(posts),
+        "ok": True,
         "posts": [
             {
                 "id": p.post_id,
                 "author": p.author_nickname,
                 "content": p.content,
-                "type": p.post_type.value,
+                "type": p.post_type.value if hasattr(p.post_type, 'value') else str(p.post_type),
                 "likes": p.likes,
-                "replies": len(p.replies),
-                "created_at": p.created_at.isoformat()
+                "created_at": p.created_at.strftime("%Y-%m-%d %H:%M"),
             }
-            for p in posts[:limit]
-        ]
+            for p in posts
+        ],
     }
 
 
-@router.post("/posts")
-async def create_post(req: CreatePostRequest):
+@router.post("/post")
+async def create_post(input_data: CreatePostInput):
     """发帖"""
-    try:
-        post_type = PostType(req.post_type)
-    except ValueError:
-        post_type = PostType.EXPERIENCE
-    
-    post = community_mgr.create_post(
-        community_id=req.community_id,
-        avatar_id=req.avatar_id,
-        nickname=req.nickname,
-        content=req.content,
-        post_type=post_type
+    mgr = get_community_manager()
+    from secondme_integration import PostType
+    post_type = PostType(input_data.post_type) if input_data.post_type in [t.value for t in PostType] else PostType.EXPERIENCE
+    post = mgr.create_post(
+        community_id=input_data.community_id,
+        avatar_id=input_data.avatar_id,
+        nickname=input_data.nickname,
+        content=input_data.content,
+        post_type=post_type,
     )
-    
     return {
+        "ok": True,
         "post_id": post.post_id,
-        "message": "发帖成功",
-        "content": post.content[:50] + "..."
+        "message": "发帖成功！",
     }
 
 
-@router.get("/avatar/{patient_id}/matches")
-async def find_matches(patient_id: str, n: int = 5):
-    """查找匹配病友（Bridge推荐）"""
-    if patient_id not in avatars:
-        raise HTTPException(status_code=404, detail="未找到分身")
+# ========== 数字分身API ==========
+@router.post("/avatar/create")
+async def create_avatar(input_data: CreateAvatarInput):
+    """创建数字分身"""
+    client = get_second_me_client()
+    patient_data = {
+        "patient_id": f"p_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "nickname": input_data.nickname,
+        "disease_type": input_data.disease_type,
+        "age": input_data.age,
+        "symptoms": input_data.symptoms,
+        "diagnosis": input_data.diagnosis,
+        "treatment_history": input_data.treatment_history,
+    }
+    avatar = await client.create_avatar(patient_data)
     
-    avatar = avatars[patient_id]
-    matches = community_mgr.find_matches(avatar, n=n)
+    # 自动加入相关社群
+    mgr = get_community_manager()
+    joined = mgr.auto_join(avatar)
     
     return {
-        "patient": avatar.nickname,
-        "disease_type": avatar.disease_type,
-        "matches": matches,
-        "message": f"找到{len(matches)}位可能的病友"
+        "ok": True,
+        "avatar": {
+            "id": avatar.avatar_id,
+            "nickname": avatar.nickname,
+            "disease_type": avatar.disease_type,
+            "bio": avatar.bio,
+        },
+        "joined_communities": joined,
     }
 
 
+@router.post("/avatar/chat")
+async def chat_with_avatar(input_data: ChatInput):
+    """与数字分身对话"""
+    client = get_second_me_client()
+    reply = await client.chat(input_data.avatar_id, input_data.message)
+    return {"ok": True, "reply": reply}
+
+
+@router.get("/avatars")
+async def list_avatars():
+    """获取所有数字分身"""
+    client = get_second_me_client()
+    avatars = client.get_all_avatars()
+    return {
+        "ok": True,
+        "avatars": [
+            {
+                "id": a.avatar_id,
+                "nickname": a.nickname,
+                "disease_type": a.disease_type,
+                "bio": a.bio,
+            }
+            for a in avatars
+        ],
+    }
+
+
+# ========== Bridge连接API ==========
 @router.post("/bridge")
-async def bridge_connect(req: BridgeRequest):
-    """Bridge模式连接两个分身"""
-    conn = await secondme.bridge_connect(
-        req.avatar_id,
-        req.target_avatar_id,
-        req.context
+async def bridge_connect(input_data: BridgeInput):
+    """Bridge模式连接病友"""
+    client = get_second_me_client()
+    conn = await client.bridge_connect(
+        input_data.avatar_id,
+        input_data.target_avatar_id,
+        input_data.context,
     )
-    
     if conn:
         return {
-            "connection_id": conn.connection_id,
-            "match_score": conn.match_score,
-            "status": conn.status,
-            "message": "Bridge连接已建立"
+            "ok": True,
+            "connection": {
+                "id": conn.connection_id,
+                "match_reason": conn.match_reason,
+                "match_score": conn.match_score,
+            },
         }
-    
-    return {
-        "connection_id": f"local_{uuid4().hex[:8]}",
-        "match_score": 0.8,
-        "status": "pending",
-        "message": "Bridge连接请求已发送（Second Me离线时使用本地模式）"
-    }
+    return {"ok": False, "message": "连接失败"}
 
 
-@router.post("/avatar/{patient_id}/chat")
-async def chat_with_avatar(patient_id: str, message: str):
-    """与患者分身对话"""
-    if patient_id not in avatars:
-        raise HTTPException(status_code=404, detail="未找到分身")
-    
-    avatar = avatars[patient_id]
-    reply = await secondme.chat(avatar.avatar_id, message)
-    
+@router.get("/recommend/{disease_type}")
+async def recommend_communities(disease_type: str):
+    """推荐相关社群"""
+    mgr = get_community_manager()
+    recs = mgr.get_recommended_communities(disease_type)
     return {
-        "avatar": avatar.nickname,
-        "message": message,
-        "reply": reply
+        "ok": True,
+        "recommendations": [
+            {
+                "id": c.community_id,
+                "name": c.name,
+                "description": c.description,
+                "member_count": c.member_count,
+            }
+            for c in recs
+        ],
     }

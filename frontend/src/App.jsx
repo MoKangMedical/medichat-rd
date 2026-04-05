@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import DeepRarePanel from './components/DeepRarePanel';
+import CommunityPanel from './components/CommunityPanel';
 
 // ═══════════════════════════════════════════════════
 // 图标组件
@@ -124,6 +125,12 @@ function HomePage({ onNavigate }) {
       title: 'AI医学助手',
       desc: '罕见病专业知识问答，患者教育，诊疗方案讨论',
       action: 'ai-chat',
+    },
+    {
+      icon: 'users',
+      title: '罕见病互助社群',
+      desc: 'Second Me AI分身 · Bridge智能配对 · 同病相怜互助',
+      action: 'community',
     },
   ];
 
@@ -626,6 +633,7 @@ function App() {
   const navItems = [
     { id: 'home', label: '首页', icon: 'home' },
     { id: 'deeprare', label: 'DeepRare诊断', icon: 'brain' },
+    { id: 'community', label: '互助社群', icon: 'users' },
     { id: 'ai-chat', label: 'AI助手', icon: 'chat' },
     { id: 'symptom-check', label: '症状自查', icon: 'search' },
     { id: 'disease-research', label: '疾病研究', icon: 'file' },
@@ -635,6 +643,7 @@ function App() {
   const renderPage = () => {
     switch (page) {
       case 'deeprare': return <DeepRarePanel />;
+      case 'community': return <CommunityPanel />;
       case 'ai-chat': return <AIChatPage />;
       case 'symptom-check': return <SymptomCheckPage />;
       case 'disease-research': return <DiseaseResearchPage />;
