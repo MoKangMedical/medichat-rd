@@ -43,3 +43,11 @@ pages/*.mp4
 __pycache__/
 .env
 *.log
+
+# 商业计划书等敏感文件不上传
+docs/BUSINESS_PLAN.md
+docs/MEDIChat-RD_Business_Plan.docx
+docs/CAPABILITY_MATRIX.md
+docs/assets/architecture_v5.png
+scripts/generate_bp.py
+frontend/dist/capabilities.html
