@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import DeepRarePanel from './components/DeepRarePanel';
 import CommunityPanel from './components/CommunityPanel';
+import DoctorPanel from './components/DoctorPanel';
 
 // ═══════════════════════════════════════════════════
 // 图标组件
@@ -634,6 +635,7 @@ function App() {
     { id: 'home', label: '首页', icon: 'home' },
     { id: 'deeprare', label: 'DeepRare诊断', icon: 'brain' },
     { id: 'community', label: '互助社群', icon: 'users' },
+    { id: 'doctor', label: '医生助手', icon: 'activity' },
     { id: 'ai-chat', label: 'AI助手', icon: 'chat' },
     { id: 'symptom-check', label: '症状自查', icon: 'search' },
     { id: 'disease-research', label: '疾病研究', icon: 'file' },
@@ -643,7 +645,8 @@ function App() {
   const renderPage = () => {
     switch (page) {
       case 'deeprare': return <DeepRarePanel />;
-      case 'community': return <CommunityPanel />;
+      case 'community': return <CommunityPanel />
+      case 'doctor': return <DoctorPanel />;
       case 'ai-chat': return <AIChatPage />;
       case 'symptom-check': return <SymptomCheckPage />;
       case 'disease-research': return <DiseaseResearchPage />;
