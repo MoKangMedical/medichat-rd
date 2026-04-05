@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
+import DeepRarePanel from './components/DeepRarePanel';
 
 // ═══════════════════════════════════════════════════
 // 图标组件
 // ═══════════════════════════════════════════════════
 const Icons = {
+  brain: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M12 2a5 5 0 0 1 5 5c0 .7-.2 1.4-.5 2A5 5 0 0 1 19 14a5 5 0 0 1-3 4.6V22h-4v-3.4A5 5 0 0 1 9 14a5 5 0 0 1 2.5-4.4A5 5 0 0 1 7 7a5 5 0 0 1 5-5z"/>
+      <path d="M12 2v20"/>
+    </svg>
+  ),
   dna: () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
       <path d="M2 15c6.667-6 13.333 0 20-6M2 9c6.667 6 13.333 0 20 6M7 3v4M17 3v4M7 17v4M17 17v4"/>
@@ -87,6 +94,13 @@ function HomePage({ onNavigate }) {
   ];
 
   const features = [
+    {
+      icon: 'brain',
+      title: 'DeepRare智能诊断',
+      desc: 'Nature 2026 · Agentic AI · HPO表型提取 · 可追溯推理 · 自反思验证',
+      action: 'deeprare',
+      highlight: true,
+    },
     {
       icon: 'search',
       title: '智能症状自查',
@@ -611,6 +625,7 @@ function App() {
 
   const navItems = [
     { id: 'home', label: '首页', icon: 'home' },
+    { id: 'deeprare', label: 'DeepRare诊断', icon: 'brain' },
     { id: 'ai-chat', label: 'AI助手', icon: 'chat' },
     { id: 'symptom-check', label: '症状自查', icon: 'search' },
     { id: 'disease-research', label: '疾病研究', icon: 'file' },
@@ -619,6 +634,7 @@ function App() {
 
   const renderPage = () => {
     switch (page) {
+      case 'deeprare': return <DeepRarePanel />;
       case 'ai-chat': return <AIChatPage />;
       case 'symptom-check': return <SymptomCheckPage />;
       case 'disease-research': return <DiseaseResearchPage />;

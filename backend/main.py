@@ -41,6 +41,7 @@ from hipaa_compliance import (
 
 # 导入罕见病API
 from rare_disease_api import router as rare_disease_router
+from deeprare_api import router as deeprare_router
 
 app = FastAPI(
     title="MediChat API",
@@ -72,6 +73,7 @@ compliance_checker = ComplianceChecker()
 
 # 注册路由
 app.include_router(rare_disease_router)
+app.include_router(deeprare_router)
 
 
 # ============================================================
