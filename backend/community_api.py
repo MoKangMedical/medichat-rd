@@ -165,7 +165,7 @@ def _build_patient_matcher(client) -> PatientMatcher:
                 hpo_phenotypes=_extract_phenotypes(f"{avatar.memory_summary} {avatar.bio}"),
                 age=0,
                 gender="",
-                location="SecondMe 社群",
+                location=f"{avatar.provider_key} runtime",
             )
         )
         seen_ids.add(avatar.avatar_id)
@@ -427,6 +427,8 @@ async def create_avatar(input_data: CreateAvatarInput):
             "nickname": avatar.nickname,
             "disease_type": avatar.disease_type,
             "bio": avatar.bio,
+            "provider": avatar.provider_key,
+            "provider_avatar_id": avatar.provider_avatar_id,
         },
         "joined_communities": joined,
     }
@@ -453,6 +455,8 @@ async def list_avatars():
                 "nickname": a.nickname,
                 "disease_type": a.disease_type,
                 "bio": a.bio,
+                "provider": a.provider_key,
+                "provider_avatar_id": a.provider_avatar_id,
             }
             for a in avatars
         ],
