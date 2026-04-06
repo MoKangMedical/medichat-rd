@@ -134,9 +134,14 @@ def _is_safe_return_to(value: Optional[str]) -> bool:
     parsed = urlparse(value)
     if not parsed.scheme:
         return value.startswith("/")
-    if parsed.scheme != "http":
+    if parsed.scheme not in {"http", "https"}:
         return False
-    return parsed.hostname in {"localhost", "127.0.0.1"}
+    allowed_hosts = {"localhost", "127.0.0.1"}
+    for candidate in (SECONDME_POST_LOGIN_REDIRECT, SECONDME_REDIRECT_URI):
+        candidate_host = urlparse(candidate).hostname
+        if candidate_host:
+            allowed_hosts.add(candidate_host)
+    return parsed.hostname in allowed_hosts
 
 
 def _append_query(url: str, **params: str) -> str:

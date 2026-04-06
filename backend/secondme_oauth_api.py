@@ -8,7 +8,12 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
-from secondme_oauth import SecondMeOAuthClient, SecondMeOAuthError, _append_query
+from secondme_oauth import (
+    SECONDME_POST_LOGIN_REDIRECT,
+    SecondMeOAuthClient,
+    SecondMeOAuthError,
+    _append_query,
+)
 
 
 router = APIRouter(prefix="/api/v1/secondme", tags=["SecondMe OAuth"])
@@ -61,7 +66,7 @@ def build_patient_summary_note(input_data: PatientSummaryInput) -> tuple[str, st
 
 
 def _build_frontend_redirect(status: str, reason: Optional[str] = None, return_to: Optional[str] = None) -> RedirectResponse:
-    target = return_to or "http://localhost:8001/index.html"
+    target = return_to or SECONDME_POST_LOGIN_REDIRECT
     return RedirectResponse(
         _append_query(target, secondme=status, reason=reason),
         status_code=302,
