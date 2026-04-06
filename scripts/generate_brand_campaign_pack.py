@@ -441,7 +441,14 @@ def write_srt(output_path: Path, scene_timings: list[dict]) -> None:
 def create_scene_video(image_path: Path, audio_path: Path, output_path: Path, duration: float, profile: Profile) -> None:
     total_frames = int(math.ceil(duration * FPS))
     zoom_speed = "0.00032" if profile.id == "portrait" else "0.00045"
-    zoom_expr = f"zoompan=z='min(zoom+{zoom_speed},1.08)':d={total_frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':fps={FPS}"
+    zoom_expr = (
+        f"zoompan=z='min(zoom+{zoom_speed},1.08)':"
+        f"d={total_frames}:"
+        "x='iw/2-(iw/zoom/2)':"
+        "y='ih/2-(ih/zoom/2)':"
+        f"fps={FPS}:"
+        f"s={profile.width}x{profile.height}"
+    )
     run(
         [
             "ffmpeg",
@@ -520,7 +527,14 @@ def burn_subtitles(input_mp4: Path, srt_path: Path, output_mp4: Path, profile: P
         reader = imageio.get_reader(str(input_mp4))
         meta = reader.get_meta_data()
         fps = float(meta.get("fps", FPS))
-        writer = imageio.get_writer(str(temp_video), fps=fps, codec="libx264", quality=8, pixelformat="yuv420p")
+        writer = imageio.get_writer(
+            str(temp_video),
+            fps=fps,
+            codec="libx264",
+            quality=8,
+            pixelformat="yuv420p",
+            macro_block_size=1,
+        )
         try:
             for frame_index, frame in enumerate(reader):
                 current_time = frame_index / fps
