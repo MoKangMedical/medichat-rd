@@ -777,6 +777,22 @@ button {
   align-content: start;
 }
 
+.cinematic-demo-stage-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cinematic-demo-export-note {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(12, 24, 49, 0.08);
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
 .cinematic-demo-frame {
   position: relative;
   padding: 16px;
@@ -860,6 +876,15 @@ button {
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 247, 236, 0.95) 0%, rgba(239, 247, 255, 0.94) 100%);
   animation: cinematicSceneIn 0.7s ease;
+}
+
+.cinematic-demo-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255, 247, 236, 0.95) 0%, rgba(239, 247, 255, 0.94) 100%);
 }
 
 .cinematic-scene-shell.scene-welcome {
