@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import DeepRarePanel from './components/DeepRarePanel';
 import CommunityPanel from './components/CommunityPanel';
+import DoctorPanel from './components/DoctorPanel';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const REGISTRY_STORAGE_KEY = 'medichat_registry_id';
@@ -2494,6 +2495,7 @@ function App() {
     { id: 'community', label: '互助社群', icon: 'users' },
     { id: 'hub', label: '患者中枢', icon: 'home' },
     { id: 'deeprare', label: 'DeepRare 诊断', icon: 'brain' },
+    { id: 'doctor', label: '医生助手', icon: 'activity' },
     { id: 'ai-chat', label: 'AI 陪诊', icon: 'chat' },
     { id: 'symptom-check', label: '症状筛查', icon: 'search' },
     { id: 'genomic-hub', label: '基因与登记', icon: 'dna' },
@@ -2510,6 +2512,8 @@ function App() {
         return <DeepRarePanel />;
       case 'community':
         return <CommunityPanel onNavigate={setPage} />;
+      case 'doctor':
+        return <DoctorPanel />;
       case 'ai-chat':
         return <AIChatPage />;
       case 'symptom-check':
