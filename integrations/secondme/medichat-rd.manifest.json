@@ -1,0 +1,73 @@
+{
+  "manifest": {
+    "schemaVersion": "1",
+    "skill": {
+      "key": "medichat-rd-rare-disease",
+      "displayName": "MediChat-RD 罕见病助手",
+      "description": "Use MediChat-RD to search rare diseases, fetch structured disease details, and screen symptom sets for likely rare-disease candidates.",
+      "keywords": [
+        "rare disease",
+        "罕见病",
+        "diagnosis",
+        "screening",
+        "medichat"
+      ]
+    },
+    "prompts": {
+      "activationShort": "Use MediChat-RD when you need rare-disease search, disease detail lookup, or symptom screening.",
+      "activationLong": "Use this skill when the user needs rare-disease knowledge retrieval, structured disease detail lookup, or a first-pass symptom screening against the MediChat-RD curated rare-disease dataset.",
+      "systemSummary": "MediChat-RD is a rare-disease assistant that can search a curated disease knowledge base, return structured disease details, and screen symptom sets for likely rare-disease matches."
+    },
+    "actions": [
+      {
+        "name": "searchDiseases",
+        "description": "Search rare diseases by keyword, symptom, gene, or category.",
+        "toolName": "medichat_search_diseases",
+        "payloadTemplate": {},
+        "displayHint": "text"
+      },
+      {
+        "name": "getDiseaseDetail",
+        "description": "Get structured detail for a specific rare disease.",
+        "toolName": "medichat_get_disease_detail",
+        "payloadTemplate": {},
+        "displayHint": "text"
+      },
+      {
+        "name": "screenSymptoms",
+        "description": "Screen a symptom set against the MediChat-RD rare-disease database.",
+        "toolName": "medichat_screen_symptoms",
+        "payloadTemplate": {},
+        "displayHint": "text"
+      }
+    ],
+    "mcp": {
+      "endpoint": "https://replace-with-public-endpoint.example.com/api/v1/secondme/mcp",
+      "timeoutMs": 12000,
+      "toolAllow": [
+        "medichat_search_diseases",
+        "medichat_get_disease_detail",
+        "medichat_screen_symptoms"
+      ],
+      "headersTemplate": {},
+      "authMode": "bearer_token"
+    },
+    "oauth": {
+      "appId": "REPLACE_WITH_SECONDME_APP_ID",
+      "requiredScopes": [
+        "userinfo"
+      ]
+    },
+    "envBindings": {
+      "release": {
+        "enabled": true,
+        "endpoint": "https://replace-with-public-endpoint.example.com/api/v1/secondme/mcp"
+      }
+    }
+  },
+  "envSecrets": {
+    "release": {
+      "values": {}
+    }
+  }
+}

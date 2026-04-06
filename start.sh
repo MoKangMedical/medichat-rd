@@ -4,6 +4,10 @@
 
 set -e
 
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKEND_DIR="$ROOT_DIR/backend"
+FRONTEND_DIR="$ROOT_DIR/frontend"
+
 echo "🧬 MediChat-RD 启动中..."
 
 # 检查Python
@@ -14,12 +18,16 @@ fi
 
 # 安装依赖
 echo "📦 检查依赖..."
-cd "$(dirname "$0")/backend"
-pip install --quiet fastapi uvicorn python-dotenv 2>/dev/null || true
+python3 -m pip install --quiet fastapi uvicorn python-dotenv httpx openai 2>/dev/null || true
+
+if [ -d "$FRONTEND_DIR" ] && command -v npm >/dev/null 2>&1; then
+    echo "🎨 构建前端..."
+    (cd "$FRONTEND_DIR" && npm run build >/dev/null 2>&1 || true)
+fi
 
 # 启动后端
 echo "🚀 启动后端服务 (端口 8001)..."
-cd "$(dirname "$0")/backend"
+cd "$BACKEND_DIR"
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload &
 BACKEND_PID=$!
 

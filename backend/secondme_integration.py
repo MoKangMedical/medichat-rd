@@ -13,6 +13,11 @@ from enum import Enum
 
 # 本地模式开关：不连接外部API，全部用内存模拟
 LOCAL_MODE = os.getenv("LOCAL_MODE", "true").lower() == "true"
+SECONDME_API = os.getenv("SECONDME_API") or os.getenv("SECONDEME_API") or "http://localhost:8002"
+SECONDME_ENABLE_L0 = os.getenv("SECONDME_ENABLE_L0_RETRIEVAL", "false").lower() == "true"
+SECONDME_HTTP_TIMEOUT_SECONDS = float(os.getenv("SECONDME_HTTP_TIMEOUT_SECONDS", "90"))
+SECONDME_CHAT_MAX_TOKENS = int(os.getenv("SECONDME_CHAT_MAX_TOKENS", "300"))
+SECONDME_ROLE_MARKER = "[MediChat-RD Avatar]"
 
 # ============================================================
 # 数据模型
@@ -97,7 +102,7 @@ class SecondMeClient:
     LOCAL_MODE=false 时：连接外部Second Me服务
     """
 
-    def __init__(self, base_url: str = "http://localhost:3000"):
+    def __init__(self, base_url: str = SECONDME_API):
         self.base_url = base_url
         self._local_avatars: Dict[str, PatientAvatar] = {}
         self._local_connections: Dict[str, BridgeConnection] = {}
@@ -105,50 +110,137 @@ class SecondMeClient:
         if not LOCAL_MODE:
             try:
                 import httpx
-                self._http = httpx.AsyncClient(base_url=base_url, timeout=30)
+                self._http = httpx.AsyncClient(
+                    base_url=base_url,
+                    timeout=SECONDME_HTTP_TIMEOUT_SECONDS,
+                )
+                self._http_sync = httpx.Client(
+                    base_url=base_url,
+                    timeout=SECONDME_HTTP_TIMEOUT_SECONDS,
+                )
             except ImportError:
                 print("⚠️ httpx 未安装，回退到本地模式")
                 self._http = None
+                self._http_sync = None
         else:
             self._http = None
+            self._http_sync = None
+
+    def _build_role_metadata(self, patient_data: Dict, bio: str) -> str:
+        """将MediChat分身元数据塞进Second Me role description，便于后续恢复。"""
+        metadata = {
+            "patient_id": patient_data["patient_id"],
+            "nickname": patient_data.get("nickname", "匿名"),
+            "disease_type": patient_data.get("disease_type", ""),
+            "age": patient_data.get("age"),
+            "bio": bio,
+        }
+        return f"{SECONDME_ROLE_MARKER}\n{json.dumps(metadata, ensure_ascii=False, separators=(',', ':'))}"
+
+    def _parse_role_metadata(self, description: Optional[str]) -> Optional[Dict]:
+        """解析嵌入在Second Me role里的MediChat分身元数据。"""
+        if not description or not description.startswith(SECONDME_ROLE_MARKER):
+            return None
+        try:
+            _, raw_json = description.split("\n", 1)
+            return json.loads(raw_json)
+        except Exception:
+            return None
+
+    def _role_to_avatar(self, role: Dict) -> Optional[PatientAvatar]:
+        """把Second Me role对象恢复成MediChat的分身对象。"""
+        metadata = self._parse_role_metadata(role.get("description"))
+        if not metadata:
+            return None
+
+        avatar = PatientAvatar(
+            avatar_id=role.get("uuid", ""),
+            patient_id=metadata.get("patient_id", ""),
+            nickname=metadata.get("nickname", role.get("name", "匿名")),
+            disease_type=metadata.get("disease_type", ""),
+            bio=metadata.get("bio", ""),
+            memory_summary=self._extract_memory_summary(role.get("system_prompt", "")),
+            personality="温暖、共情、乐于助人",
+        )
+        if avatar.avatar_id:
+            self._local_avatars[avatar.avatar_id] = avatar
+        return avatar
+
+    def _extract_memory_summary(self, system_prompt: str) -> str:
+        """从system prompt里提取简短摘要，供前端展示。"""
+        if not system_prompt:
+            return ""
+        lines = [line.strip() for line in system_prompt.splitlines() if line.strip()]
+        return " ".join(lines[:4])[:200]
+
+    def _extract_chat_reply(self, payload: Dict) -> str:
+        """兼容Second Me不同chat返回格式，提取最终文本。"""
+        if not isinstance(payload, dict):
+            return ""
+
+        choices = payload.get("choices") or []
+        if choices:
+            choice0 = choices[0] or {}
+            message = choice0.get("message") or {}
+            if isinstance(message, dict) and message.get("content"):
+                return message["content"]
+            delta = choice0.get("delta") or {}
+            if isinstance(delta, dict) and delta.get("content"):
+                return delta["content"]
+
+        data = payload.get("data")
+        if isinstance(data, dict):
+            return self._extract_chat_reply(data)
+
+        return payload.get("reply", "") or payload.get("response", "") or ""
 
     async def health_check(self) -> bool:
         """检查服务状态"""
         if LOCAL_MODE:
             return True  # 本地模式始终可用
         try:
-            resp = await self._http.get("/api/health")
-            return resp.status_code == 200
+            resp = await self._http.get("/api/kernel2/health")
+            if resp.status_code != 200:
+                return False
+            data = resp.json()
+            return data.get("code") == 0
         except:
             return False
 
     async def create_avatar(self, patient_data: Dict) -> PatientAvatar:
         """为患者创建数字分身"""
         memory_text = self._build_memory(patient_data)
+        bio = (
+            f"一位{patient_data.get('disease_type', '罕见病')}患者，"
+            "愿意分享经历，帮助同病伙伴。"
+        )
 
         if not LOCAL_MODE and self._http:
             try:
+                role_name = f"medichat_avatar_{uuid.uuid4().hex[:10]}"
                 payload = {
-                    "name": patient_data.get("nickname", "匿名患者"),
-                    "bio": f"一位{patient_data.get('disease_type', '罕见病')}患者，"
-                           f"愿意分享经历，帮助同病伙伴。",
-                    "personality": "温暖、共情、乐于助人、积极乐观",
-                    "initial_memory": memory_text
+                    "name": role_name,
+                    "description": self._build_role_metadata(patient_data, bio),
+                    "system_prompt": self._build_system_prompt(patient_data, memory_text),
+                    "icon": "🧬",
+                    "enable_l0_retrieval": SECONDME_ENABLE_L0,
+                    "enable_l1_retrieval": False,
                 }
-                resp = await self._http.post("/api/avatars", json=payload)
+                resp = await self._http.post("/api/kernel2/roles", json=payload)
                 if resp.status_code in [200, 201]:
-                    data = resp.json()
+                    data = resp.json().get("data") or {}
                     avatar = PatientAvatar(
-                        avatar_id=data.get("id", ""),
+                        avatar_id=data.get("uuid", ""),
                         patient_id=patient_data["patient_id"],
                         nickname=patient_data.get("nickname", "匿名"),
                         disease_type=patient_data.get("disease_type", ""),
-                        bio=payload["bio"],
+                        bio=bio,
                         memory_summary=memory_text[:200],
-                        personality=payload["personality"]
+                        personality="温暖、共情、乐于助人、积极乐观",
                     )
-                    self._local_avatars[avatar.avatar_id] = avatar
-                    return avatar
+                    if avatar.avatar_id:
+                        self._local_avatars[avatar.avatar_id] = avatar
+                        return avatar
             except Exception as e:
                 print(f"⚠️ Second Me不可用，使用本地模式: {e}")
 
@@ -159,11 +251,26 @@ class SecondMeClient:
             patient_id=patient_data["patient_id"],
             nickname=patient_data.get("nickname", "匿名"),
             disease_type=patient_data.get("disease_type", ""),
-            bio=f"一位{patient_data.get('disease_type', '')}患者",
+            bio=bio,
             memory_summary=memory_text[:200],
         )
         self._local_avatars[avatar_id] = avatar
         return avatar
+
+    def _build_system_prompt(self, patient_data: Dict, memory_text: str) -> str:
+        """把患者信息转成Second Me role prompt。"""
+        nickname = patient_data.get("nickname", "匿名患者")
+        disease_type = patient_data.get("disease_type", "罕见病")
+        return "\n".join([
+            f"你是 {nickname} 的数字分身。",
+            f"你是一位 {disease_type} 患者/家属，在罕见病互助社群中交流。",
+            "你的目标是分享真实、克制、温暖的患者经验，不冒充医生，不给确定性诊断。",
+            "如果涉及用药、治疗调整、急症风险，请明确建议咨询专业医生。",
+            "说话风格要像有亲身经历的病友，简洁、真诚、共情。",
+            "",
+            "以下是你的已知背景：",
+            memory_text,
+        ])
 
     def _build_memory(self, patient_data: Dict) -> str:
         """构建分身的初始记忆文本"""
@@ -188,21 +295,35 @@ class SecondMeClient:
 
         if not LOCAL_MODE and self._http:
             try:
+                payload = {
+                    "messages": [{"role": "user", "content": message}],
+                    "metadata": {
+                        "role_id": avatar_id,
+                        "enable_l0_retrieval": SECONDME_ENABLE_L0,
+                    },
+                    "stream": False,
+                    "temperature": 0.4,
+                    "max_tokens": SECONDME_CHAT_MAX_TOKENS,
+                }
                 resp = await self._http.post(
-                    f"/api/avatars/{avatar_id}/chat",
-                    json={"message": message}
+                    "/api/kernel2/chat",
+                    json=payload,
                 )
                 if resp.status_code == 200:
-                    return resp.json().get("reply", "")
-            except:
+                    reply = self._extract_chat_reply(resp.json())
+                    if reply:
+                        return reply
+            except Exception:
                 pass
 
         # 本地模拟回复
+        if avatar is None:
+            avatar = self.get_avatar(avatar_id)
         if avatar:
             return (
                 f"你好，我是{avatar.nickname}。"
                 f"作为一位{avatar.disease_type}患者，我理解你的感受。"
-                f"如果你想了解我的治疗经历，我很乐意和你聊聊。💕"
+                "如果你想了解我的治疗经历，我很乐意和你聊聊。"
             )
         return "（分身暂时无法回复，请稍后再试）"
 
@@ -214,28 +335,8 @@ class SecondMeClient:
     ) -> Optional[BridgeConnection]:
         """Bridge模式连接两个分身"""
 
-        if not LOCAL_MODE and self._http:
-            try:
-                resp = await self._http.post("/api/bridge", json={
-                    "source_avatar": avatar_id,
-                    "target_avatar": target_avatar_id,
-                    "context": context
-                })
-                if resp.status_code in [200, 201]:
-                    data = resp.json()
-                    conn = BridgeConnection(
-                        connection_id=data.get("id", ""),
-                        avatar_a_id=avatar_id,
-                        avatar_b_id=target_avatar_id,
-                        match_reason=context,
-                        match_score=data.get("score", 0.8)
-                    )
-                    self._local_connections[conn.connection_id] = conn
-                    return conn
-            except:
-                pass
-
-        # 本地模式：直接创建连接
+        # Second Me当前开源后端没有直接暴露Bridge建连API，
+        # 这里保留MediChat本地配对层，用真实role id作为连接目标。
         conn_id = f"brg_{uuid.uuid4().hex[:8]}"
         conn = BridgeConnection(
             connection_id=conn_id,
@@ -249,11 +350,44 @@ class SecondMeClient:
 
     def get_all_avatars(self) -> List[PatientAvatar]:
         """获取所有本地分身"""
+        if not LOCAL_MODE and self._http_sync:
+            try:
+                return self._get_remote_avatars()
+            except Exception:
+                pass
         return list(self._local_avatars.values())
 
     def get_avatar(self, avatar_id: str) -> Optional[PatientAvatar]:
         """获取单个分身"""
-        return self._local_avatars.get(avatar_id)
+        avatar = self._local_avatars.get(avatar_id)
+        if avatar or LOCAL_MODE or not self._http_sync:
+            return avatar
+
+        try:
+            return self._get_remote_avatar(avatar_id)
+        except Exception:
+            return avatar
+
+    def _get_remote_avatars(self) -> List[PatientAvatar]:
+        """从Second Me role列表恢复MediChat分身。"""
+        resp = self._http_sync.get("/api/kernel2/roles")
+        resp.raise_for_status()
+        payload = resp.json()
+        roles = payload.get("data") or []
+        avatars = []
+        for role in roles:
+            avatar = self._role_to_avatar(role)
+            if avatar:
+                avatars.append(avatar)
+        return avatars
+
+    def _get_remote_avatar(self, avatar_id: str) -> Optional[PatientAvatar]:
+        """按uuid获取一个远端分身。"""
+        resp = self._http_sync.get(f"/api/kernel2/roles/{avatar_id}")
+        if resp.status_code != 200:
+            return None
+        payload = resp.json()
+        return self._role_to_avatar(payload.get("data") or {})
 
 
 # ============================================================

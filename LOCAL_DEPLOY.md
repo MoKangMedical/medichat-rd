@@ -47,14 +47,48 @@ Second Me服务将运行在：
 
 ### 3. 连接MediChat-RD与Second Me
 
-编辑 `medichat-rd/backend/.env`:
+编辑 `medichat-rd/.env` 或 `medichat-rd/backend/.env`:
 ```bash
 # 关闭模拟模式，连接真正的Second Me
 LOCAL_MODE=false
-SECONDEME_API=http://localhost:3000
+SECONDME_API=http://localhost:8002
+# 是否让分身聊天时带上Second Me的L0知识检索
+SECONDME_ENABLE_L0_RETRIEVAL=false
 ```
 
 然后重启MediChat-RD后端即可。
+
+说明：
+- `3000` 是 Second Me 的网页前端
+- `8002` 才是 MediChat-RD 需要调用的 Second Me 后端 API
+
+### 4. SecondMe OAuth 平台联调
+
+如果你要走开放平台 OAuth，而不是只用本地 Docker：
+
+```bash
+SECONDME_CLIENT_ID=your_secondme_client_id
+SECONDME_CLIENT_SECRET=your_secondme_client_secret
+SECONDME_REDIRECT_URI=http://localhost:8001/api/v1/secondme/oauth/callback
+SECONDME_POST_LOGIN_REDIRECT=http://localhost:8001/index.html
+SECONDME_OAUTH_SCOPES=userinfo,note.write
+SECONDME_OAUTH_INCLUDE_SCOPE_IN_REDIRECT=true
+SECONDME_AUTHORIZE_URL=https://go.second.me/oauth/
+SECONDME_API_BASE=https://api.mindverse.com/gate/lab
+SECONDME_SECRET_STORE_PATH=.secrets/secondme_oauth.json
+```
+
+完成后：
+1. 打开 `http://localhost:8001/index.html`
+2. 进入「互助社群」
+3. 点击「连接 SecondMe」
+4. 授权成功后，再点击「同步患者摘要」
+
+联调检查点：
+- 未登录：`/api/v1/secondme/oauth/status` 应返回 `state=unauthenticated`
+- 登录成功：返回 `state=connected`，并能看到 `granted_scopes`
+- token 失效：返回 `state=expired`，前端提示重新连接
+- 生产环境不要把 access token / refresh token 打到日志；当前实现只在服务端 secret 文件中保存
 
 ---
 
@@ -74,7 +108,7 @@ SECONDEME_API=http://localhost:3000
 | 创建分身 | POST /api/v1/community/avatar/create | 自动创建AI分身 |
 | 分身对话 | POST /api/v1/community/avatar/chat | 与分身对话 |
 | 加入社群 | 自动 | 根据疾病类型自动入群 |
-| Bridge连接 | POST /api/v1/community/bridge | 智能匹配病友 |
+| Bridge连接 | POST /api/v1/community/bridge | MediChat本地配对层，底层分身ID来自Second Me role |
 
 ---
 

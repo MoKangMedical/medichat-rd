@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://medichatrd.cloud/sitemap.xml
