@@ -2329,18 +2329,35 @@ function CareLoopPage() {
 function PlatformControlPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [adminToken, setAdminToken] = useState('');
+  const [switching, setSwitching] = useState('');
 
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all([
+  const loadControlPlane = async () => {
+    const [objectModel, templates, governance, evaluation, avatarRuntime] = await Promise.all([
       fetchJson('/api/v1/platform/object-model'),
       fetchJson('/api/v1/platform/disease-group-templates'),
       fetchJson('/api/v1/platform/governance'),
       fetchJson('/api/v1/platform/evaluation'),
-    ])
-      .then(([objectModel, templates, governance, evaluation]) => {
+      fetchJson('/api/v1/platform/avatar-runtime'),
+    ]);
+    return { objectModel, templates, governance, evaluation, avatarRuntime };
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    try {
+      const savedToken = window.sessionStorage.getItem('medichat_admin_token') || '';
+      if (savedToken) {
+        setAdminToken(savedToken);
+      }
+    } catch (storageError) {
+      console.error(storageError);
+    }
+
+    loadControlPlane()
+      .then((nextData) => {
         if (!cancelled) {
-          setData({ objectModel, templates, governance, evaluation });
+          setData(nextData);
         }
       })
       .catch((err) => {
@@ -2350,6 +2367,35 @@ function PlatformControlPage() {
       cancelled = true;
     };
   }, []);
+
+  const handleRuntimeSwitch = async (primaryProvider, fallbackProvider) => {
+    setSwitching(primaryProvider);
+    try {
+      const runtimeResponse = await fetchJson('/api/v1/platform/avatar-runtime', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'X-Admin-Token': adminToken } : {}),
+        },
+        body: JSON.stringify({
+          primary_provider: primaryProvider,
+          fallback_provider: fallbackProvider,
+        }),
+      });
+      const nextData = await loadControlPlane();
+      setData({ ...nextData, avatarRuntime: runtimeResponse });
+      setError('');
+      try {
+        window.sessionStorage.setItem('medichat_admin_token', adminToken);
+      } catch (storageError) {
+        console.error(storageError);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSwitching('');
+    }
+  };
 
   return (
     <div className="utility-page">
@@ -2441,11 +2487,23 @@ function PlatformControlPage() {
                   <strong>{data.governance.runtime_split?.scientific_runtime?.state || 'unknown'}</strong>
                 </div>
                 <div className="signal-cell">
+                  <small>分身主运行时</small>
+                  <strong>{data.avatarRuntime?.runtime?.primary_provider || 'local'}</strong>
+                </div>
+                <div className="signal-cell">
                   <small>登记样本</small>
                   <strong>{data.governance.registry_snapshot?.total_patients || 0}</strong>
                 </div>
               </div>
             </section>
+
+            <AvatarRuntimeAdminSection
+              runtime={data.avatarRuntime?.runtime}
+              adminToken={adminToken}
+              switching={switching}
+              onAdminTokenChange={setAdminToken}
+              onSwitch={handleRuntimeSwitch}
+            />
 
             <section className="result-panel">
               <div className="section-head">
@@ -2484,6 +2542,98 @@ function PlatformControlPage() {
         {error && <div className="inline-error">{error}</div>}
       </div>
     </div>
+  );
+}
+
+function AvatarRuntimeAdminSection({
+  runtime,
+  adminToken,
+  switching,
+  onAdminTokenChange,
+  onSwitch,
+}) {
+  const providers = runtime?.providers || [];
+  const switchEnabled = Boolean(runtime?.switch_enabled);
+  const primaryProvider = runtime?.primary_provider;
+  const fallbackProvider = runtime?.fallback_provider;
+
+  return (
+    <section className="result-panel accent">
+      <div className="section-head">
+        <span>分身 Runtime 控制面</span>
+        <span className="section-note">
+          {primaryProvider ? `${primaryProvider} → ${fallbackProvider}` : '等待运行时快照'}
+        </span>
+      </div>
+
+      <div className="signal-grid">
+        <div className="signal-cell">
+          <small>Primary</small>
+          <strong>{primaryProvider || 'unknown'}</strong>
+        </div>
+        <div className="signal-cell">
+          <small>Fallback</small>
+          <strong>{fallbackProvider || 'unknown'}</strong>
+        </div>
+        <div className="signal-cell">
+          <small>已创建分身</small>
+          <strong>{runtime?.avatars_count || 0}</strong>
+        </div>
+        <div className="signal-cell">
+          <small>后台切换</small>
+          <strong>{switchEnabled ? '已开启' : '未配置口令'}</strong>
+        </div>
+      </div>
+
+      <div className="related-grid" style={{ marginTop: 20 }}>
+        {providers.map((provider) => (
+          <div key={provider.key} className="related-card">
+            <h3>{provider.label}</h3>
+            <p>{provider.description}</p>
+            <p>
+              健康状态：{provider.healthy ? 'healthy' : 'offline'}
+              {' · '}
+              {provider.is_primary ? '当前主运行时' : provider.is_fallback ? '当前兜底运行时' : '备用'}
+            </p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
+              <button
+                type="button"
+                className="hero-action primary"
+                disabled={!switchEnabled || switching === provider.key}
+                onClick={() => onSwitch(provider.key, provider.key === 'local' ? 'local' : 'local')}
+              >
+                {switching === provider.key ? '切换中...' : `切到 ${provider.label}`}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 20 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0C1831', marginBottom: 8 }}>
+          后台切换口令
+        </label>
+        <input
+          type="password"
+          value={adminToken}
+          onChange={(event) => onAdminTokenChange(event.target.value)}
+          placeholder={switchEnabled ? '输入 PLATFORM_ADMIN_TOKEN' : '服务端尚未配置 PLATFORM_ADMIN_TOKEN'}
+          autoComplete="off"
+          style={{
+            width: '100%',
+            borderRadius: 16,
+            border: '1px solid rgba(12,24,49,0.12)',
+            padding: '12px 14px',
+            fontSize: 14,
+            color: '#0C1831',
+            background: 'rgba(255,255,255,0.88)',
+          }}
+        />
+        <div className="section-note" style={{ marginTop: 10 }}>
+          这个口令只保存在当前浏览器 sessionStorage，用于调用运行时切换 API，不会写进仓库。
+        </div>
+      </div>
+    </section>
   );
 }
 

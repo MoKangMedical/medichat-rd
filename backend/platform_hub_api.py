@@ -20,6 +20,7 @@ import sys
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from avatar_service import get_avatar_service
 from community_api import get_community_manager, get_second_me_client
 from hipaa_compliance import AuditAction, AuditLogger, DataClassification, DataMasker
 from knowledge_api import EXTENDED_DB
@@ -1301,6 +1302,7 @@ async def governance_snapshot():
         "consent_model": {
             "registry_fields": ["consent_research", "consent_matching"],
             "secondme_tokens_server_side_only": True,
+            "secondme_oauth_session_scoped": True,
             "default_boundary": "未获得 consent 的病例不进入研究包协作与病友匹配。",
         },
         "runtime_split": {
@@ -1308,6 +1310,7 @@ async def governance_snapshot():
                 "stack": "FastAPI + platform_hub_api + SecondMe/community",
                 "goal": "在线服务、低延迟、权限边界清晰",
             },
+            "avatar_runtime": get_avatar_service().get_runtime_config(),
             "scientific_runtime": {
                 "profiles": runtime.get("profiles", []),
                 "state": runtime.get("state", "unknown"),
@@ -1318,7 +1321,7 @@ async def governance_snapshot():
             "HPO 结构化 + 医学 NLP + DeepRare 显式推理链",
             "HallucinationGuard 与质量门控作为高风险场景的降级机制",
             "PatientRegistry 显式持久化 consent、cohort 与 timeline",
-            "SecondMe OAuth token 仅保存在服务端受控存储，不暴露给前端",
+            "SecondMe OAuth token 仅保存在服务端受控存储，并按浏览器会话隔离",
             "应用运行时与 Scientific Runtime 分离，降低依赖污染与服务风险",
         ],
         "audit": {
@@ -1344,11 +1347,7 @@ async def evaluation_snapshot():
     network_stats = drug_target_network.analyze_network()
     community = _community_discovery_snapshot()
     skills = _scientific_skills_snapshot()
-    avatar_count = 0
-    try:
-        avatar_count = len(get_second_me_client().get_all_avatars())
-    except Exception:
-        avatar_count = 0
+    avatar_count = len(get_avatar_service().list_avatars())
 
     scenes = [
         {

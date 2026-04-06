@@ -30,6 +30,17 @@ AVATAR_PROVIDER_PRIMARY = os.getenv(
 )
 AVATAR_PROVIDER_FALLBACK = os.getenv("AVATAR_PROVIDER_FALLBACK", "local")
 
+AVATAR_PROVIDER_DETAILS = {
+    "local": {
+        "label": "Local Runtime",
+        "description": "平台自有本地分身运行时，适合兜底和逐步替代外部 provider。",
+    },
+    "secondme": {
+        "label": "SecondMe Runtime",
+        "description": "通过 SecondMe 提供分身人格和对话运行时，适合作为外部 provider 接入。",
+    },
+}
+
 
 class AvatarProviderError(Exception):
     pass

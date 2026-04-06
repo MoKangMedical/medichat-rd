@@ -17,6 +17,7 @@ from avatar_core import AvatarCoreStore, PatientAvatar
 from avatar_providers import (
     AVATAR_PROVIDER_FALLBACK,
     AVATAR_PROVIDER_PRIMARY,
+    AVATAR_PROVIDER_DETAILS,
     AvatarProviderError,
     build_default_bio,
     build_memory_text,
@@ -28,8 +29,12 @@ class AvatarService:
     def __init__(self, store: Optional[AvatarCoreStore] = None):
         self.store = store or AvatarCoreStore()
         self.providers = build_provider_registry()
-        self.primary_provider_key = AVATAR_PROVIDER_PRIMARY
-        self.fallback_provider_key = AVATAR_PROVIDER_FALLBACK
+        persisted = self.store.get_runtime_preferences(
+            default_primary=AVATAR_PROVIDER_PRIMARY,
+            default_fallback=AVATAR_PROVIDER_FALLBACK,
+        )
+        self.primary_provider_key = persisted["primary_provider"]
+        self.fallback_provider_key = persisted["fallback_provider"]
 
     def _provider_chain(self) -> List[str]:
         order = [self.primary_provider_key, self.fallback_provider_key, "local"]
@@ -160,6 +165,50 @@ class AvatarService:
             "provider_avatar_id": avatar.provider_avatar_id,
             "runtime_metadata": avatar.runtime_metadata,
         }
+
+    def get_runtime_config(self) -> Dict[str, Any]:
+        return {
+            "primary_provider": self.primary_provider_key,
+            "fallback_provider": self.fallback_provider_key,
+            "provider_chain": self._provider_chain(),
+        }
+
+    async def get_runtime_snapshot(self) -> Dict[str, Any]:
+        providers = []
+        for key, provider in self.providers.items():
+            try:
+                healthy = await provider.health_check()
+            except Exception:
+                healthy = False
+            meta = AVATAR_PROVIDER_DETAILS.get(key, {})
+            providers.append(
+                {
+                    "key": key,
+                    "label": meta.get("label", key),
+                    "description": meta.get("description", ""),
+                    "healthy": healthy,
+                    "is_primary": key == self.primary_provider_key,
+                    "is_fallback": key == self.fallback_provider_key,
+                }
+            )
+        return {
+            **self.get_runtime_config(),
+            "providers": providers,
+            "avatars_count": len(self.list_avatars()),
+        }
+
+    def set_runtime_config(self, *, primary_provider: str, fallback_provider: str) -> Dict[str, Any]:
+        if primary_provider not in self.providers:
+            raise AvatarProviderError(f"Unknown avatar provider: {primary_provider}")
+        if fallback_provider not in self.providers:
+            raise AvatarProviderError(f"Unknown avatar provider: {fallback_provider}")
+        self.primary_provider_key = primary_provider
+        self.fallback_provider_key = fallback_provider
+        self.store.set_runtime_preferences(
+            primary_provider=primary_provider,
+            fallback_provider=fallback_provider,
+        )
+        return self.get_runtime_config()
 
 
 _avatar_service: Optional[AvatarService] = None

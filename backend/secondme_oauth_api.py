@@ -4,15 +4,20 @@ SecondMe OAuth API
 
 from datetime import datetime
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from secondme_oauth import (
     SECONDME_POST_LOGIN_REDIRECT,
+    SECONDME_SESSION_COOKIE_MAX_AGE,
+    SECONDME_SESSION_COOKIE_NAME,
+    SECONDME_SESSION_COOKIE_SECURE,
     SecondMeOAuthClient,
     SecondMeOAuthError,
     _append_query,
+    get_secondme_session_store,
+    _new_session_id,
 )
 
 
@@ -73,18 +78,49 @@ def _build_frontend_redirect(status: str, reason: Optional[str] = None, return_t
     )
 
 
+def _resolve_session_id(request: Request) -> Optional[str]:
+    return request.cookies.get(SECONDME_SESSION_COOKIE_NAME)
+
+
+def _ensure_session_id(request: Request) -> str:
+    existing = _resolve_session_id(request)
+    if existing:
+        get_secondme_session_store().ensure_session(existing)
+        return existing
+    return get_secondme_session_store().ensure_session(_new_session_id())
+
+
+def _set_session_cookie(response, session_id: str) -> None:
+    response.set_cookie(
+        key=SECONDME_SESSION_COOKIE_NAME,
+        value=session_id,
+        max_age=SECONDME_SESSION_COOKIE_MAX_AGE,
+        httponly=True,
+        secure=SECONDME_SESSION_COOKIE_SECURE,
+        samesite="lax",
+        path="/",
+    )
+
+
 @router.get("/oauth/start")
-async def secondme_oauth_start(return_to: Optional[str] = Query(None, description="授权成功后的前端返回地址")):
+async def secondme_oauth_start(
+    request: Request,
+    return_to: Optional[str] = Query(None, description="授权成功后的前端返回地址"),
+):
     client = get_oauth_client()
+    session_id = _ensure_session_id(request)
     try:
-        auth_url = client.build_authorization_url(return_to=return_to)
+        auth_url = client.build_authorization_url(session_id=session_id, return_to=return_to)
     except SecondMeOAuthError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return RedirectResponse(auth_url, status_code=302)
+    response = RedirectResponse(auth_url, status_code=302)
+    _set_session_cookie(response, session_id)
+    return response
 
 
 @router.get("/oauth/callback")
 async def secondme_oauth_callback(
+    request: Request,
     code: Optional[str] = None,
     state: Optional[str] = None,
     error: Optional[str] = None,
@@ -92,39 +128,56 @@ async def secondme_oauth_callback(
     client = get_oauth_client()
 
     if error:
-        return _build_frontend_redirect("error", error)
+        response = _build_frontend_redirect("error", error)
+        session_id = _resolve_session_id(request)
+        if session_id:
+            _set_session_cookie(response, session_id)
+        return response
 
     if not code or not state:
         raise HTTPException(status_code=400, detail="缺少 OAuth 回调参数 code/state")
 
     try:
-        return_to, _user = await client.handle_callback(code, state)
+        session_id, return_to, _user = await client.handle_callback(code, state)
     except SecondMeOAuthError as exc:
-        return _build_frontend_redirect("error", exc.message)
+        response = _build_frontend_redirect("error", exc.message)
+        session_id = _resolve_session_id(request)
+        if session_id:
+            _set_session_cookie(response, session_id)
+        return response
 
-    return _build_frontend_redirect("connected", return_to=return_to)
+    response = _build_frontend_redirect("connected", return_to=return_to)
+    _set_session_cookie(response, session_id)
+    return response
 
 
 @router.get("/oauth/status")
-async def secondme_oauth_status():
+async def secondme_oauth_status(request: Request):
     client = get_oauth_client()
-    status = await client.get_status()
+    status = await client.get_status(_resolve_session_id(request))
     return {"ok": True, "status": status}
 
 
 @router.post("/oauth/logout")
-async def secondme_oauth_logout():
+async def secondme_oauth_logout(request: Request):
     client = get_oauth_client()
-    client.clear()
-    return {"ok": True, "message": "SecondMe OAuth 已断开"}
+    session_id = _resolve_session_id(request)
+    client.clear(session_id)
+    response = JSONResponse({"ok": True, "message": "SecondMe OAuth 已断开"})
+    response.delete_cookie(SECONDME_SESSION_COOKIE_NAME, path="/")
+    return response
 
 
 @router.post("/note/patient-summary")
-async def sync_patient_summary(input_data: PatientSummaryInput):
+async def sync_patient_summary(request: Request, input_data: PatientSummaryInput):
     client = get_oauth_client()
     title, content = build_patient_summary_note(input_data)
     try:
-        note_id = await client.add_text_note(title=title, content=content)
+        note_id = await client.add_text_note(
+            _resolve_session_id(request),
+            title=title,
+            content=content,
+        )
     except SecondMeOAuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 

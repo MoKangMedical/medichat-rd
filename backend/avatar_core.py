@@ -138,6 +138,12 @@ class AvatarCoreStore:
 
                 CREATE INDEX IF NOT EXISTS idx_avatar_messages_avatar_id
                 ON avatar_messages(avatar_id, created_at DESC);
+
+                CREATE TABLE IF NOT EXISTS avatar_runtime_settings (
+                    setting_key TEXT PRIMARY KEY,
+                    setting_value TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
 
@@ -314,6 +320,48 @@ class AvatarCoreStore:
             )
             for row in rows
         ]
+
+    def get_runtime_preferences(
+        self,
+        *,
+        default_primary: str,
+        default_fallback: str,
+    ) -> Dict[str, str]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT setting_key, setting_value
+                FROM avatar_runtime_settings
+                WHERE setting_key IN ('primary_provider', 'fallback_provider')
+                """
+            ).fetchall()
+
+        values = {row["setting_key"]: row["setting_value"] for row in rows}
+        return {
+            "primary_provider": values.get("primary_provider", default_primary),
+            "fallback_provider": values.get("fallback_provider", default_fallback),
+        }
+
+    def set_runtime_preferences(self, *, primary_provider: str, fallback_provider: str) -> Dict[str, str]:
+        updated_at = _utc_now_iso()
+        with self._connect() as conn:
+            conn.executemany(
+                """
+                INSERT INTO avatar_runtime_settings (setting_key, setting_value, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(setting_key) DO UPDATE SET
+                    setting_value=excluded.setting_value,
+                    updated_at=excluded.updated_at
+                """,
+                [
+                    ("primary_provider", primary_provider, updated_at),
+                    ("fallback_provider", fallback_provider, updated_at),
+                ],
+            )
+        return {
+            "primary_provider": primary_provider,
+            "fallback_provider": fallback_provider,
+        }
 
     def _row_to_avatar(self, row: sqlite3.Row) -> PatientAvatar:
         return PatientAvatar(

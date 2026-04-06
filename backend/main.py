@@ -54,6 +54,7 @@ from deeprare_api import router as deeprare_router
 from community_api import router as community_router
 from knowledge_api import router as knowledge_router
 from platform_hub_api import router as platform_hub_router
+from avatar_runtime_api import router as avatar_runtime_router
 from secondme_mcp_api import router as secondme_mcp_router
 from secondme_oauth_api import router as secondme_oauth_router
 from doctor_api import router as doctor_router
@@ -93,6 +94,7 @@ app.include_router(deeprare_router)
 app.include_router(community_router)
 app.include_router(knowledge_router)
 app.include_router(platform_hub_router)
+app.include_router(avatar_runtime_router)
 app.include_router(secondme_mcp_router)
 app.include_router(secondme_oauth_router)
 app.include_router(doctor_router)

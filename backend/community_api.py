@@ -3,7 +3,7 @@ MediChat-RD — 罕见病社群 API
 Second Me 集成 + 社群管理 + 患者互动发现层
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 from datetime import datetime
@@ -16,13 +16,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
 from hpo_extractor import HPOExtractor
 from patient_matcher import PatientMatcher, PatientProfile
 from patient_registry import PatientRegistry
-from secondme_oauth import SecondMeCredentialStore
+from secondme_oauth import SECONDME_SESSION_COOKIE_NAME, get_secondme_profile_for_session
 
 router = APIRouter(prefix="/api/v1/community", tags=["罕见病社群"])
 
 hpo_extractor = HPOExtractor()
 patient_registry = PatientRegistry(os.path.join(os.path.dirname(__file__), '..', 'data', 'patient_registry.db'))
-oauth_store = SecondMeCredentialStore()
 
 PROFILE_SIGNAL_KEYWORDS = {
     "家属照护": ["妈妈", "爸爸", "家属", "照护", "孩子", "育儿", "家庭"],
@@ -183,9 +182,10 @@ def _count_shared_terms(left: List[str], right: List[str]) -> int:
     return count
 
 
-def _get_logged_in_secondme_profile() -> Dict:
+def _get_logged_in_secondme_profile(request: Request) -> Dict:
+    session_id = request.cookies.get(SECONDME_SESSION_COOKIE_NAME)
     try:
-        return oauth_store.get_user_normalized() or {}
+        return get_secondme_profile_for_session(session_id) or {}
     except Exception:
         return {}
 
@@ -464,7 +464,7 @@ async def list_avatars():
 
 
 @router.get("/avatar/{avatar_id}/matches")
-async def list_avatar_matches(avatar_id: str):
+async def list_avatar_matches(avatar_id: str, request: Request):
     """给当前患者分身推荐病友匹配。"""
     mgr = get_community_manager()
     client = get_second_me_client()
@@ -474,7 +474,7 @@ async def list_avatar_matches(avatar_id: str):
 
     phenotypes = _extract_phenotypes(f"{avatar.memory_summary} {avatar.bio}")
     matcher = _build_patient_matcher(client)
-    oauth_profile = _get_logged_in_secondme_profile()
+    oauth_profile = _get_logged_in_secondme_profile(request)
     target_profile = PatientProfile(
         patient_id=avatar.avatar_id,
         disease=avatar.disease_type,
