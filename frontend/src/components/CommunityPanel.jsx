@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import RareDiseaseGlobe from './RareDiseaseGlobe';
+import CinematicDemoSection from './CinematicDemoSection';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const AVATAR_STORAGE_KEY = 'medichat_secondme_avatar';
@@ -759,6 +760,12 @@ export default function CommunityPanel({ onNavigate }) {
           onOpenCommunity={handleOpenDiseaseCommunity}
         />
       </section>
+
+      <CinematicDemoSection
+        onNavigate={onNavigate}
+        onOpenWelcomeRoom={handleOpenLiveRoom}
+        onOpenVoiceFollowup={handleOpenVoiceFollowup}
+      />
 
       {featuredLiveRooms.length > 0 && (
         <FeaturedLiveRoomsPanel

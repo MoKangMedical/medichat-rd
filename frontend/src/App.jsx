@@ -331,6 +331,7 @@ function PageTitleRail({ page, navItems, onNavigate }) {
               type="button"
               className={`page-title-chip ${page === item.id ? 'active' : ''}`}
               onClick={() => onNavigate(item.id)}
+              aria-current={page === item.id ? 'page' : undefined}
             >
               <div className="page-title-chip-icon">
                 <Icon />
@@ -2747,6 +2748,10 @@ function AvatarRuntimeAdminSection({
 function App() {
   const [page, setPage] = useState('community');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pageFocusPulse, setPageFocusPulse] = useState(false);
+  const [pageFocusLabel, setPageFocusLabel] = useState('');
+  const mainContentRef = useRef(null);
+  const isFirstRender = useRef(true);
 
   const navItems = [
     { id: 'community', label: '互助社群', icon: 'users' },
@@ -2763,12 +2768,56 @@ function App() {
     { id: 'platform-ops', label: '治理评估', icon: 'check' },
   ];
 
+  const scrollToActiveModule = () => {
+    if (typeof window === 'undefined') return;
+    const targetTop = mainContentRef.current
+      ? window.scrollY + mainContentRef.current.getBoundingClientRect().top - 10
+      : 0;
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: 'smooth',
+    });
+  };
+
+  const triggerPageFocus = (pageId) => {
+    const guide = PAGE_GUIDE[pageId] || PAGE_GUIDE.hub;
+    setPageFocusLabel(guide.title);
+    setPageFocusPulse(false);
+    requestAnimationFrame(() => {
+      setPageFocusPulse(true);
+      scrollToActiveModule();
+    });
+  };
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    triggerPageFocus(page);
+  }, [page]);
+
+  useEffect(() => {
+    if (!pageFocusPulse) return undefined;
+    const timeout = window.setTimeout(() => setPageFocusPulse(false), 920);
+    return () => window.clearTimeout(timeout);
+  }, [pageFocusPulse]);
+
+  const handleNavigate = (nextPage) => {
+    setSidebarOpen(false);
+    if (nextPage === page) {
+      triggerPageFocus(nextPage);
+      return;
+    }
+    setPage(nextPage);
+  };
+
   const renderPage = () => {
     switch (page) {
       case 'deeprare':
         return <DeepRarePanel />;
       case 'community':
-        return <CommunityPanel onNavigate={setPage} />;
+        return <CommunityPanel onNavigate={handleNavigate} />;
       case 'doctor':
         return <DoctorPanel />;
       case 'ai-chat':
@@ -2780,7 +2829,7 @@ function App() {
       case 'care-loop':
         return <CareLoopPage />;
       case 'scientific-skills':
-        return <ScientificSkillsPage onNavigate={setPage} />;
+        return <ScientificSkillsPage onNavigate={handleNavigate} />;
       case 'disease-research':
         return <DiseaseResearchPage />;
       case 'drug-research':
@@ -2788,7 +2837,7 @@ function App() {
       case 'platform-ops':
         return <PlatformControlPage />;
       default:
-        return <HomePage onNavigate={setPage} />;
+        return <HomePage onNavigate={handleNavigate} />;
     }
   };
 
@@ -2801,14 +2850,14 @@ function App() {
         <button type="button" className="menu-btn" onClick={() => setSidebarOpen((value) => !value)}>
           {sidebarOpen ? <Icons.close /> : <Icons.menu />}
         </button>
-        <button type="button" className="nav-brand" onClick={() => setPage('community')}>
+        <button type="button" className="nav-brand" onClick={() => handleNavigate('community')}>
           <Icons.dna />
           <div>
             <span>MediChat-RD</span>
             <small>SecondMe patient platform</small>
           </div>
         </button>
-        <button type="button" className="nav-cta" onClick={() => setPage('deeprare')}>
+        <button type="button" className="nav-cta" onClick={() => handleNavigate('deeprare')}>
           <Icons.brain />
           <span>开始 DeepRare</span>
         </button>
@@ -2822,10 +2871,7 @@ function App() {
               key={item.id}
               type="button"
               className={`nav-item ${page === item.id ? 'active' : ''}`}
-              onClick={() => {
-                setPage(item.id);
-                setSidebarOpen(false);
-              }}
+              onClick={() => handleNavigate(item.id)}
             >
               <Icon />
               <span>{item.label}</span>
@@ -2834,9 +2880,16 @@ function App() {
         })}
       </aside>
 
-      <main className="main-content">
-        <PageTitleRail page={page} navItems={navItems} onNavigate={setPage} />
-        {renderPage()}
+      <main ref={mainContentRef} className="main-content">
+        <PageTitleRail page={page} navItems={navItems} onNavigate={handleNavigate} />
+        <div className={`page-module-shell ${pageFocusPulse ? 'page-module-shell-highlight' : ''}`}>
+          {pageFocusLabel && pageFocusPulse && (
+            <div className="page-module-toast" aria-live="polite">
+              已定位到 {pageFocusLabel}
+            </div>
+          )}
+          {renderPage()}
+        </div>
       </main>
     </div>
   );
