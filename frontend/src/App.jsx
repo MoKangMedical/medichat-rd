@@ -26,6 +26,69 @@ const COMMON_DRUG_SPOTLIGHTS = [
   { disease: '成骨不全症', drugs: ['Bisphosphonates', 'Teriparatide'], tag: '骨代谢调节' },
 ];
 
+const PAGE_GUIDE = {
+  community: {
+    title: '互助社群',
+    hint: '欢迎房、病友圈、AI 分身和持续互动都从这里开始。',
+    tags: ['欢迎房', '病友圈', 'AI 分身'],
+  },
+  hub: {
+    title: '患者中枢',
+    hint: '用一页看清患者旅程、能力地图和今天最值得打开的入口。',
+    tags: ['旅程总览', '能力地图', '今日入口'],
+  },
+  deeprare: {
+    title: 'DeepRare 诊断',
+    hint: '把症状快速整理成候选诊断、检查建议和下一步动作。',
+    tags: ['候选诊断', '检查建议', '推理链'],
+  },
+  doctor: {
+    title: '医生助手',
+    hint: '帮助医生和患者把病史、风险点和随访问题说清楚。',
+    tags: ['医生沟通', '风险提示', '随访提问'],
+  },
+  'ai-chat': {
+    title: 'AI 陪诊',
+    hint: '更适合把复杂病情用自然语言讲清楚，再整理成下一步问题。',
+    tags: ['自然语言', '问诊梳理', '陪伴对话'],
+  },
+  'symptom-check': {
+    title: '症状筛查',
+    hint: '快速输入症状，先拿到一个结构化初筛结果。',
+    tags: ['症状输入', '结构化初筛', '快速开始'],
+  },
+  'genomic-hub': {
+    title: '基因与登记',
+    hint: '把基因线索、Phenopacket 和患者登记放到同一条链路。',
+    tags: ['基因分诊', 'Phenopacket', '登记入库'],
+  },
+  'care-loop': {
+    title: '长期管理',
+    hint: '把陪伴、随访、病友支持和时间线真正闭合起来。',
+    tags: ['时间线', '随访', '陪伴闭环'],
+  },
+  'scientific-skills': {
+    title: '科研加速',
+    hint: '查看科研执行层是否就绪，并把重型工作流接入平台。',
+    tags: ['科研 Runtime', '工作流', '执行层'],
+  },
+  'disease-research': {
+    title: '疾病研究',
+    hint: '一页看疾病介绍、关键基因、医院线索和患者常见问题。',
+    tags: ['疾病介绍', '关键基因', '医院线索'],
+  },
+  'drug-research': {
+    title: '药物线索',
+    hint: '把患者最关心的药物、研究动态和结构线索直接前置。',
+    tags: ['药物线索', '研究动态', '虚拟筛选'],
+  },
+  'platform-ops': {
+    title: '治理评估',
+    hint: '查看控制面、分身 runtime 和平台治理边界。',
+    tags: ['控制面', 'Runtime', '治理边界'],
+  },
+};
+
 function getStoredRegistryId() {
   if (typeof window === 'undefined') return '';
   return window.localStorage.getItem(REGISTRY_STORAGE_KEY) || '';
@@ -236,6 +299,50 @@ function PageShowcase({ scene, eyebrow, title, description, tags = [], actions =
           })}
         </div>
       )}
+    </section>
+  );
+}
+
+function PageTitleRail({ page, navItems, onNavigate }) {
+  const activeGuide = PAGE_GUIDE[page] || PAGE_GUIDE.hub;
+
+  return (
+    <section className="page-title-rail">
+      <div className="page-title-summary">
+        <div className="page-title-kicker">患者快速入口</div>
+        <div className="page-title-mainline">
+          <h2>{activeGuide.title}</h2>
+          <p>{activeGuide.hint}</p>
+        </div>
+        <div className="page-title-tags">
+          {(activeGuide.tags || []).map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="page-title-track" role="navigation" aria-label="页面快速切换">
+        {navItems.map((item) => {
+          const Icon = Icons[item.icon];
+          const guide = PAGE_GUIDE[item.id] || { title: item.label, hint: '' };
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`page-title-chip ${page === item.id ? 'active' : ''}`}
+              onClick={() => onNavigate(item.id)}
+            >
+              <div className="page-title-chip-icon">
+                <Icon />
+              </div>
+              <div className="page-title-chip-copy">
+                <strong>{guide.title}</strong>
+                <span>{guide.hint}</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </section>
   );
 }
@@ -2728,6 +2835,7 @@ function App() {
       </aside>
 
       <main className="main-content">
+        <PageTitleRail page={page} navItems={navItems} onNavigate={setPage} />
         {renderPage()}
       </main>
     </div>

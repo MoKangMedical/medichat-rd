@@ -243,6 +243,153 @@ button {
   min-height: 100vh;
 }
 
+.page-title-rail {
+  position: sticky;
+  top: calc(16px + var(--nav-height) + 12px);
+  z-index: 95;
+  margin: 0 16px 16px;
+  padding: 18px 18px 16px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 250, 244, 0.82);
+  box-shadow: 0 26px 70px rgba(17, 28, 56, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.page-title-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.page-title-kicker {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(13, 191, 155, 0.1);
+  color: var(--mint-deep);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.page-title-mainline {
+  display: grid;
+  gap: 6px;
+}
+
+.page-title-mainline h2 {
+  margin: 0;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-size: clamp(1.5rem, 2vw, 2.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.page-title-mainline p {
+  margin: 0;
+  max-width: 840px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  font-size: 0.98rem;
+}
+
+.page-title-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.page-title-tags span {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(12, 24, 49, 0.08);
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.page-title-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.page-title-chip {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-height: 92px;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(12, 24, 49, 0.08);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.page-title-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 36px rgba(17, 28, 56, 0.08);
+}
+
+.page-title-chip.active {
+  background: linear-gradient(135deg, rgba(12, 24, 49, 0.96) 0%, rgba(23, 58, 104, 0.94) 100%);
+  border-color: rgba(12, 24, 49, 0.24);
+  color: #fff;
+}
+
+.page-title-chip-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(12, 24, 49, 0.06);
+}
+
+.page-title-chip.active .page-title-chip-icon {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.page-title-chip-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.page-title-chip-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.page-title-chip-copy strong {
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.page-title-chip-copy span {
+  color: inherit;
+  opacity: 0.78;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .community-page {
   width: 100%;
   padding: 24px clamp(8px, 1.2vw, 18px) 44px;
@@ -4015,6 +4162,33 @@ button.disease-orbit-variable-card:disabled {
 
   .nav-cta span {
     display: none;
+  }
+
+  .page-title-rail {
+    top: calc(10px + 64px + 10px);
+    margin: 0 10px 14px;
+    padding: 16px 14px 14px;
+    border-radius: 22px;
+  }
+
+  .page-title-mainline h2 {
+    font-size: 1.35rem;
+  }
+
+  .page-title-mainline p {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .page-title-track {
+    grid-auto-columns: minmax(200px, 84vw);
+    margin-top: 14px;
+  }
+
+  .page-title-chip {
+    min-height: 84px;
+    padding: 12px;
+    border-radius: 18px;
   }
 
   .community-cosmos-top,
