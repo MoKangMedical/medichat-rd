@@ -796,6 +796,7 @@ export default function CommunityPanel({ onNavigate }) {
           onConnect={handleConnectSecondMe}
           onDisconnect={handleDisconnectSecondMe}
           onSync={handleSyncSummary}
+          onCreateAvatar={() => setShowCreateAvatar(true)}
         />
 
         {myAvatar ? (
@@ -1828,6 +1829,7 @@ function SecondMeStatusPanel({
   onConnect,
   onDisconnect,
   onSync,
+  onCreateAvatar,
 }) {
   const grantedScopes = secondMeStatus?.granted_scopes || [];
 
@@ -1912,11 +1914,20 @@ function SecondMeStatusPanel({
               <button type="button" onClick={onDisconnect} style={softButtonStyle('ghost')}>
                 断开授权
               </button>
-              {myAvatar && (
-                <button type="button" onClick={onSync} disabled={syncingSummary} style={softButtonStyle('primary', syncingSummary)}>
-                  {syncingSummary ? '同步中...' : '同步患者摘要'}
+              {!myAvatar && (
+                <button type="button" onClick={onCreateAvatar} style={softButtonStyle('primary')}>
+                  创建分身
                 </button>
               )}
+              <button
+                type="button"
+                onClick={onSync}
+                disabled={!myAvatar || syncingSummary}
+                style={softButtonStyle(myAvatar ? 'primary' : 'ghost', !myAvatar || syncingSummary)}
+                title={myAvatar ? '' : '先创建分身后才能同步记忆'}
+              >
+                {syncingSummary ? '同步中...' : '同步患者摘要'}
+              </button>
             </>
           ) : (
             <button type="button" onClick={onConnect} disabled={!canConnectSecondMe} style={softButtonStyle('primary', !canConnectSecondMe)}>

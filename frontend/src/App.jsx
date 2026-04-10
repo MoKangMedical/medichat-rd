@@ -7,6 +7,7 @@ import DoctorPanel from './components/DoctorPanel';
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const REGISTRY_STORAGE_KEY = 'medichat_registry_id';
 const PREFILLED_DISEASE_STORAGE_KEY = 'medichat_selected_disease';
+const VISITOR_STORAGE_KEY = 'medichat_visitor_id';
 
 const COMMON_DISEASE_LIBRARY = [
   { name: '戈谢病', gene: 'GBA', category: '溶酶体病', summary: '常见线索是脾大、骨痛、贫血。' },
@@ -87,6 +88,61 @@ const PAGE_GUIDE = {
     hint: '查看控制面、分身 runtime 和平台治理边界。',
     tags: ['控制面', 'Runtime', '治理边界'],
   },
+  'traffic-analytics': {
+    title: '访问分析',
+    hint: '把访问量、国家分布和来源渠道变成每天都能看到的后台图表。',
+    tags: ['访问趋势', '国家分布', '来源渠道'],
+  },
+};
+
+const COUNTRY_COORDINATES = {
+  AE: { lat: 24.4, lon: 54.3 },
+  AR: { lat: -38.4, lon: -63.6 },
+  AT: { lat: 47.5, lon: 14.6 },
+  AU: { lat: -25.3, lon: 133.8 },
+  BE: { lat: 50.8, lon: 4.5 },
+  BR: { lat: -14.2, lon: -51.9 },
+  CA: { lat: 56.1, lon: -106.3 },
+  CH: { lat: 46.8, lon: 8.2 },
+  CL: { lat: -35.7, lon: -71.5 },
+  CN: { lat: 35.9, lon: 104.2 },
+  CO: { lat: 4.6, lon: -74.1 },
+  DE: { lat: 51.2, lon: 10.4 },
+  DK: { lat: 56.1, lon: 9.5 },
+  EG: { lat: 26.8, lon: 30.8 },
+  ES: { lat: 40.5, lon: -3.7 },
+  FI: { lat: 61.9, lon: 25.7 },
+  FR: { lat: 46.2, lon: 2.2 },
+  GB: { lat: 55.4, lon: -3.4 },
+  HK: { lat: 22.3, lon: 114.2 },
+  ID: { lat: -2.5, lon: 118.0 },
+  IE: { lat: 53.1, lon: -8.2 },
+  IL: { lat: 31.0, lon: 35.0 },
+  IN: { lat: 20.6, lon: 78.9 },
+  IT: { lat: 41.9, lon: 12.6 },
+  JP: { lat: 36.2, lon: 138.3 },
+  KR: { lat: 36.5, lon: 127.9 },
+  MO: { lat: 22.2, lon: 113.5 },
+  MX: { lat: 23.6, lon: -102.5 },
+  MY: { lat: 4.2, lon: 102.0 },
+  NG: { lat: 9.1, lon: 8.7 },
+  NL: { lat: 52.1, lon: 5.3 },
+  NO: { lat: 60.5, lon: 8.5 },
+  NZ: { lat: -40.9, lon: 174.9 },
+  PH: { lat: 12.9, lon: 121.8 },
+  PK: { lat: 30.4, lon: 69.4 },
+  PL: { lat: 52.1, lon: 19.4 },
+  PT: { lat: 39.4, lon: -8.2 },
+  RU: { lat: 61.5, lon: 105.3 },
+  SA: { lat: 23.9, lon: 45.1 },
+  SE: { lat: 60.1, lon: 18.6 },
+  SG: { lat: 1.35, lon: 103.8 },
+  TH: { lat: 15.8, lon: 101.0 },
+  TR: { lat: 38.9, lon: 35.2 },
+  TW: { lat: 23.7, lon: 121.0 },
+  US: { lat: 37.1, lon: -95.7 },
+  VN: { lat: 14.1, lon: 108.3 },
+  ZA: { lat: -30.6, lon: 22.9 },
 };
 
 function getStoredRegistryId() {
@@ -97,6 +153,34 @@ function getStoredRegistryId() {
 function storeRegistryId(registryId) {
   if (typeof window === 'undefined' || !registryId) return;
   window.localStorage.setItem(REGISTRY_STORAGE_KEY, registryId);
+}
+
+function formatMetricNumber(value) {
+  return new Intl.NumberFormat('zh-CN').format(value || 0);
+}
+
+function formatPercent(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
+}
+
+function getTodayDateString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function createVisitorId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `visitor_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getOrCreateVisitorId() {
+  if (typeof window === 'undefined') return '';
+  const existingId = window.localStorage.getItem(VISITOR_STORAGE_KEY);
+  if (existingId) return existingId;
+  const nextId = createVisitorId();
+  window.localStorage.setItem(VISITOR_STORAGE_KEY, nextId);
+  return nextId;
 }
 
 const Icons = {
@@ -191,6 +275,39 @@ async function fetchJson(path, options = {}) {
     throw new Error(data.detail || data.message || '请求失败');
   }
   return data;
+}
+
+async function trackPageView(pageId) {
+  if (typeof window === 'undefined' || !pageId) return;
+  const visitorId = getOrCreateVisitorId();
+  if (!visitorId) return;
+
+  let timezone = '';
+  try {
+    timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+  } catch (error) {
+    console.error(error);
+  }
+
+  const guide = PAGE_GUIDE[pageId] || { title: pageId };
+
+  try {
+    await fetchJson('/api/v1/analytics/page-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        visitor_id: visitorId,
+        page_id: pageId,
+        page_label: guide.title || pageId,
+        path: `/app/${pageId}`,
+        referrer: document.referrer || '',
+        language: navigator.language || '',
+        timezone,
+      }),
+    });
+  } catch (error) {
+    console.error('page view tracking failed', error);
+  }
 }
 
 function MultilineText({ text }) {
@@ -2745,6 +2862,866 @@ function AvatarRuntimeAdminSection({
   );
 }
 
+function TrafficTrendChart({ data = [] }) {
+  if (!data.length) {
+    return <div className="section-note">还没有采集到访问数据。</div>;
+  }
+
+  const width = 760;
+  const height = 240;
+  const paddingLeft = 28;
+  const paddingRight = 18;
+  const paddingTop = 18;
+  const paddingBottom = 32;
+  const innerWidth = width - paddingLeft - paddingRight;
+  const innerHeight = height - paddingTop - paddingBottom;
+  const maxValue = Math.max(
+    1,
+    ...data.map((item) => item.page_views || 0),
+    ...data.map((item) => item.unique_visitors || 0),
+  );
+
+  const getX = (index) => {
+    if (data.length === 1) return paddingLeft + innerWidth / 2;
+    return paddingLeft + (innerWidth * index) / (data.length - 1);
+  };
+  const getY = (value) => paddingTop + innerHeight - (value / maxValue) * innerHeight;
+  const buildPath = (fieldName) =>
+    data
+      .map((item, index) => `${index === 0 ? 'M' : 'L'} ${getX(index)} ${getY(item[fieldName] || 0)}`)
+      .join(' ');
+
+  const lastItem = data[data.length - 1];
+
+  return (
+    <div className="analytics-chart-shell">
+      <div className="analytics-chart-legend">
+        <span><i className="chart-dot views" />访问量</span>
+        <span><i className="chart-dot visitors" />独立访客</span>
+        <strong>最新一天：{lastItem.date} / {formatMetricNumber(lastItem.page_views)} 次访问</strong>
+      </div>
+      <svg viewBox={`0 0 ${width} ${height}`} className="analytics-line-chart" role="img" aria-label="访问量趋势图">
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+          const y = paddingTop + innerHeight * ratio;
+          return (
+            <line
+              key={ratio}
+              x1={paddingLeft}
+              y1={y}
+              x2={width - paddingRight}
+              y2={y}
+              stroke="rgba(12, 24, 49, 0.08)"
+              strokeDasharray="4 8"
+            />
+          );
+        })}
+        <path d={buildPath('page_views')} fill="none" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" />
+        <path d={buildPath('unique_visitors')} fill="none" stroke="#14B8A6" strokeWidth="4" strokeLinecap="round" />
+        {data.map((item, index) => (
+          <g key={item.date}>
+            <circle cx={getX(index)} cy={getY(item.page_views || 0)} r="4.5" fill="#2563EB" />
+            <circle cx={getX(index)} cy={getY(item.unique_visitors || 0)} r="4.5" fill="#14B8A6" />
+          </g>
+        ))}
+      </svg>
+      <div className="analytics-chart-axis">
+        <span>{data[0].date}</span>
+        <span>{data[Math.floor((data.length - 1) / 2)].date}</span>
+        <span>{lastItem.date}</span>
+      </div>
+    </div>
+  );
+}
+
+function CountryDistributionChart({ items = [] }) {
+  if (!items.length) {
+    return <div className="section-note">暂时没有国家分布数据。</div>;
+  }
+
+  const maxValue = Math.max(1, ...items.map((item) => item.page_views || 0));
+
+  return (
+    <div className="analytics-bars">
+      {items.map((item) => {
+        const widthPercent = Math.max(12, Math.round(((item.page_views || 0) / maxValue) * 100));
+        return (
+          <div key={`${item.country_code}-${item.country_name}`} className="analytics-bar-row">
+            <div className="analytics-bar-copy">
+              <strong>{item.country_name}</strong>
+              <span>{item.country_code}</span>
+            </div>
+            <div className="analytics-bar-track">
+              <div className="analytics-bar-fill" style={{ width: `${widthPercent}%` }} />
+            </div>
+            <div className="analytics-bar-metric">
+              <strong>{formatMetricNumber(item.page_views)}</strong>
+              <span>{formatMetricNumber(item.unique_visitors)} UV</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function XConversionCard({ conversion, days }) {
+  const hosts = conversion?.hosts || [];
+  const landingPages = conversion?.landing_pages || [];
+  const topLanding = conversion?.top_landing_page;
+  const trafficShare = Number(conversion?.share_of_traffic || 0);
+  const trafficMeterWidth = trafficShare <= 0 ? 0 : Math.max(8, Math.min(100, trafficShare));
+
+  return (
+    <section className="result-panel accent analytics-x-panel">
+      <div className="section-head">
+        <span>X / Twitter 导流转化</span>
+        <span className="section-note">单独看最近 {days} 天来自 X、Twitter 和 t.co 的访问转化</span>
+      </div>
+
+      <div className="analytics-x-shell">
+        <div className="analytics-x-summary">
+          <div className="analytics-x-kpi">
+            <small>X 导流访问</small>
+            <strong>{formatMetricNumber(conversion?.page_views)}</strong>
+          </div>
+          <div className="analytics-x-kpi">
+            <small>X 导流访客</small>
+            <strong>{formatMetricNumber(conversion?.unique_visitors)}</strong>
+          </div>
+          <div className="analytics-x-kpi">
+            <small>流量占比</small>
+            <strong>{formatPercent(conversion?.share_of_traffic)}</strong>
+          </div>
+        </div>
+
+        <div className="analytics-x-meter">
+          <div className="analytics-x-meter-label">
+            <span>X / Twitter 流量占全部访问的比例</span>
+            <strong>{formatPercent(conversion?.share_of_traffic)}</strong>
+          </div>
+          <div className="analytics-x-meter-track">
+            <div
+              className="analytics-x-meter-fill"
+              style={{ width: `${trafficMeterWidth}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="analytics-x-grid">
+          <div className="analytics-x-panel-copy">
+            <div className="analytics-x-label">来源主机</div>
+            <div className="analytics-x-hosts">
+              {hosts.length ? hosts.map((item) => (
+                <div key={item.referrer_host} className="analytics-x-host-chip">
+                  <strong>{item.referrer_host}</strong>
+                  <span>{formatMetricNumber(item.page_views)} PV / {formatMetricNumber(item.unique_visitors)} UV</span>
+                </div>
+              )) : (
+                <div className="section-note">目前还没有识别到来自 X/Twitter 的导流访问。</div>
+              )}
+            </div>
+          </div>
+
+          <div className="analytics-x-panel-copy">
+            <div className="analytics-x-label">最强落地页</div>
+            {topLanding ? (
+              <div className="analytics-x-landing-card">
+                <strong>{topLanding.page_label}</strong>
+                <span>{formatMetricNumber(topLanding.page_views)} 次访问 / {formatMetricNumber(topLanding.unique_visitors)} 个独立访客</span>
+              </div>
+            ) : (
+              <div className="section-note">还没有形成可识别的 X 落地页。</div>
+            )}
+            {landingPages.length > 1 && (
+              <div className="analytics-x-landing-list">
+                {landingPages.slice(1).map((item) => (
+                  <div key={item.page_id} className="analytics-x-landing-row">
+                    <span>{item.page_label}</span>
+                    <strong>{formatMetricNumber(item.page_views)} PV</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function XActivityCorrelationCard({
+  correlation,
+  adminToken,
+  onCreateActivity,
+  creating,
+}) {
+  const [formData, setFormData] = useState({
+    title: '',
+    activityType: 'post',
+    eventDate: getTodayDateString(),
+    url: '',
+    note: '',
+  });
+
+  const events = correlation?.events || [];
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!formData.title.trim()) return;
+    await onCreateActivity({
+      title: formData.title.trim(),
+      activity_type: formData.activityType,
+      event_date: formData.eventDate,
+      url: formData.url.trim(),
+      note: formData.note.trim(),
+    });
+    setFormData((current) => ({
+      ...current,
+      title: '',
+      url: '',
+      note: '',
+    }));
+  };
+
+  return (
+    <section className="result-panel">
+      <div className="section-head">
+        <span>X 帖子 / 活动与访问峰值</span>
+        <span className="section-note">把每条帖子、Space 或活动日期记进后台，系统会自动关联后续访问峰值</span>
+      </div>
+
+      <div className="analytics-correlation-shell">
+        <form className="analytics-correlation-form" onSubmit={handleSubmit}>
+          <div className="analytics-field">
+            <span>活动标题</span>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(event) => setFormData((current) => ({ ...current, title: event.target.value }))}
+              placeholder="例如：Rare Disease AI 平台介绍帖"
+            />
+          </div>
+          <div className="analytics-field">
+            <span>活动类型</span>
+            <select
+              value={formData.activityType}
+              onChange={(event) => setFormData((current) => ({ ...current, activityType: event.target.value }))}
+            >
+              <option value="post">帖子</option>
+              <option value="thread">线程</option>
+              <option value="space">Space</option>
+              <option value="campaign">活动</option>
+            </select>
+          </div>
+          <div className="analytics-field">
+            <span>日期</span>
+            <input
+              type="date"
+              value={formData.eventDate}
+              onChange={(event) => setFormData((current) => ({ ...current, eventDate: event.target.value }))}
+            />
+          </div>
+          <div className="analytics-field">
+            <span>X 链接</span>
+            <input
+              type="url"
+              value={formData.url}
+              onChange={(event) => setFormData((current) => ({ ...current, url: event.target.value }))}
+              placeholder="https://x.com/..."
+            />
+          </div>
+          <div className="analytics-field analytics-field-wide">
+            <span>备注</span>
+            <input
+              type="text"
+              value={formData.note}
+              onChange={(event) => setFormData((current) => ({ ...current, note: event.target.value }))}
+              placeholder="写明主题、受众或发布时的活动背景"
+            />
+          </div>
+          <div className="analytics-correlation-actions">
+            <button type="submit" className="hero-action primary" disabled={creating || !formData.title.trim()}>
+              {creating ? '保存中...' : '记录活动'}
+            </button>
+            <div className="section-note">
+              这会用当前后台口令提交；如果服务端配置了 `PLATFORM_ADMIN_TOKEN`，需要先在上方输入。
+            </div>
+          </div>
+        </form>
+
+        <div className="analytics-correlation-grid">
+          {events.length ? events.map((item) => (
+            <div key={item.id} className="analytics-correlation-card">
+              <div className="analytics-correlation-head">
+                <div>
+                  <small>{item.activity_type} · {item.event_date}</small>
+                  <h3>{item.title}</h3>
+                </div>
+                <div className="analytics-correlation-badge">
+                  X 峰值 {formatMetricNumber(item.peak_x_page_views)}
+                </div>
+              </div>
+
+              <div className="analytics-correlation-metrics">
+                <div className="analytics-correlation-metric">
+                  <span>活动后 4 天 X 访问</span>
+                  <strong>{formatMetricNumber(item.window_x_page_views)}</strong>
+                </div>
+                <div className="analytics-correlation-metric">
+                  <span>峰值日</span>
+                  <strong>{item.peak_x_date}</strong>
+                </div>
+                <div className="analytics-correlation-metric">
+                  <span>较活动前 3 天抬升</span>
+                  <strong>{item.x_uplift >= 0 ? '+' : ''}{item.x_uplift} / {formatPercent(item.x_uplift_ratio)}</strong>
+                </div>
+              </div>
+
+              <div className="analytics-correlation-foot">
+                <span>全站峰值：{item.peak_total_date} / {formatMetricNumber(item.peak_total_page_views)} PV</span>
+                {item.url ? (
+                  <a href={item.url} target="_blank" rel="noreferrer">查看原帖</a>
+                ) : (
+                  <span>未附链接</span>
+                )}
+              </div>
+              {item.note && <div className="section-note">{item.note}</div>}
+            </div>
+          )) : (
+            <div className="section-note">还没有记录 X 帖子或活动。先录入重要帖子、Space 或路演活动，系统才会开始做时间关联。</div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GlobalTrafficHeatmap({ items = [] }) {
+  const mappedItems = items
+    .map((item) => {
+      const coordinates = COUNTRY_COORDINATES[item.country_code];
+      if (!coordinates) return null;
+      return { ...item, ...coordinates };
+    })
+    .filter(Boolean)
+    .slice(0, 28);
+
+  if (!mappedItems.length) {
+    return <div className="section-note">近 30 天还没有足够的国家数据来绘制热力地图。</div>;
+  }
+
+  const width = 960;
+  const height = 500;
+  const paddingX = 72;
+  const paddingY = 46;
+  const innerWidth = width - paddingX * 2;
+  const innerHeight = height - paddingY * 2;
+  const maxValue = Math.max(1, ...mappedItems.map((item) => item.page_views || 0));
+  const topLabels = mappedItems.slice(0, 8);
+
+  const projectPoint = (lat, lon) => ({
+    x: paddingX + ((lon + 180) / 360) * innerWidth,
+    y: paddingY + ((90 - lat) / 180) * innerHeight,
+  });
+
+  return (
+    <div className="analytics-heatmap-shell">
+      <div className="analytics-heatmap-stage">
+        <svg viewBox={`0 0 ${width} ${height}`} className="analytics-heatmap-map" role="img" aria-label="近30天国家热力地图">
+          <defs>
+            <radialGradient id="heatGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(125, 211, 252, 0.92)" />
+              <stop offset="55%" stopColor="rgba(45, 212, 191, 0.56)" />
+              <stop offset="100%" stopColor="rgba(37, 99, 235, 0)" />
+            </radialGradient>
+          </defs>
+
+          <rect x="0" y="0" width={width} height={height} rx="32" fill="url(#worldTone)" />
+          <defs>
+            <linearGradient id="worldTone" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#071427" />
+              <stop offset="52%" stopColor="#0B2341" />
+              <stop offset="100%" stopColor="#08172C" />
+            </linearGradient>
+          </defs>
+
+          {[0.2, 0.4, 0.6, 0.8].map((ratio) => (
+            <line
+              key={`lat-${ratio}`}
+              x1={paddingX}
+              y1={paddingY + innerHeight * ratio}
+              x2={width - paddingX}
+              y2={paddingY + innerHeight * ratio}
+              stroke="rgba(148, 163, 184, 0.12)"
+              strokeDasharray="5 10"
+            />
+          ))}
+          {[0.16, 0.33, 0.5, 0.66, 0.83].map((ratio) => (
+            <line
+              key={`lon-${ratio}`}
+              x1={paddingX + innerWidth * ratio}
+              y1={paddingY}
+              x2={paddingX + innerWidth * ratio}
+              y2={height - paddingY}
+              stroke="rgba(148, 163, 184, 0.1)"
+              strokeDasharray="5 10"
+            />
+          ))}
+
+          <g fill="rgba(56, 189, 248, 0.08)" stroke="rgba(125, 211, 252, 0.08)" strokeWidth="1.5">
+            <path d="M108 144c42-28 104-32 165-16 29 8 59 28 83 54 17 19 40 27 61 31 18 4 28 12 27 26-3 17-22 20-37 24-32 7-58 27-75 55-11 18-31 25-55 22-47-5-96-22-135-54-27-22-44-51-61-77-14-22-10-46 27-65Z" />
+            <path d="M400 125c36-31 85-44 138-40 50 4 98 22 140 52 35 25 75 44 124 55 21 5 42 15 46 33 4 17-12 28-29 37-31 17-69 25-95 47-29 24-49 56-84 73-36 18-70 8-102-13-33-22-72-34-111-45-27-8-49-20-63-42-12-18-23-38-38-54-22-23-31-49-26-80Z" />
+            <path d="M690 292c31-11 68-9 98 10 25 16 36 39 31 66-5 24-28 37-53 44-34 11-67 17-101 7-25-7-39-27-42-52-4-30 19-63 67-75Z" />
+            <path d="M742 379c18-11 39-12 58-5 25 9 44 33 41 56-2 20-24 31-44 33-28 2-59-5-73-28-16-24-5-44 18-56Z" />
+          </g>
+
+          {mappedItems.map((item) => {
+            const point = projectPoint(item.lat, item.lon);
+            const radius = 10 + ((item.page_views || 0) / maxValue) * 28;
+            return (
+              <g key={`${item.country_code}-${item.country_name}`}>
+                <circle cx={point.x} cy={point.y} r={radius * 1.9} fill="url(#heatGlow)" opacity="0.92" />
+                <circle cx={point.x} cy={point.y} r={Math.max(5, radius * 0.45)} fill="#F8FAFC" opacity="0.94" />
+                <circle cx={point.x} cy={point.y} r={radius} fill="rgba(59, 130, 246, 0.3)" stroke="rgba(186, 230, 253, 0.64)" strokeWidth="1.5" />
+              </g>
+            );
+          })}
+
+          {topLabels.map((item, index) => {
+            const point = projectPoint(item.lat, item.lon);
+            const verticalOffset = index % 2 === 0 ? -18 : 22;
+            return (
+              <g key={`label-${item.country_code}`}>
+                <line
+                  x1={point.x}
+                  y1={point.y}
+                  x2={point.x + 14}
+                  y2={point.y + verticalOffset}
+                  stroke="rgba(226, 232, 240, 0.66)"
+                  strokeWidth="1.2"
+                />
+                <text
+                  x={point.x + 18}
+                  y={point.y + verticalOffset + (verticalOffset > 0 ? 0 : -4)}
+                  fill="#F8FAFC"
+                  fontSize="12"
+                  fontWeight="700"
+                >
+                  {item.country_name}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      <div className="analytics-heatmap-side">
+        <div className="analytics-heatmap-scale">
+          <div className="analytics-heatmap-scale-title">热度图例</div>
+          <div className="analytics-heatmap-scale-row"><span className="scale-dot hot" />高热国家</div>
+          <div className="analytics-heatmap-scale-row"><span className="scale-dot warm" />持续关注国家</div>
+          <div className="analytics-heatmap-scale-row"><span className="scale-dot cool" />已触达国家</div>
+        </div>
+
+        <div className="analytics-heatmap-rank">
+          {mappedItems.slice(0, 10).map((item, index) => (
+            <div key={`rank-${item.country_code}`} className="analytics-heatmap-rank-row">
+              <span>{index + 1}. {item.country_name}</span>
+              <strong>{formatMetricNumber(item.page_views)} PV</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CountryPageLeadFunnel({ funnel }) {
+  const countries = funnel?.countries || [];
+  const definition = funnel?.definition;
+
+  if (!countries.length) {
+    return <div className="section-note">当前还没有足够数据来形成国家到合作线索的漏斗。</div>;
+  }
+
+  const maxVisitors = Math.max(1, ...countries.map((item) => item.country_visitors || 0));
+
+  return (
+    <div className="analytics-funnel-shell">
+      <div className="analytics-funnel-definition">
+        {definition?.lead_signal_logic}
+      </div>
+
+      <div className="analytics-funnel-grid">
+        {countries.map((item) => {
+          const stage1 = item.country_visitors || 0;
+          const stage2 = item.intent_page_visitors || 0;
+          const stage3 = item.lead_signals || 0;
+          const width1 = Math.max(22, Math.round((stage1 / maxVisitors) * 100));
+          const width2 = stage1 ? Math.max(16, Math.round((stage2 / stage1) * width1)) : 0;
+          const width3 = stage2 ? Math.max(12, Math.round((stage3 / stage2) * width2)) : 0;
+
+          return (
+            <div key={item.country_code} className="analytics-funnel-card">
+              <div className="analytics-funnel-head">
+                <div>
+                  <small>{item.country_code}</small>
+                  <h3>{item.country_name}</h3>
+                </div>
+                <div className="analytics-funnel-rates">
+                  <span>页面转化 {formatPercent(item.page_conversion_rate)}</span>
+                  <span>线索转化 {formatPercent(item.lead_conversion_rate)}</span>
+                </div>
+              </div>
+
+              <div className="analytics-funnel-bars">
+                <div className="analytics-funnel-row">
+                  <span>国家访客</span>
+                  <div className="analytics-funnel-bar-track">
+                    <div className="analytics-funnel-bar country" style={{ width: `${width1}%` }} />
+                  </div>
+                  <strong>{formatMetricNumber(stage1)}</strong>
+                </div>
+                <div className="analytics-funnel-row">
+                  <span>高意向页面</span>
+                  <div className="analytics-funnel-bar-track">
+                    <div className="analytics-funnel-bar page" style={{ width: `${width2}%` }} />
+                  </div>
+                  <strong>{formatMetricNumber(stage2)}</strong>
+                </div>
+                <div className="analytics-funnel-row">
+                  <span>合作线索</span>
+                  <div className="analytics-funnel-bar-track">
+                    <div className="analytics-funnel-bar lead" style={{ width: `${width3}%` }} />
+                  </div>
+                  <strong>{formatMetricNumber(stage3)}</strong>
+                </div>
+              </div>
+
+              <div className="analytics-funnel-meta">
+                <span>真实线索 {formatMetricNumber(item.actual_leads)}</span>
+                <span>代理信号 {formatMetricNumber(item.proxy_leads)}</span>
+              </div>
+
+              <div className="analytics-funnel-pages">
+                {(item.top_pages || []).map((page) => (
+                  <div key={`${item.country_code}-${page.page_id}`} className="analytics-funnel-page-chip">
+                    <span>{page.page_label}</span>
+                    <strong>{formatMetricNumber(page.unique_visitors)} UV</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TrafficAnalyticsPage() {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [days, setDays] = useState(30);
+  const [adminToken, setAdminToken] = useState('');
+  const [creatingActivity, setCreatingActivity] = useState(false);
+  const bootstrapped = useRef(false);
+
+  const loadDashboard = async (selectedDays = days, token = adminToken) => {
+    setLoading(true);
+    try {
+      const nextData = await fetchJson(`/api/v1/analytics/dashboard?days=${selectedDays}`, {
+        headers: token ? { 'X-Admin-Token': token } : {},
+      });
+      setData(nextData);
+      setError('');
+      try {
+        if (token) {
+          window.sessionStorage.setItem('medichat_admin_token', token);
+        }
+      } catch (storageError) {
+        console.error(storageError);
+      }
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    let savedToken = '';
+    try {
+      savedToken = window.sessionStorage.getItem('medichat_admin_token') || '';
+      if (savedToken) {
+        setAdminToken(savedToken);
+      }
+    } catch (storageError) {
+      console.error(storageError);
+    }
+
+    setLoading(true);
+    fetchJson(`/api/v1/analytics/dashboard?days=${days}`, {
+      headers: savedToken ? { 'X-Admin-Token': savedToken } : {},
+    })
+      .then((nextData) => {
+        if (!cancelled) {
+          setData(nextData);
+          setError('');
+          bootstrapped.current = true;
+        }
+      })
+      .catch((requestError) => {
+        if (!cancelled) {
+          setError(requestError.message);
+          bootstrapped.current = true;
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!bootstrapped.current) return;
+    loadDashboard(days, adminToken);
+  }, [days]);
+
+  const summary = data?.summary;
+  const topCountry = data?.countries?.[0];
+  const topReferrer = data?.referrers?.[0];
+  const xConversion = data?.x_conversion;
+  const heatmapCountries = data?.geo_heatmap_30d?.countries || [];
+  const xActivityCorrelation = data?.x_activity_correlation;
+  const countryPageLeadFunnel = data?.country_page_lead_funnel;
+  const lastSevenDaysViews = (data?.daily || [])
+    .slice(-7)
+    .reduce((total, item) => total + (item.page_views || 0), 0);
+
+  const handleCreateXActivity = async (payload) => {
+    setCreatingActivity(true);
+    try {
+      await fetchJson('/api/v1/analytics/x-activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'X-Admin-Token': adminToken } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      await loadDashboard(days, adminToken);
+      setError('');
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setCreatingActivity(false);
+    }
+  };
+
+  return (
+    <div className="utility-page">
+      <div className="utility-shell lively-shell theme-governance">
+        <PageShowcase
+          scene="governance"
+          eyebrow="Traffic, geography and growth visibility"
+          title="访问分析后台"
+          description="把每天访问量、国家分布和来源渠道直接做成管理页，方便你看传播是否真的在带来全球关注。"
+          tags={['每日访问量', '访问国家', '来源渠道', '页面热度']}
+          highlights={[
+            { icon: 'activity', title: '每日趋势', text: '同时看访问量和独立访客，判断传播是否在持续放大。' },
+            { icon: 'users', title: '国家分布', text: '直接看到内容已经被哪些国家和地区的人看到。' },
+            { icon: 'file', title: '页面热度', text: '判断访问究竟流向了产品、研究还是合作介绍页面。' },
+            { icon: 'spark', title: '来源渠道', text: '看 X、直接访问或其他渠道是否开始形成线索入口。' },
+          ]}
+          poster={{
+            kicker: '增长控制台',
+            badge: loading ? '数据刷新中' : data ? '访问数据已加载' : '等待分析数据',
+            title: summary ? `${formatMetricNumber(summary.range_page_views)} 次访问` : '把增长看清楚',
+            summary: '传播如果不能被量化，就很难形成真正的增长闭环。这里把访问量、地区和流量去向统一成一个后台。 ',
+            bubbles: ['PV', 'UV', 'Country'],
+            stats: [
+              { label: '统计窗口', value: `${days} 天` },
+              { label: '访问量', value: `${formatMetricNumber(summary?.range_page_views)}` },
+              { label: '覆盖国家', value: `${formatMetricNumber(summary?.country_count)}` },
+            ],
+          }}
+        />
+
+        <section className="result-panel accent">
+          <div className="section-head">
+            <span>数据控制台</span>
+            <span className="section-note">{loading ? '正在刷新数据' : `查看最近 ${days} 天`}</span>
+          </div>
+
+          <div className="analytics-toolbar">
+            <label className="analytics-field">
+              <span>统计窗口</span>
+              <select value={days} onChange={(event) => setDays(Number(event.target.value))}>
+                <option value={7}>最近 7 天</option>
+                <option value={30}>最近 30 天</option>
+                <option value={90}>最近 90 天</option>
+              </select>
+            </label>
+
+            <button
+              type="button"
+              className="hero-action primary"
+              disabled={loading}
+              onClick={() => loadDashboard(days, adminToken)}
+            >
+              {loading ? '刷新中...' : '刷新数据'}
+            </button>
+          </div>
+
+          <div className="analytics-token-block">
+            <label className="analytics-field">
+              <span>后台查看口令</span>
+              <input
+                type="password"
+                value={adminToken}
+                onChange={(event) => setAdminToken(event.target.value)}
+                placeholder="如果服务端配置了 PLATFORM_ADMIN_TOKEN，请在这里输入"
+                autoComplete="off"
+              />
+            </label>
+            <div className="section-note">
+              口令只保存在当前浏览器 sessionStorage；如果服务端未配置 PLATFORM_ADMIN_TOKEN，分析后台可直接查看。
+            </div>
+          </div>
+
+          {summary && (
+            <div className="signal-grid" style={{ marginTop: 20 }}>
+              <div className="signal-cell">
+                <small>今日访问</small>
+                <strong>{formatMetricNumber(summary.today_page_views)}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>今日访客</small>
+                <strong>{formatMetricNumber(summary.today_unique_visitors)}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>{days} 天访问</small>
+                <strong>{formatMetricNumber(summary.range_page_views)}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>{days} 天独立访客</small>
+                <strong>{formatMetricNumber(summary.range_unique_visitors)}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>覆盖国家</small>
+                <strong>{formatMetricNumber(summary.country_count)}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>近 7 天访问</small>
+                <strong>{formatMetricNumber(lastSevenDaysViews)}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>最高国家</small>
+                <strong>{topCountry ? topCountry.country_name : '暂无'}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>主要来源</small>
+                <strong>{topReferrer ? topReferrer.referrer_host : 'direct'}</strong>
+              </div>
+              <div className="signal-cell">
+                <small>X 导流占比</small>
+                <strong>{formatPercent(xConversion?.share_of_traffic)}</strong>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {data && (
+          <div className="result-stack">
+            <section className="result-panel">
+              <div className="section-head">
+                <span>每日访问趋势</span>
+                <span className="section-note">蓝线是访问量，绿色是独立访客</span>
+              </div>
+              <TrafficTrendChart data={data.daily} />
+            </section>
+
+            <XConversionCard conversion={xConversion} days={days} />
+
+            <XActivityCorrelationCard
+              correlation={xActivityCorrelation}
+              adminToken={adminToken}
+              onCreateActivity={handleCreateXActivity}
+              creating={creatingActivity}
+            />
+
+            <section className="result-panel">
+              <div className="section-head">
+                <span>近 30 天国家热力地图</span>
+                <span className="section-note">把全球传播触达变成一张更直观的热区地图</span>
+              </div>
+              <GlobalTrafficHeatmap items={heatmapCountries} />
+            </section>
+
+            <section className="result-panel">
+              <div className="section-head">
+                <span>国家分布</span>
+                <span className="section-note">热力地图下方保留国家排名，便于运营对照</span>
+              </div>
+              <CountryDistributionChart items={heatmapCountries.slice(0, 12)} />
+            </section>
+
+            <section className="result-panel">
+              <div className="section-head">
+                <span>国家 - 页面 - 合作线索</span>
+                <span className="section-note">把国家访客、高意向页面和合作线索信号放在同一条漏斗里看</span>
+              </div>
+              <CountryPageLeadFunnel funnel={countryPageLeadFunnel} />
+            </section>
+
+            <section className="result-panel">
+              <div className="section-head">
+                <span>页面热度</span>
+                <span className="section-note">哪些页面真正被打开</span>
+              </div>
+              <div className="related-grid">
+                {(data.pages || []).map((item) => (
+                  <div key={item.page_id} className="related-card">
+                    <h3>{item.page_label}</h3>
+                    <p>访问量：{formatMetricNumber(item.page_views)}</p>
+                    <p>独立访客：{formatMetricNumber(item.unique_visitors)}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="result-panel">
+              <div className="section-head">
+                <span>来源渠道</span>
+                <span className="section-note">观察 X 和其他入口是否开始带来流量</span>
+              </div>
+              <div className="related-grid">
+                {(data.referrers || []).map((item) => (
+                  <div key={item.referrer_host} className="related-card">
+                    <h3>{item.referrer_host}</h3>
+                    <p>访问量：{formatMetricNumber(item.page_views)}</p>
+                    <p>独立访客：{formatMetricNumber(item.unique_visitors)}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {error && <div className="inline-error">{error}</div>}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [page, setPage] = useState('community');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -2766,6 +3743,7 @@ function App() {
     { id: 'disease-research', label: '疾病研究', icon: 'file' },
     { id: 'drug-research', label: '药物线索', icon: 'pill' },
     { id: 'platform-ops', label: '治理评估', icon: 'check' },
+    { id: 'traffic-analytics', label: '访问分析', icon: 'activity' },
   ];
 
   const scrollToActiveModule = () => {
@@ -2803,6 +3781,10 @@ function App() {
     return () => window.clearTimeout(timeout);
   }, [pageFocusPulse]);
 
+  useEffect(() => {
+    trackPageView(page);
+  }, [page]);
+
   const handleNavigate = (nextPage) => {
     setSidebarOpen(false);
     if (nextPage === page) {
@@ -2836,6 +3818,8 @@ function App() {
         return <DrugResearchPage />;
       case 'platform-ops':
         return <PlatformControlPage />;
+      case 'traffic-analytics':
+        return <TrafficAnalyticsPage />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

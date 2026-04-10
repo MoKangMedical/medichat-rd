@@ -59,6 +59,7 @@ from secondme_mcp_api import router as secondme_mcp_router
 from secondme_oauth_api import router as secondme_oauth_router
 from doctor_api import router as doctor_router
 from openevidence_api import router as openevidence_router
+from analytics_api import router as analytics_router
 
 app = FastAPI(
     title="MediChat API",
@@ -99,6 +100,7 @@ app.include_router(secondme_mcp_router)
 app.include_router(secondme_oauth_router)
 app.include_router(doctor_router)
 app.include_router(openevidence_router)
+app.include_router(analytics_router)
 
 # ============================================================
 # 前端静态文件服务
