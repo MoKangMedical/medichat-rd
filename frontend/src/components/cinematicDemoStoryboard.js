@@ -19,7 +19,7 @@ export const STORY_SCENES = [
     cta: { label: '进入欢迎房', kind: 'welcome' },
     secondaryCta: { label: '打开患者中枢', kind: 'page', target: 'hub' },
     startSec: 0,
-    endSec: 14.917,
+    endSec: 15.98,
   },
   {
     id: 'hub',
@@ -34,8 +34,8 @@ export const STORY_SCENES = [
     kicker: '患者中枢',
     cta: { label: '查看患者中枢', kind: 'page', target: 'hub' },
     secondaryCta: { label: '去做症状筛查', kind: 'page', target: 'symptom-check' },
-    startSec: 14.917,
-    endSec: 27.552,
+    startSec: 15.98,
+    endSec: 29.08,
   },
   {
     id: 'deeprare',
@@ -50,8 +50,8 @@ export const STORY_SCENES = [
     kicker: 'DeepRare 智能诊断',
     cta: { label: '打开 DeepRare', kind: 'page', target: 'deeprare' },
     secondaryCta: { label: '查看疾病研究', kind: 'page', target: 'disease-research' },
-    startSec: 27.552,
-    endSec: 40.329,
+    startSec: 29.08,
+    endSec: 40.9,
   },
   {
     id: 'avatar',
@@ -66,8 +66,8 @@ export const STORY_SCENES = [
     kicker: 'SecondMe 分身',
     cta: { label: '去创建分身', kind: 'page', target: 'community' },
     secondaryCta: { label: '连接 SecondMe', kind: 'page', target: 'platform-ops' },
-    startSec: 40.329,
-    endSec: 54.739,
+    startSec: 40.9,
+    endSec: 53.68,
   },
   {
     id: 'community',
@@ -82,8 +82,8 @@ export const STORY_SCENES = [
     kicker: '公开社群现场',
     cta: { label: '进入互助社群', kind: 'page', target: 'community' },
     secondaryCta: { label: '查看药物线索', kind: 'page', target: 'drug-research' },
-    startSec: 54.739,
-    endSec: 68.03,
+    startSec: 53.68,
+    endSec: 64.86,
   },
   {
     id: 'followup',
@@ -98,8 +98,8 @@ export const STORY_SCENES = [
     kicker: '陪伴与随访闭环',
     cta: { label: '打开长期管理', kind: 'page', target: 'care-loop' },
     secondaryCta: { label: '体验语音陪诊', kind: 'voice' },
-    startSec: 68.03,
-    endSec: 80.628,
+    startSec: 64.86,
+    endSec: 76.68,
   },
 ];
 

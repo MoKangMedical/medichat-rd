@@ -3,9 +3,12 @@ MediChat - 小米 MIMO 模型集成模块
 OpenAI 兼容接口
 """
 
+import base64
+import json
 import os
+from typing import Any, Dict, List, Optional
+
 from openai import OpenAI
-from typing import List, Dict, Optional
 
 
 class MIMOClient:
@@ -62,6 +65,54 @@ class MIMOClient:
         if stream:
             return self._handle_stream(response)
         return response.choices[0].message.content
+
+    def chat_json(
+        self,
+        messages: List[Dict[str, Any]],
+        temperature: float = 0.4,
+        max_tokens: int = 4096,
+        model: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """请求 JSON 结构化输出。"""
+        response = self.client.chat.completions.create(
+            model=model or self.model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format={"type": "json_object"},
+        )
+        content = response.choices[0].message.content or "{}"
+        return json.loads(content)
+
+    def tts(
+        self,
+        text: str,
+        *,
+        voice: Optional[str] = None,
+        audio_format: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> bytes:
+        """
+        使用 mimo-v2-tts 生成语音。
+
+        当前小米 MiMo 的 TTS 走 chat.completions 特殊格式，而不是 /audio/speech。
+        """
+        tts_model = model or os.getenv("MIMO_TTS_MODEL", "mimo-v2-tts")
+        voice_name = voice or os.getenv("MIMO_TTS_VOICE", "default_zh")
+        fmt = audio_format or os.getenv("MIMO_TTS_FORMAT", "wav")
+
+        response = self.client.chat.completions.create(
+            model=tts_model,
+            messages=[{"role": "assistant", "content": text}],
+            modalities=["text", "audio"],
+            audio={"voice": voice_name, "format": fmt},
+            temperature=0.2,
+            max_tokens=512,
+        )
+        audio = getattr(response.choices[0].message, "audio", None)
+        if not audio or not getattr(audio, "data", None):
+            raise ValueError("MIMO TTS 未返回音频数据")
+        return base64.b64decode(audio.data)
     
     def _handle_stream(self, response) -> str:
         """处理流式响应"""

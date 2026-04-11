@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
@@ -21,6 +23,17 @@ VOICE_RATE = 182
 DEFAULT_OUTPUT_ROOT = Path("/Users/apple/Desktop/medichatrd-brand-film-20260407")
 FONT_PATH = Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf")
 TITLE_FONT_PATH = Path("/System/Library/Fonts/Helvetica.ttc")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+BACKEND_DIR = REPO_ROOT / "backend"
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.append(str(BACKEND_DIR))
+
+try:
+    from mimo_media import generate_structured_storyboard, mimo_media_available, synthesize_voice_to_file
+except Exception:
+    generate_structured_storyboard = None
+    mimo_media_available = lambda: False
+    synthesize_voice_to_file = None
 
 
 @dataclass(frozen=True)
@@ -154,9 +167,63 @@ PROFILES = (
     Profile("portrait", 1080, 1920, 74, 34, 34, 24),
 )
 
+TTS_FILE_FORMAT = os.getenv("MIMO_TTS_FORMAT", "wav")
+
 
 def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
+
+
+def scene_seed(scene: Scene) -> dict:
+    return {
+        "id": scene.id,
+        "chapter": scene.chapter,
+        "label": scene.label,
+        "title": scene.title,
+        "hook": scene.hook,
+        "summary": scene.summary,
+        "narration": scene.narration,
+        "subtitleSegments": list(scene.subtitle_segments),
+        "tags": list(scene.tags),
+    }
+
+
+def resolve_scenes() -> list[Scene]:
+    if not mimo_media_available() or generate_structured_storyboard is None:
+        return list(SCENES)
+    try:
+        storyboard = generate_structured_storyboard(
+            project_name="MediChat-RD",
+            format_name="品牌宣传片",
+            brand_goal="生成一支更像真人品牌旁白、适合官网和路演传播的医疗科技品牌片",
+            scene_seeds=[scene_seed(scene) for scene in SCENES],
+        )
+        generated = {item.get("id"): item for item in storyboard.get("scenes", []) if item.get("id")}
+        merged: list[Scene] = []
+        for scene in SCENES:
+            item = generated.get(scene.id)
+            if not item:
+                merged.append(scene)
+                continue
+            merged.append(
+                Scene(
+                    id=scene.id,
+                    chapter=str(item.get("chapter", scene.chapter)),
+                    label=item.get("label", scene.label),
+                    title=item.get("title", scene.title),
+                    hook=item.get("hook", scene.hook),
+                    tags=tuple(item.get("tags") or scene.tags),
+                    summary=item.get("summary", scene.summary),
+                    narration=item.get("narration", scene.narration),
+                    subtitle_segments=tuple(item.get("subtitleSegments") or scene.subtitle_segments),
+                    palette=scene.palette,
+                    accent=scene.accent,
+                )
+            )
+        return merged
+    except Exception as exc:
+        print(f"⚠️ MiMo 分镜生成失败，回退本地 seed scenes: {exc}")
+        return list(SCENES)
 
 
 def probe_duration(path: Path) -> float:
@@ -382,6 +449,12 @@ def render_scene_poster(scene: Scene, profile: Profile, output_path: Path) -> No
 
 
 def generate_voice_track(text: str, output_path: Path) -> None:
+    if mimo_media_available() and synthesize_voice_to_file is not None:
+        try:
+            synthesize_voice_to_file(text, output_path)
+            return
+        except Exception as exc:
+            print(f"⚠️ MiMo TTS 失败，回退系统语音: {exc}")
     run(["say", "-v", VOICE_NAME, "-r", str(VOICE_RATE), "-o", str(output_path), text])
 
 
@@ -620,11 +693,12 @@ def generate_campaign_pack(output_root: Path) -> dict:
     output_root.mkdir(parents=True, exist_ok=True)
     audio_dir = output_root / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
+    active_scenes = resolve_scenes()
 
     scene_timings: list[dict] = []
     current = 0.0
-    for index, scene in enumerate(SCENES, start=1):
-        audio_path = audio_dir / f"{index:02d}_{scene.id}.aiff"
+    for index, scene in enumerate(active_scenes, start=1):
+        audio_path = audio_dir / f"{index:02d}_{scene.id}.{TTS_FILE_FORMAT}"
         generate_voice_track(scene.narration, audio_path)
         audio_duration = probe_duration(audio_path)
         duration = max(audio_duration + 0.62, 5.2)
@@ -650,7 +724,11 @@ def generate_campaign_pack(output_root: Path) -> dict:
             {
                 "generatedAt": datetime.now().isoformat(),
                 "fps": FPS,
-                "voice": {"name": VOICE_NAME, "rate": VOICE_RATE},
+                "voice": {
+                    "provider": "mimo" if mimo_media_available() else "system_say",
+                    "name": os.getenv("MIMO_TTS_VOICE", "default_zh") if mimo_media_available() else VOICE_NAME,
+                    "rate": VOICE_RATE if not mimo_media_available() else None,
+                },
                 "profiles": [{"id": p.id, "width": p.width, "height": p.height} for p in PROFILES],
                 "scenes": [
                     {

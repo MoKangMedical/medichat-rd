@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
@@ -26,6 +28,16 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_ROOT = Path("/Users/apple/Desktop/medichatrd-demo-pack-20260407")
 FONT_PATH = Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf")
 TITLE_FONT_PATH = Path("/System/Library/Fonts/Helvetica.ttc")
+BACKEND_DIR = REPO_ROOT / "backend"
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.append(str(BACKEND_DIR))
+
+try:
+    from mimo_media import generate_structured_storyboard, mimo_media_available, synthesize_voice_to_file
+except Exception:
+    generate_structured_storyboard = None
+    mimo_media_available = lambda: False
+    synthesize_voice_to_file = None
 
 
 @dataclass
@@ -142,9 +154,63 @@ SCENES = [
     ),
 ]
 
+TTS_FILE_FORMAT = os.getenv("MIMO_TTS_FORMAT", "wav")
+
 
 def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
+
+
+def scene_seed(scene: Scene) -> dict:
+    return {
+        "id": scene.id,
+        "chapter": scene.chapter,
+        "label": scene.label,
+        "title": scene.title,
+        "hook": scene.kicker,
+        "summary": scene.summary,
+        "narration": scene.narration,
+        "subtitleSegments": list(scene.subtitle_segments),
+        "tags": list(scene.tags),
+    }
+
+
+def resolve_scenes() -> list[Scene]:
+    if not mimo_media_available() or generate_structured_storyboard is None:
+        return list(SCENES)
+    try:
+        storyboard = generate_structured_storyboard(
+            project_name="MediChat-RD",
+            format_name="首页剧情 Demo",
+            brand_goal="生成一组适合官网首页自动播放、情感真切且能体现产品能力的分镜脚本",
+            scene_seeds=[scene_seed(scene) for scene in SCENES],
+        )
+        generated = {item.get("id"): item for item in storyboard.get("scenes", []) if item.get("id")}
+        merged: list[Scene] = []
+        for scene in SCENES:
+            item = generated.get(scene.id)
+            if not item:
+                merged.append(scene)
+                continue
+            merged.append(
+                Scene(
+                    id=scene.id,
+                    chapter=str(item.get("chapter", scene.chapter)),
+                    label=item.get("label", scene.label),
+                    title=item.get("title", scene.title),
+                    kicker=item.get("hook", scene.kicker),
+                    tags=list(item.get("tags") or scene.tags),
+                    summary=item.get("summary", scene.summary),
+                    narration=item.get("narration", scene.narration),
+                    subtitle_segments=list(item.get("subtitleSegments") or scene.subtitle_segments),
+                    palette=scene.palette,
+                    accent=scene.accent,
+                )
+            )
+        return merged
+    except Exception as exc:
+        print(f"⚠️ MiMo 分镜生成失败，回退本地 seed scenes: {exc}")
+        return list(SCENES)
 
 
 def probe_duration(path: Path) -> float:
@@ -319,6 +385,12 @@ def render_scene_poster(scene: Scene, output_path: Path) -> None:
 
 
 def generate_voice_track(text: str, output_path: Path) -> None:
+    if mimo_media_available() and synthesize_voice_to_file is not None:
+        try:
+            synthesize_voice_to_file(text, output_path)
+            return
+        except Exception as exc:
+            print(f"⚠️ MiMo TTS 失败，回退系统语音: {exc}")
     run(["say", "-v", VOICE_NAME, "-r", str(VOICE_RATE), "-o", str(output_path), text])
 
 
@@ -538,9 +610,11 @@ def generate_asset_pack(output_root: Path) -> dict:
     concat_lines = []
     current = 0.0
 
-    for index, scene in enumerate(SCENES, start=1):
+    active_scenes = resolve_scenes()
+
+    for index, scene in enumerate(active_scenes, start=1):
         poster_path = posters_dir / f"{index:02d}_{scene.id}.png"
-        audio_path = audio_dir / f"{index:02d}_{scene.id}.aiff"
+        audio_path = audio_dir / f"{index:02d}_{scene.id}.{TTS_FILE_FORMAT}"
         scene_video_path = scenes_dir / f"{index:02d}_{scene.id}.mp4"
 
         render_scene_poster(scene, poster_path)
@@ -582,7 +656,11 @@ def generate_asset_pack(output_root: Path) -> dict:
                 "width": WIDTH,
                 "height": HEIGHT,
                 "fps": FPS,
-                "voice": {"name": VOICE_NAME, "rate": VOICE_RATE},
+                "voice": {
+                    "provider": "mimo" if mimo_media_available() else "system_say",
+                    "name": os.getenv("MIMO_TTS_VOICE", "default_zh") if mimo_media_available() else VOICE_NAME,
+                    "rate": VOICE_RATE if not mimo_media_available() else None,
+                },
                 "scenes": [
                     {
                         "chapter": item["scene"].chapter,
