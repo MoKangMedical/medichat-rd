@@ -40,6 +40,11 @@ from hipaa_compliance import (
     ComplianceChecker, DataClassification
 )
 
+# 导入决策检查点模块
+from decision_checkpoint import (
+    get_checkpoint_manager, RiskLevel, CheckpointStatus
+)
+
 # 导入罕见病API
 from rare_disease_api import router as rare_disease_router
 from deeprare_api import router as deeprare_router
@@ -74,6 +79,9 @@ except ValueError:
 audit_logger = AuditLogger()
 data_masker = DataMasker()
 compliance_checker = ComplianceChecker()
+
+# 初始化决策检查点管理器
+checkpoint_mgr = get_checkpoint_manager()
 
 # 注册路由
 app.include_router(rare_disease_router)
@@ -216,16 +224,21 @@ async def chat(request: PatientRequest):
     # 获取医生信息
     triage_doctor = get_doctor_profile("triage")
     
-    # 调用MIMO处理
+    # 调用MIMO处理（带降级策略）
     if MIMO_ENABLED:
-        try:
-            response_text = mimo_client.chat(
-                messages=messages,
-                temperature=0.8,
-                max_tokens=1024
-            )
-        except Exception as e:
-            response_text = f"抱歉，系统暂时出现问题，请稍后重试。"
+        chat_result, strategy_used = checkpoint_mgr.execute_with_fallback(
+            operation="mimo_chat",
+            primary_executor=lambda **kw: mimo_client.chat(
+                messages=messages, temperature=0.8, max_tokens=1024
+            ),
+            params={"message": request.message}
+        )
+        if isinstance(chat_result, dict) and chat_result.get("degraded"):
+            response_text = chat_result["response"]
+        elif isinstance(chat_result, str):
+            response_text = chat_result
+        else:
+            response_text = str(chat_result)
     else:
         # 模拟响应 - 使用医生口吻
         response_text = f"""您好，我是陈雅琴医生，协和医院急诊科的分诊医师。
@@ -428,6 +441,75 @@ async def get_models():
         "model": os.getenv("MIMO_MODEL", "mimo-v2-pro"),
         "enabled": MIMO_ENABLED,
         "api_base": os.getenv("MIMO_BASE_URL", "https://api.xiaomimimo.com/v1")
+    }
+
+
+# ============================================================
+# 决策检查点 API
+# ============================================================
+
+@app.post("/api/v1/chat/preview")
+async def chat_preview(request: PatientRequest):
+    """
+    诊断预览模式：生成预览而不执行完整诊断
+    用户确认后再调用 /api/v1/chat/confirm/{checkpoint_id}
+    """
+    cp, preview = checkpoint_mgr.preview_operation(
+        operation_name="chat_diagnosis",
+        params={"message": request.message, "age": request.age, "gender": request.gender},
+        executor=lambda **kw: None,
+        risk_level=RiskLevel.MEDIUM,
+        description=f"诊断预览: {request.message[:50]}..."
+    )
+    return {
+        "checkpoint_id": cp.checkpoint_id,
+        "status": cp.status.value,
+        "preview": preview,
+        "requires_confirmation": cp.status == CheckpointStatus.PENDING,
+        "message": "请确认是否继续执行诊断分析" if cp.status == CheckpointStatus.PENDING else "已自动执行"
+    }
+
+
+@app.post("/api/v1/chat/confirm/{checkpoint_id}")
+async def chat_confirm(checkpoint_id: str, patient_request: PatientRequest):
+    """确认执行：用户确认后执行完整诊断"""
+    cp = checkpoint_mgr.approve(checkpoint_id)
+    return await chat(patient_request)
+
+
+@app.post("/api/v1/chat/reject/{checkpoint_id}")
+async def chat_reject(checkpoint_id: str):
+    """拒绝执行：用户取消操作"""
+    cp = checkpoint_mgr.reject(checkpoint_id)
+    return {"checkpoint_id": checkpoint_id, "status": "rejected", "message": "已取消操作"}
+
+
+@app.get("/api/v1/checkpoints")
+async def list_checkpoints():
+    """列出所有决策检查点状态"""
+    return {
+        "summary": checkpoint_mgr.get_checkpoint_summary(),
+        "pending": [
+            {
+                "id": cp.checkpoint_id,
+                "name": cp.name,
+                "description": cp.description,
+                "risk_level": cp.risk_level.value,
+                "preview": cp.preview_data
+            }
+            for cp in checkpoint_mgr.get_pending_checkpoints()
+        ]
+    }
+
+
+@app.post("/api/v1/checkpoints/{checkpoint_id}/rollback")
+async def rollback_checkpoint(checkpoint_id: str):
+    """回滚检查点关联的操作"""
+    success = checkpoint_mgr.rollback(checkpoint_id)
+    return {
+        "checkpoint_id": checkpoint_id,
+        "rolled_back": success,
+        "message": "已回滚" if success else "无可回滚数据"
     }
 
 

@@ -17,11 +17,15 @@ from enhanced_repurposing_agent import (
     RepurposingReport,
     format_repurposing_report
 )
+from decision_checkpoint import get_checkpoint_manager, RiskLevel
 
 router = APIRouter(prefix="/api/v1/repurposing", tags=["药物重定位"])
 
 # 全局Agent实例
 agent = EnhancedDrugRepurposingAgent()
+
+# 决策检查点管理器
+cp_mgr = get_checkpoint_manager()
 
 # ============================================================
 # 请求/响应模型
@@ -96,9 +100,23 @@ class RepurposingResponse(BaseModel):
 
 @router.post("/assess", response_model=RepurposingResponse)
 async def assess_repurposing(req: RepurposingRequest):
-    """药物重定位评估（增强版）"""
+    """药物重定位评估（增强版，带决策检查点和降级策略）"""
+    # 创建操作预览检查点
+    cp = cp_mgr.create_checkpoint(
+        name="drug_repurposing",
+        description=f"评估 {req.drug_name} → {req.disease_name} 重定位潜力",
+        risk_level=RiskLevel.MEDIUM,
+        preview_data={
+            "drug": req.drug_name,
+            "disease": req.disease_name,
+            "data_sources": ["OpenTargets", "PubMed", "ChEMBL"],
+            "estimated_time": "30-60秒"
+        }
+    )
+
     try:
-        # 执行评估
+        # 执行评估（创建回滚快照）
+        cp_mgr.take_snapshot(cp.checkpoint_id, {"drug": req.drug_name, "disease": req.disease_name})
         report = agent.assess_repurposing(
             drug_name=req.drug_name,
             disease_name=req.disease_name,

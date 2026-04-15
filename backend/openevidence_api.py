@@ -78,7 +78,7 @@ async def get_ads(disease: str, moment: str = "differential_diagnosis", limit: i
     from openevidence_engine import DecisionMoment
     try:
         m = DecisionMoment(moment)
-    except:
+    except (ValueError, KeyError):
         m = DecisionMoment.DIFFERENTIAL_DIAGNOSIS
     result = engine.get_relevant_ads(disease, [], m, limit)
     return {"ok": True, "data": result}

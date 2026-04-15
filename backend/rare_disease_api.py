@@ -21,6 +21,7 @@ from rare_disease_agent import (
     RareDisease,
     RareDiseaseCategory
 )
+from decision_checkpoint import get_checkpoint_manager, RiskLevel
 
 router = APIRouter(prefix="/api/v1/rare-disease", tags=["罕见病诊断"])
 
@@ -92,7 +93,7 @@ async def get_disease_detail(disease_name: str):
     disease = get_disease_info(disease_name)
     if not disease:
         raise HTTPException(status_code=404, detail=f"未找到疾病: {disease_name}")
-    
+
     return {
         "name_cn": disease.name_cn,
         "name_en": disease.name_en,
@@ -111,8 +112,8 @@ async def get_disease_detail(disease_name: str):
 async def diagnose_by_symptoms(input_data: SymptomInput):
     """
     根据症状进行罕见病筛查
-    
-    示例输入：
+
+    示例输入:
     {
         "symptoms": ["脾脏肿大", "骨痛", "血小板减少"],
         "age": 5,
@@ -121,7 +122,7 @@ async def diagnose_by_symptoms(input_data: SymptomInput):
     """
     # 搜索匹配的罕见病
     matched_diseases = search_rare_disease_by_symptoms(input_data.symptoms)
-    
+
     # 构建诊断结果
     diagnoses = []
     for disease in matched_diseases[:5]:  # 最多返回5个结果
@@ -132,10 +133,10 @@ async def diagnose_by_symptoms(input_data: SymptomInput):
                 if symptom in key_symptom or key_symptom in symptom:
                     match_symptoms.append(key_symptom)
                     break
-        
-        # 计算置信度（简化版）
+
+        # 计算置信度(简化版)
         confidence = len(match_symptoms) / len(disease.key_symptoms) * 100
-        
+
         diagnoses.append(DiagnosisResult(
             disease_name=disease.name_cn,
             disease_name_en=disease.name_en,
@@ -146,18 +147,32 @@ async def diagnose_by_symptoms(input_data: SymptomInput):
             diagnosis_method=disease.diagnosis_method,
             treatment=disease.treatment
         ))
-    
+
+    # 决策检查点：诊断结果生成前的预览
+    cp_mgr = get_checkpoint_manager()
+    cp_mgr.create_checkpoint(
+        name="rare_disease_diagnose",
+        description=f"罕见病筛查：{len(input_data.symptoms)}个症状 → {len(diagnoses)}个可能诊断",
+        risk_level=RiskLevel.MEDIUM,
+        preview_data={
+            "input_symptoms": input_data.symptoms,
+            "diagnosis_count": len(diagnoses),
+            "top_diagnosis": diagnoses[0].disease_name if diagnoses else None,
+            "disclaimer": "⚠️ 结果仅供参考，不替代专业医生诊断"
+        }
+    )
+
     # 生成建议
     recommended_actions = [
         "建议前往罕见病诊疗中心就诊",
         "携带既往检查资料",
         "如有家族史请详细告知医生"
     ]
-    
+
     if matched_diseases:
         first_disease = matched_diseases[0]
         recommended_actions.insert(0, f"建议进行{first_disease.diagnosis_method}")
-    
+
     return DiagnosisResponse(
         session_id=f"rd_{datetime.now().strftime('%Y%m%d%H%M%S')}",
         input_symptoms=input_data.symptoms,
@@ -175,15 +190,15 @@ async def analyze_gene_report(input_data: GeneReportInput):
     for disease in RARE_DISEASES_DB:
         if disease.gene and input_data.gene_name.upper() in disease.gene.upper():
             related_diseases.append(disease)
-    
+
     if not related_diseases:
         return {
             "gene": input_data.gene_name,
             "variant": input_data.variant,
             "related_diseases": [],
-            "recommendation": "未找到与该基因相关的罕见病信息，建议咨询遗传学专家。"
+            "recommendation": "未找到与该基因相关的罕见病信息,建议咨询遗传学专家。"
         }
-    
+
     return {
         "gene": input_data.gene_name,
         "variant": input_data.variant,
@@ -199,7 +214,7 @@ async def analyze_gene_report(input_data: GeneReportInput):
             }
             for d in related_diseases
         ],
-        "recommendation": f"该基因与{len(related_diseases)}种罕见病相关，建议进行详细的遗传咨询。"
+        "recommendation": f"该基因与{len(related_diseases)}种罕见病相关,建议进行详细的遗传咨询。"
     }
 
 
@@ -212,7 +227,7 @@ async def list_categories():
         if cat not in categories:
             categories[cat] = []
         categories[cat].append(disease.name_cn)
-    
+
     return {
         "categories": [
             {"name": name, "diseases": diseases}
