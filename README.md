@@ -101,3 +101,17 @@ bash start.sh                       # → http://localhost:8001
 ## 📄 License
 
 MIT
+
+---
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MoKangMedical/medichat-rd&type=Date)](https://star-history.com/#MoKangMedical/medichat-rd&Date)
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+MIT License
