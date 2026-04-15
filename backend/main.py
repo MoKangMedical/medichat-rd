@@ -2,17 +2,22 @@
 MediChat - FastAPI 后端服务（集成小米MIMO）
 """
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, FileResponse, HTMLResponse
+from fastapi.responses import StreamingResponse, FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 import uuid
 import os
 import sys
+import traceback
+import logging
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 # 加载环境变量
 BASE_DIR = os.path.dirname(__file__)
@@ -97,6 +102,21 @@ compliance_checker = ComplianceChecker()
 
 # 初始化决策检查点管理器
 checkpoint_mgr = get_checkpoint_manager()
+
+# ============================================================
+# 全局异常处理
+# ============================================================
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = []
+    for err in exc.errors():
+        errors.append({"field": " ".join(str(l) for l in err["loc"]), "msg": err["msg"], "type": err["type"]})
+    return JSONResponse(status_code=422, content={"error": "validation_error", "message": "请求参数校验失败", "details": errors})
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error: {exc}")
+    return JSONResponse(status_code=500, content={"error": "internal_error", "message": "服务内部错误，请稍后重试", "request_id": str(uuid.uuid4())[:8]})
 
 # 注册路由
 app.include_router(rare_disease_router)
