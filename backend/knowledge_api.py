@@ -5,12 +5,25 @@ MediChat-RD 扩展知识库API
 
 import json
 import os
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+import re
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel, Field
 from typing import List, Optional, Union
 from datetime import datetime
 
 router = APIRouter(prefix="/api/v1/knowledge", tags=["知识库"])
+
+# 输入安全限制
+_MAX_QUERY_LEN = 200
+_MAX_LIMIT = 50
+_SANITIZE_RE = re.compile(r"[<>'\";\\{}\[\]]")
+
+def _safe_query(raw: str) -> str:
+    """清理并限制搜索查询"""
+    cleaned = _SANITIZE_RE.sub("", raw).strip()
+    if not cleaned or len(cleaned) > _MAX_QUERY_LEN:
+        raise HTTPException(status_code=400, detail="查询参数无效或过长")
+    return cleaned.lower()
 
 # 加载扩展知识库
 KNOWLEDGE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge")
@@ -99,6 +112,8 @@ async def get_all_diseases():
 @router.get("/diseases/{disease_name}")
 async def get_disease_detail(disease_name: str):
     """获取单个罕见病详情"""
+    if len(disease_name) > _MAX_QUERY_LEN or _SANITIZE_RE.search(disease_name):
+        raise HTTPException(status_code=400, detail="疾病名称格式无效")
     # 尝试中英文匹配
     disease = EXTENDED_DB.get(disease_name)
     if not disease:
@@ -134,16 +149,16 @@ async def get_disease_detail(disease_name: str):
     }
 
 @router.get("/diseases/search/{query}")
-async def search_diseases(query: str, limit: int = 10):
+async def search_diseases(query: str, limit: int = Query(default=10, ge=1, le=_MAX_LIMIT)):
     """搜索罕见病"""
     results = []
-    query_lower = query.lower()
+    query_lower = _safe_query(query)
     
     for d in EXTENDED_DB.values():
         name_cn = d.get("name", "").lower()
         name_en = d.get("name_en", "").lower()
         gene = d.get("gene", "").lower()
-        symptoms = d.get("symptoms", "").lower()
+        symptoms = str(d.get("symptoms", "")).lower()
         category = d.get("category", "").lower()
         
         # 匹配条件
