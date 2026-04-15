@@ -1,18 +1,20 @@
 """
-MediChat-RD × Second Me 集成模块
-患者数字分身 + 罕见病社群
+MediChat-RD × Avatar Runtime 集成层
+
+兼容旧的 secondme_integration 调用方式，但底层已改为：
+- AvatarCoreStore: 自有分身主数据
+- AvatarService: provider 编排
+- SecondMe / Local runtime: 可插拔 provider
 """
 
-import os
-import json
 import uuid
 from typing import Optional, List, Dict
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
-# 本地模式开关：不连接外部API，全部用内存模拟
-LOCAL_MODE = os.getenv("LOCAL_MODE", "true").lower() == "true"
+from avatar_core import PatientAvatar
+from avatar_service import get_avatar_service
 
 # ============================================================
 # 数据模型
@@ -31,19 +33,6 @@ class PostType(str, Enum):
     QUESTION = "求助提问"
     SUPPORT = "心理支持"
     INFO = "科普信息"
-
-
-@dataclass
-class PatientAvatar:
-    """患者数字分身"""
-    avatar_id: str
-    patient_id: str
-    nickname: str
-    disease_type: str
-    bio: str = ""
-    memory_summary: str = ""
-    personality: str = "温暖、共情、乐于助人"
-    created_at: datetime = field(default_factory=datetime.now)
 
 
 @dataclass
@@ -87,124 +76,29 @@ class BridgeConnection:
 
 
 # ============================================================
-# Second Me 客户端（本地模式）
+# Avatar Runtime 兼容客户端
 # ============================================================
 
 class SecondMeClient:
     """
-    Second Me API客户端
-    LOCAL_MODE=true 时：纯内存模拟，不发HTTP
-    LOCAL_MODE=false 时：连接外部Second Me服务
+    历史兼容入口。
+
+    对 community_api 来说仍然叫 SecondMeClient，
+    但实际底层已经变成 AvatarService。
     """
 
-    def __init__(self, base_url: str = "http://localhost:3000"):
-        self.base_url = base_url
-        self._local_avatars: Dict[str, PatientAvatar] = {}
+    def __init__(self):
+        self.service = get_avatar_service()
         self._local_connections: Dict[str, BridgeConnection] = {}
 
-        if not LOCAL_MODE:
-            try:
-                import httpx
-                self._http = httpx.AsyncClient(base_url=base_url, timeout=30)
-            except ImportError:
-                print("⚠️ httpx 未安装，回退到本地模式")
-                self._http = None
-        else:
-            self._http = None
-
     async def health_check(self) -> bool:
-        """检查服务状态"""
-        if LOCAL_MODE:
-            return True  # 本地模式始终可用
-        try:
-            resp = await self._http.get("/api/health")
-            return resp.status_code == 200
-        except:
-            return False
+        return await self.service.health_check()
 
     async def create_avatar(self, patient_data: Dict) -> PatientAvatar:
-        """为患者创建数字分身"""
-        memory_text = self._build_memory(patient_data)
-
-        if not LOCAL_MODE and self._http:
-            try:
-                payload = {
-                    "name": patient_data.get("nickname", "匿名患者"),
-                    "bio": f"一位{patient_data.get('disease_type', '罕见病')}患者，"
-                           f"愿意分享经历，帮助同病伙伴。",
-                    "personality": "温暖、共情、乐于助人、积极乐观",
-                    "initial_memory": memory_text
-                }
-                resp = await self._http.post("/api/avatars", json=payload)
-                if resp.status_code in [200, 201]:
-                    data = resp.json()
-                    avatar = PatientAvatar(
-                        avatar_id=data.get("id", ""),
-                        patient_id=patient_data["patient_id"],
-                        nickname=patient_data.get("nickname", "匿名"),
-                        disease_type=patient_data.get("disease_type", ""),
-                        bio=payload["bio"],
-                        memory_summary=memory_text[:200],
-                        personality=payload["personality"]
-                    )
-                    self._local_avatars[avatar.avatar_id] = avatar
-                    return avatar
-            except Exception as e:
-                print(f"⚠️ Second Me不可用，使用本地模式: {e}")
-
-        # 本地模式 / 降级：纯内存创建
-        avatar_id = f"avt_{uuid.uuid4().hex[:8]}"
-        avatar = PatientAvatar(
-            avatar_id=avatar_id,
-            patient_id=patient_data["patient_id"],
-            nickname=patient_data.get("nickname", "匿名"),
-            disease_type=patient_data.get("disease_type", ""),
-            bio=f"一位{patient_data.get('disease_type', '')}患者",
-            memory_summary=memory_text[:200],
-        )
-        self._local_avatars[avatar_id] = avatar
-        return avatar
-
-    def _build_memory(self, patient_data: Dict) -> str:
-        """构建分身的初始记忆文本"""
-        parts = []
-        if patient_data.get("disease_type"):
-            parts.append(f"我是一位{patient_data['disease_type']}患者。")
-        if patient_data.get("diagnosis"):
-            parts.append(f"我的诊断结果是：{patient_data['diagnosis']}")
-        if patient_data.get("symptoms"):
-            parts.append(f"我的主要症状包括：{patient_data['symptoms']}")
-        if patient_data.get("treatment_history"):
-            parts.append(f"我的治疗经历：{patient_data['treatment_history']}")
-        if patient_data.get("age"):
-            parts.append(f"我今年{patient_data['age']}岁。")
-        parts.append("我希望通过分享自己的经历，帮助更多同病相怜的朋友。")
-        parts.append("我也希望能从其他患者那里获得支持和建议。")
-        return "\n".join(parts)
+        return await self.service.create_avatar(patient_data)
 
     async def chat(self, avatar_id: str, message: str) -> str:
-        """与分身对话"""
-        avatar = self._local_avatars.get(avatar_id)
-
-        if not LOCAL_MODE and self._http:
-            try:
-                resp = await self._http.post(
-                    f"/api/avatars/{avatar_id}/chat",
-                    json={"message": message}
-                )
-                if resp.status_code == 200:
-                    return resp.json().get("reply", "")
-            except:
-                pass
-
-        # 本地模拟回复
-        if avatar:
-            return (
-                f"你好，我是{avatar.nickname}。"
-                f"作为一位{avatar.disease_type}患者，我理解你的感受。"
-                f"如果你想了解我的治疗经历，我很乐意和你聊聊。💕"
-            )
-        return "（分身暂时无法回复，请稍后再试）"
+        return await self.service.chat(avatar_id, message)
 
     async def bridge_connect(
         self,
@@ -214,28 +108,8 @@ class SecondMeClient:
     ) -> Optional[BridgeConnection]:
         """Bridge模式连接两个分身"""
 
-        if not LOCAL_MODE and self._http:
-            try:
-                resp = await self._http.post("/api/bridge", json={
-                    "source_avatar": avatar_id,
-                    "target_avatar": target_avatar_id,
-                    "context": context
-                })
-                if resp.status_code in [200, 201]:
-                    data = resp.json()
-                    conn = BridgeConnection(
-                        connection_id=data.get("id", ""),
-                        avatar_a_id=avatar_id,
-                        avatar_b_id=target_avatar_id,
-                        match_reason=context,
-                        match_score=data.get("score", 0.8)
-                    )
-                    self._local_connections[conn.connection_id] = conn
-                    return conn
-            except:
-                pass
-
-        # 本地模式：直接创建连接
+        # Second Me当前开源后端没有直接暴露Bridge建连API，
+        # 这里保留MediChat本地配对层，用真实role id作为连接目标。
         conn_id = f"brg_{uuid.uuid4().hex[:8]}"
         conn = BridgeConnection(
             connection_id=conn_id,
@@ -248,12 +122,10 @@ class SecondMeClient:
         return conn
 
     def get_all_avatars(self) -> List[PatientAvatar]:
-        """获取所有本地分身"""
-        return list(self._local_avatars.values())
+        return self.service.list_avatars()
 
     def get_avatar(self, avatar_id: str) -> Optional[PatientAvatar]:
-        """获取单个分身"""
-        return self._local_avatars.get(avatar_id)
+        return self.service.get_avatar(avatar_id)
 
 
 # ============================================================
@@ -388,9 +260,10 @@ class CommunityManager:
 
 
 if __name__ == "__main__":
+    service = get_avatar_service()
     print("=" * 50)
-    print("🧬 MediChat-RD 社群系统（本地模式）")
-    print(f"📡 LOCAL_MODE = {LOCAL_MODE}")
+    print("🧬 MediChat-RD 社群系统（Avatar Core）")
+    print(f"📡 primary_provider = {service.primary_provider_key}")
     print("=" * 50)
 
     mgr = CommunityManager()

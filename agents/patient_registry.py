@@ -6,7 +6,7 @@ import json
 import sqlite3
 import uuid
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Any, Dict, List, Optional
 from pathlib import Path
 
 
@@ -62,6 +62,35 @@ class PatientRegistry:
                     PRIMARY KEY (cohort_id, registry_id)
                 )
             """)
+            # 长期管理计划
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS care_plans (
+                    registry_id TEXT PRIMARY KEY,
+                    plan_json TEXT,
+                    updated_at TEXT
+                )
+            """)
+            # 病程时间线
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS patient_timeline (
+                    event_id TEXT PRIMARY KEY,
+                    registry_id TEXT,
+                    event_type TEXT,
+                    title TEXT,
+                    detail TEXT,
+                    source TEXT,
+                    payload_json TEXT,
+                    created_at TEXT
+                )
+            """)
+
+    def _deserialize_patient(self, row: sqlite3.Row) -> Dict[str, Any]:
+        data = dict(row)
+        data["hpo_phenotypes"] = json.loads(data.get("hpo_phenotypes") or "[]")
+        data["gene_variants"] = json.loads(data.get("gene_variants") or "[]")
+        data["consent_research"] = bool(data.get("consent_research"))
+        data["consent_matching"] = bool(data.get("consent_matching"))
+        return data
 
     def register_patient(self, disease: str, hpo_phenotypes: List[str],
                         gene_variants: List[Dict] = None, **kwargs) -> Dict:
@@ -93,6 +122,19 @@ class PatientRegistry:
                 now, now,
             ))
 
+        self.add_timeline_event(
+            registry_id=registry_id,
+            event_type="registry_enrollment",
+            title=f"登记进入 {disease} 患者库",
+            detail=f"患者对象已创建，包含 {len(hpo_phenotypes)} 个表型和 {len(gene_variants or [])} 条变异线索。",
+            source="registry",
+            payload={
+                "diagnosis_status": kwargs.get("diagnosis_status", "confirmed"),
+                "consent_research": bool(kwargs.get("consent_research")),
+                "consent_matching": bool(kwargs.get("consent_matching")),
+            },
+        )
+
         return {
             "registry_id": registry_id,
             "patient_code": patient_code,
@@ -118,11 +160,18 @@ class PatientRegistry:
             
             results = []
             for row in rows:
-                d = dict(row)
-                d["hpo_phenotypes"] = json.loads(d.get("hpo_phenotypes") or "[]")
-                d["gene_variants"] = json.loads(d.get("gene_variants") or "[]")
-                results.append(d)
+                results.append(self._deserialize_patient(row))
             return results
+
+    def get_patient(self, registry_id: str) -> Optional[Dict]:
+        """获取单个登记患者"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT * FROM registry_patients WHERE registry_id = ?",
+                (registry_id,),
+            ).fetchone()
+            return self._deserialize_patient(row) if row else None
 
     def create_cohort(self, name: str, disease: str, criteria: str = "") -> Dict:
         """创建队列"""
@@ -141,14 +190,40 @@ class PatientRegistry:
         """添加患者到队列"""
         now = datetime.now().isoformat()
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
+            cursor = conn.execute(
                 "INSERT OR IGNORE INTO cohort_patients VALUES (?, ?, ?)",
                 (cohort_id, registry_id, now)
             )
-            conn.execute(
-                "UPDATE cohorts SET patient_count = patient_count + 1 WHERE cohort_id = ?",
-                (cohort_id,)
-            )
+            if cursor.rowcount:
+                conn.execute(
+                    "UPDATE cohorts SET patient_count = patient_count + 1 WHERE cohort_id = ?",
+                    (cohort_id,)
+                )
+
+        self.add_timeline_event(
+            registry_id=registry_id,
+            event_type="cohort_assignment",
+            title=f"加入研究队列 {cohort_id}",
+            detail="病例对象已进入 cohort 管理，可用于研究准备和标准导出。",
+            source="registry",
+            payload={"cohort_id": cohort_id},
+        )
+
+    def list_cohorts(self, disease: str = "", limit: int = 100) -> List[Dict]:
+        """列出队列"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            if disease:
+                rows = conn.execute(
+                    "SELECT * FROM cohorts WHERE disease LIKE ? ORDER BY created_at DESC LIMIT ?",
+                    (f"%{disease}%", limit),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM cohorts ORDER BY created_at DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+            return [dict(row) for row in rows]
 
     def get_cohort_patients(self, cohort_id: str) -> List[Dict]:
         """获取队列中的患者"""
@@ -156,10 +231,10 @@ class PatientRegistry:
             conn.row_factory = sqlite3.Row
             rows = conn.execute("""
                 SELECT p.* FROM registry_patients p
-                JOIN cp ON p.registry_id = cp.registry_id
+                JOIN cohort_patients cp ON p.registry_id = cp.registry_id
                 WHERE cp.cohort_id = ?
             """, (cohort_id,)).fetchall()
-            return [dict(r) for r in rows]
+            return [self._deserialize_patient(r) for r in rows]
 
     def export_phenopackets(self, cohort_id: str = None) -> List[Dict]:
         """导出GA4GH Phenopacket格式"""
@@ -191,6 +266,97 @@ class PatientRegistry:
 
         return phenopackets
 
+    def update_care_plan(self, registry_id: str, plan: Dict[str, Any]) -> Dict[str, Any]:
+        """写入或更新长期管理计划"""
+        now = datetime.now().isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                """
+                INSERT INTO care_plans (registry_id, plan_json, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(registry_id) DO UPDATE SET
+                    plan_json = excluded.plan_json,
+                    updated_at = excluded.updated_at
+                """,
+                (registry_id, json.dumps(plan, ensure_ascii=False), now),
+            )
+        return {"registry_id": registry_id, "updated_at": now, "plan": plan}
+
+    def get_care_plan(self, registry_id: str) -> Optional[Dict[str, Any]]:
+        """读取长期管理计划"""
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(
+                "SELECT plan_json, updated_at FROM care_plans WHERE registry_id = ?",
+                (registry_id,),
+            ).fetchone()
+            if not row:
+                return None
+            plan = json.loads(row[0] or "{}")
+            plan["updated_at"] = row[1]
+            return plan
+
+    def add_timeline_event(
+        self,
+        registry_id: str,
+        event_type: str,
+        title: str,
+        detail: str = "",
+        source: str = "platform",
+        payload: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """追加病程时间线事件"""
+        event_id = f"evt_{uuid.uuid4().hex[:10]}"
+        now = datetime.now().isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                """
+                INSERT INTO patient_timeline
+                (event_id, registry_id, event_type, title, detail, source, payload_json, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    event_id,
+                    registry_id,
+                    event_type,
+                    title,
+                    detail,
+                    source,
+                    json.dumps(payload or {}, ensure_ascii=False),
+                    now,
+                ),
+            )
+        return {
+            "event_id": event_id,
+            "registry_id": registry_id,
+            "event_type": event_type,
+            "title": title,
+            "detail": detail,
+            "source": source,
+            "payload": payload or {},
+            "created_at": now,
+        }
+
+    def get_patient_timeline(self, registry_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """获取患者时间线"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """
+                SELECT * FROM patient_timeline
+                WHERE registry_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (registry_id, limit),
+            ).fetchall()
+            events = []
+            for row in rows:
+                item = dict(row)
+                item["payload"] = json.loads(item.get("payload_json") or "{}")
+                item.pop("payload_json", None)
+                events.append(item)
+            return events
+
     def get_stats(self) -> Dict:
         """获取统计信息"""
         with sqlite3.connect(self.db_path) as conn:
@@ -199,10 +365,14 @@ class PatientRegistry:
                 "SELECT disease, COUNT(*) as cnt FROM registry_patients GROUP BY disease ORDER BY cnt DESC"
             ).fetchall()
             cohorts = conn.execute("SELECT COUNT(*) FROM cohorts").fetchone()[0]
+            care_plans = conn.execute("SELECT COUNT(*) FROM care_plans").fetchone()[0]
+            timeline_events = conn.execute("SELECT COUNT(*) FROM patient_timeline").fetchone()[0]
             
             return {
                 "total_patients": total,
                 "total_cohorts": cohorts,
+                "care_plans": care_plans,
+                "timeline_events": timeline_events,
                 "disease_distribution": {d[0]: d[1] for d in diseases},
             }
 

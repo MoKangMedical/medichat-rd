@@ -47,7 +47,8 @@ MediChat-RD：  患者 → AI诊断 → 治疗方案 → ❓
 git clone https://github.com/mindverse/Second-Me.git
 cd Second-Me
 make docker-up
-# 访问 http://localhost:3000
+# 前端: http://localhost:3000
+# 后端 API: http://localhost:8002
 ```
 
 ### 3.2 与MediChat对接
@@ -131,20 +132,20 @@ Second Me 集成模块
 import httpx
 from typing import Optional, List, Dict
 
-SECONDEME_API = "http://localhost:3000/api"
+SECONDME_API = "http://localhost:8002"
 
 class SecondMeClient:
     """Second Me API客户端"""
     
-    def __init__(self, base_url: str = SECONDEME_API):
+    def __init__(self, base_url: str = SECONDME_API):
         self.base_url = base_url
         self.client = httpx.AsyncClient(base_url=base_url)
     
     async def create_patient_avatar(self, patient_data: Dict) -> Dict:
         """为患者创建数字分身"""
-        # 1. 在Second Me创建用户
-        # 2. 上传患者病历/诊断数据作为记忆
-        # 3. 配置分身性格（温和、互助型）
+        # 1. 调用 /api/kernel2/roles 创建一个 role
+        # 2. 把患者元数据嵌入 role.description
+        # 3. 把患者背景和交流风格写入 system_prompt
         pass
     
     async def join_community(self, avatar_id: str, community_id: str) -> bool:
@@ -153,6 +154,8 @@ class SecondMeClient:
     
     async def bridge_connect(self, avatar_id: str, target_avatar_id: str) -> str:
         """Bridge模式连接两个分身"""
+        # 当前开源版本地后端未直接暴露Bridge建连接口，
+        # 由MediChat本地社群层维护连接关系
         pass
     
     async def get_community_members(self, community_id: str) -> List[Dict]:

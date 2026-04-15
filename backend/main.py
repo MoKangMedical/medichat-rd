@@ -15,7 +15,15 @@ import sys
 from dotenv import load_dotenv
 
 # 加载环境变量
-load_dotenv()
+BASE_DIR = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+for env_file, should_override in (
+    (os.path.join(PROJECT_ROOT, ".env"), False),
+    (os.path.join(BASE_DIR, ".env"), False),
+    (os.path.join(PROJECT_ROOT, ".env.local"), True),
+    (os.path.join(BASE_DIR, ".env.local"), True),
+):
+    load_dotenv(env_file, override=should_override)
 
 # 导入MIMO客户端
 from mimo_client import MIMOClient
@@ -49,8 +57,15 @@ from decision_checkpoint import (
 from rare_disease_api import router as rare_disease_router
 from deeprare_api import router as deeprare_router
 from community_api import router as community_router
+from knowledge_api import router as knowledge_router
+from platform_hub_api import router as platform_hub_router
+from avatar_runtime_api import router as avatar_runtime_router
+from secondme_mcp_api import router as secondme_mcp_router
+from secondme_oauth_api import router as secondme_oauth_router
 from doctor_api import router as doctor_router
 from openevidence_api import router as openevidence_router
+from analytics_api import router as analytics_router
+from media_generation_api import router as media_generation_router
 
 app = FastAPI(
     title="MediChat API",
@@ -87,8 +102,15 @@ checkpoint_mgr = get_checkpoint_manager()
 app.include_router(rare_disease_router)
 app.include_router(deeprare_router)
 app.include_router(community_router)
+app.include_router(knowledge_router)
+app.include_router(platform_hub_router)
+app.include_router(avatar_runtime_router)
+app.include_router(secondme_mcp_router)
+app.include_router(secondme_oauth_router)
 app.include_router(doctor_router)
 app.include_router(openevidence_router)
+app.include_router(analytics_router)
+app.include_router(media_generation_router)
 
 # ============================================================
 # 前端静态文件服务
@@ -96,14 +118,6 @@ app.include_router(openevidence_router)
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
 if os.path.exists(FRONTEND_DIR):
     app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="assets")
-
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        """前端SPA路由回退"""
-        file_path = os.path.join(FRONTEND_DIR, full_path)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
 
 # ============================================================
@@ -154,6 +168,8 @@ sessions = {}
 # ============================================================
 @app.get("/")
 async def root():
+    if os.path.exists(FRONTEND_DIR):
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
     return {
         "name": "MediChat API",
         "version": "1.0.0",
@@ -442,6 +458,16 @@ async def get_models():
         "enabled": MIMO_ENABLED,
         "api_base": os.getenv("MIMO_BASE_URL", "https://api.xiaomimimo.com/v1")
     }
+
+
+if os.path.exists(FRONTEND_DIR):
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """前端SPA路由回退，必须放在所有 API 路由之后。"""
+        file_path = os.path.join(FRONTEND_DIR, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
 
 # ============================================================

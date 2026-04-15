@@ -5,6 +5,9 @@ __pycache__/
 venv/
 .venv/
 *.egg
+scientific-runtime/.venv-science/
+scientific-runtime/.cache/
+scientific-runtime/.pytest_cache/
 
 # Node
 node_modules/
@@ -19,10 +22,12 @@ frontend/node_modules/
 # Environment
 .env
 .env.local
+.secrets/
 
 # Docker data
 postgres_data/
 redis_data/
+data/
 
 # OS
 .DS_Store
@@ -51,3 +56,8 @@ docs/CAPABILITY_MATRIX.md
 docs/assets/architecture_v5.png
 scripts/generate_bp.py
 frontend/dist/capabilities.html
+docs/BUSINESS_PLAN_*.md
+docs/HOSPITAL_PARTNERSHIP_BRIEF.md
+docs/TECHNICAL_WHITE_PAPER_AI_RD_PLATFORM_50000.md
+scripts/generate_bp_*.py
+scripts/generate_technical_white_paper_50000.py
