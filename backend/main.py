@@ -12,7 +12,9 @@ from typing import Optional, List
 from datetime import datetime
 import uuid
 import os
+import re
 import sys
+import time
 import traceback
 import logging
 from dotenv import load_dotenv
@@ -78,14 +80,30 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS配置
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS配置（限定允许源，医疗数据不接受任意来源）
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8001,http://localhost:5173,https://medichatrd.cloud").split(",")
+app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS, allow_credentials=True,
+    allow_methods=["GET", "POST"], allow_headers=["Content-Type", "Authorization"])
+
+# 安全中间件：速率限制 + XSS检测
+_buckets: dict[str, list[float]] = {}
+_xss_re = re.compile(r"<\s*script[^>]*>|javascript\s*:", re.IGNORECASE)
+
+@app.middleware("http")
+async def security_mw(request: Request, call_next):
+    ip = request.client.host if request.client else "unknown"
+    now = time.time(); bucket = _buckets.setdefault(ip, [])
+    bucket[:] = [t for t in bucket if now - t < 60]
+    if len(bucket) >= 60:  # 60 req/min
+        return JSONResponse(status_code=429, content={"error": "rate_limited"})
+    bucket.append(now)
+    if request.method == "POST" and "application/json" in request.headers.get("content-type", ""):
+        body = (await request.body()).decode("utf-8", errors="ignore")
+        if _xss_re.search(body):
+            return JSONResponse(status_code=400, content={"error": "invalid_input"})
+    resp = await call_next(request)
+    resp.headers.pop("server", None)
+    return resp
 
 # 初始化MIMO客户端
 try:
@@ -471,12 +489,11 @@ async def get_audit_logs(
 
 @app.get("/api/v1/models")
 async def get_models():
-    """获取当前使用的模型信息"""
+    """获取当前使用的模型信息（已脱敏）"""
     return {
         "provider": "小米MIMO",
         "model": os.getenv("MIMO_MODEL", "mimo-v2-pro"),
-        "enabled": MIMO_ENABLED,
-        "api_base": os.getenv("MIMO_BASE_URL", "https://api.xiaomimimo.com/v1")
+        "enabled": MIMO_ENABLED
     }
 
 
