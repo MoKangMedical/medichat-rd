@@ -72,6 +72,7 @@ from secondme_oauth_api import router as secondme_oauth_router
 from doctor_api import router as doctor_router
 from openevidence_api import router as openevidence_router
 from analytics_api import router as analytics_router
+from clinical_trials import get_trials_json
 from media_generation_api import router as media_generation_router
 from hospital_recommender import get_recommendation_json, format_recommendation_text
 
