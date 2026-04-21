@@ -73,6 +73,7 @@ from doctor_api import router as doctor_router
 from openevidence_api import router as openevidence_router
 from analytics_api import router as analytics_router
 from media_generation_api import router as media_generation_router
+from hospital_recommender import get_recommendation_json, format_recommendation_text
 
 app = FastAPI(
     title="MediChat API",
@@ -183,6 +184,7 @@ class AgentResponse(BaseModel):
     suggestions: Optional[List[str]] = None
     urgency_level: Optional[str] = None
     recommended_department: Optional[str] = None
+    hospital_recommendations: Optional[Dict] = None  # 医院/专家推荐
     timestamp: datetime
 
 
@@ -329,6 +331,16 @@ async def chat(request: PatientRequest):
         "timestamp": datetime.now().isoformat()
     })
     
+    # Hermes改进：生成医院/专家推荐
+    rec_dept = "神经内科"  # 默认
+    if hasattr(request, 'recommended_department') and request.recommended_department:
+        rec_dept = request.recommended_department
+    hospital_recs = get_recommendation_json(rec_dept, urgency="门诊")
+    
+    # 将推荐文本附加到回复中
+    if hospital_recs.get("formatted_text"):
+        response_text += "\n" + hospital_recs["formatted_text"]
+    
     return AgentResponse(
         session_id=session_id,
         agent_name="分诊Agent",
@@ -339,7 +351,8 @@ async def chat(request: PatientRequest):
         message=response_text,
         suggestions=["头痛详情", "检查项目", "用药建议"],
         urgency_level="门诊",
-        recommended_department="神经内科",
+        recommended_department=rec_dept,
+        hospital_recommendations=hospital_recs,
         timestamp=datetime.now()
     )
 
