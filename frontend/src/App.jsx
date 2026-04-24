@@ -1485,7 +1485,13 @@ function RareDBridgeDiagnosisWorkspace({ a2aMode }) {
           <span className="workspace-banner-kicker">RareDBridge Dx</span>
           <strong>可追溯差异诊断</strong>
         </div>
-        <p>{mode.label} 下可作为诊断 Agent 的独立工作台，参考 DeepRare 的输入和推理形态，落到我们自己的平台能力。</p>
+        <p>
+          {mode.label} 下可作为诊断 Agent 的独立工作台，参考 DeepRare 的多 Agent 诊断形态和 ICT&health 的公开标杆报道，
+          落到我们自己的平台能力。
+        </p>
+      </div>
+      <div className="warning-box">
+        外部标杆显示 DeepRare 在复杂罕见病诊断任务中与医生进行过对照评估；RareDBridge Dx 当前只作为诊断决策支持原型，不声明达到该论文或报道中的性能指标。
       </div>
 
       <div className="field-grid">

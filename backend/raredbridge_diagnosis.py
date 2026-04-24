@@ -141,6 +141,11 @@ class RareDBridgeDiagnosisEngine:
                     "url": "https://github.com/MAGIC-AI4Med/DeepRare",
                     "role": "Public implementation reference, not copied into this platform.",
                 },
+                {
+                    "label": "ICT&health DeepRare coverage",
+                    "url": "https://www.icthealth.org/news/deeprare-ai-outperforms-physicians-in-rare-disease-diagnosis",
+                    "role": "External benchmark context: multi-agent diagnosis and physician comparison coverage.",
+                },
             ],
             "disclaimer": "本结果用于罕见病诊断决策支持，不构成临床诊断。需要由遗传科、专科医生结合检查和基因检测复核。",
         }

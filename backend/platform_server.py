@@ -505,6 +505,11 @@ async def raredbridge_capability():
         "inspired_by": [
             "https://www.nature.com/articles/s41586-025-10097-9",
             "https://deeprare.cn",
+            "https://www.icthealth.org/news/deeprare-ai-outperforms-physicians-in-rare-disease-diagnosis",
+        ],
+        "benchmark_context": [
+            "ICT&health 报道 DeepRare 在复杂病例人机对照中展示出诊断优势；RareDBridge Dx 仅将其作为外部能力标杆。",
+            "当前平台不声明达到 DeepRare 论文或报道中的性能指标。",
         ],
         "local_capabilities": [
             "病例自由文本解析",
