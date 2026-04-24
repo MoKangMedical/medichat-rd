@@ -29,8 +29,10 @@ except ImportError:
 
 try:
     from .secondme_integration import CommunityManager, PatientAvatar, SecondMeClient
+    from .raredbridge_diagnosis import RareDBridgeDiagnosisEngine
 except ImportError:
     from secondme_integration import CommunityManager, PatientAvatar, SecondMeClient
+    from raredbridge_diagnosis import RareDBridgeDiagnosisEngine
 
 
 class A2AOrchestrator:
@@ -62,6 +64,15 @@ class A2AOrchestrator:
             "stage": "evidence",
             "description": "整合疾病知识、靶点和文献证据，形成研究级基础图谱。",
             "capabilities": ["疾病知识", "OpenTargets", "PubMed 摘要"],
+            "supports_modes": ["auto", "lead-agent", "roundtable"],
+        },
+        "diagnosis_agent": {
+            "id": "diagnosis_agent",
+            "name": "RareDBridge Dx Agent",
+            "label": "诊断 Agent",
+            "stage": "diagnosis",
+            "description": "参考 DeepRare 能力形态，融合自由文本、HPO、基因和变异线索，生成可追溯差异诊断排序。",
+            "capabilities": ["HPO 标准化", "候选诊断排序", "基因/变异线索叠加", "可追溯推理链"],
             "supports_modes": ["auto", "lead-agent", "roundtable"],
         },
         "repurposing_agent": {
@@ -105,6 +116,7 @@ class A2AOrchestrator:
     LEAD_AGENT_BY_FOCUS = {
         "symptom_triage": "phenotype_agent",
         "disease_research": "evidence_agent",
+        "deep_diagnosis": "diagnosis_agent",
         "repurposing": "repurposing_agent",
         "trial_matching": "trial_agent",
         "community_support": "community_agent",
@@ -128,6 +140,7 @@ class A2AOrchestrator:
 
     TASK_KEYWORDS = {
         "trial_matching": ["临床试验", "招募", "试验", "nct", "trial", "入组"],
+        "deep_diagnosis": ["诊断", "差异诊断", "疑似", "hpo", "vcf", "变异", "基因检测", "全外显子", "wgs", "wes", "genome"],
         "repurposing": ["药物重定位", "老药新用", "靶点", "药物", "候选药物", "repurpos"],
         "disease_research": ["研究", "文献", "证据", "机制", "综述", "靶点发现"],
         "community_support": ["社群", "病友", "互助", "家属", "支持", "经验分享", "社区"],
@@ -149,6 +162,7 @@ class A2AOrchestrator:
         self.mimo_available = mimo_available
         self.community_manager = CommunityManager()
         self.secondme_client = SecondMeClient()
+        self.diagnosis_engine = RareDBridgeDiagnosisEngine()
         self.sessions: Dict[str, Dict[str, Any]] = {}
         self.disease_lookup = self._build_disease_lookup()
         self.symptom_lexicon = self._build_symptom_lexicon()
@@ -399,6 +413,9 @@ class A2AOrchestrator:
         if context["symptoms"] and "phenotype_agent" not in chain:
             chain.append("phenotype_agent")
 
+        if focus == "deep_diagnosis" and "diagnosis_agent" not in chain:
+            chain.append("diagnosis_agent")
+
         if disease_query and "evidence_agent" not in chain:
             chain.append("evidence_agent")
 
@@ -411,6 +428,8 @@ class A2AOrchestrator:
         if mode == "roundtable":
             if "phenotype_agent" not in chain:
                 chain.append("phenotype_agent")
+            if "diagnosis_agent" not in chain:
+                chain.append("diagnosis_agent")
             if disease_query and "evidence_agent" not in chain:
                 chain.append("evidence_agent")
             if disease_query and "repurposing_agent" not in chain:
@@ -640,6 +659,8 @@ class A2AOrchestrator:
                 artifact = self._run_phenotype_agent(session, context)
             elif agent_id == "evidence_agent":
                 artifact = self._run_evidence_agent(session, context)
+            elif agent_id == "diagnosis_agent":
+                artifact = self._run_diagnosis_agent(session, context)
             elif agent_id == "repurposing_agent":
                 artifact = self._run_repurposing_agent(session, context)
             elif agent_id == "trial_agent":
@@ -823,6 +844,35 @@ class A2AOrchestrator:
             artifact_type="evidence_report",
             title="证据图谱",
             content=content,
+        )
+
+    def _run_diagnosis_agent(self, session: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        patient_profile = session.get("patient_profile") or {}
+        diagnosis_result = self.diagnosis_engine.run(
+            case_text="\n".join(msg["content"] for msg in session["messages"] if msg["role"] == "user"),
+            hpo_terms=[],
+            genes=[],
+            variants=[],
+            age=patient_profile.get("age"),
+            gender=patient_profile.get("gender"),
+            family_history=patient_profile.get("family_history"),
+            top_k=5,
+        )
+        top = diagnosis_result["ranked_diagnoses"][0] if diagnosis_result["ranked_diagnoses"] else None
+        self._push_event(
+            session,
+            event_type="agent_completed",
+            agent_id="diagnosis_agent",
+            headline="RareDBridge Dx 已完成差异诊断排序",
+            detail=f"候选诊断 {len(diagnosis_result['ranked_diagnoses'])} 个"
+            + (f"，首位：{top['name_cn']}" if top else "，未形成稳定候选。"),
+            payload={"top_candidate": top},
+        )
+        return self._create_artifact(
+            agent_id="diagnosis_agent",
+            artifact_type="diagnosis_report",
+            title="RareDBridge Dx 差异诊断",
+            content=diagnosis_result,
         )
 
     def _run_repurposing_agent(self, session: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -1048,6 +1098,15 @@ class A2AOrchestrator:
             target_count = len(evidence["content"].get("targets", []))
             literature_count = len(evidence["content"].get("literature", []))
             lines.append(f"证据图谱：靶点 {target_count} 个，文献 {literature_count} 篇。")
+
+        diagnosis = next((artifact for artifact in artifacts if artifact["agent_id"] == "diagnosis_agent"), None)
+        if diagnosis and diagnosis["status"] == "completed":
+            ranked = diagnosis["content"].get("ranked_diagnoses", [])
+            if ranked:
+                top = ranked[0]
+                lines.append(f"RareDBridge Dx：首位候选为 {top['name_cn']}，置信度 {top['confidence_label']}，评分 {top['score']}。")
+            else:
+                lines.append("RareDBridge Dx：当前输入尚不足以形成稳定差异诊断。")
 
         repurposing = next((artifact for artifact in artifacts if artifact["agent_id"] == "repurposing_agent"), None)
         if repurposing and repurposing["status"] == "completed":

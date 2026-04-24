@@ -8,7 +8,7 @@ const LIVE_PLATFORM_URL = 'http://43.128.114.201:8000';
 const platformMetrics = [
   { value: '121+', label: '覆盖罕见病知识包', note: '围绕患者问题持续扩展' },
   { value: '14+', label: '全球医学数据源', note: '靶点、文献、临床试验联动' },
-  { value: '5', label: '核心应用入口', note: '从问诊到试验匹配闭环' },
+  { value: '6', label: '核心应用入口', note: '从问诊到可追溯诊断闭环' },
   { value: 'A2A', label: '多智能体协作模式', note: '一句问题即可拉起工作流' },
 ];
 
@@ -53,6 +53,14 @@ const coreCapabilities = [
     desc: '基于疾病和研究重点筛选 ClinicalTrials 机会，形成下一步联络清单。',
     accent: 'rose',
   },
+  {
+    id: 'deep-diagnosis',
+    badge: '06',
+    title: '可追溯诊断',
+    subtitle: 'RareDBridge Dx',
+    desc: '融合自由文本、HPO、基因和变异线索，生成差异诊断排序与可复核推理链。',
+    accent: 'cyan',
+  },
 ];
 
 const a2aModes = [
@@ -82,6 +90,7 @@ const a2aModes = [
 const a2aLeadAgents = [
   { id: 'patient_intake_agent', label: '患者入口 Agent' },
   { id: 'phenotype_agent', label: '表型 Agent' },
+  { id: 'diagnosis_agent', label: '诊断 Agent' },
   { id: 'evidence_agent', label: '证据 Agent' },
   { id: 'repurposing_agent', label: '药物重定位 Agent' },
   { id: 'trial_agent', label: '临床试验 Agent' },
@@ -91,6 +100,7 @@ const a2aLeadAgents = [
 const a2aAgentLabelMap = {
   patient_intake_agent: '患者入口 Agent',
   phenotype_agent: '表型 Agent',
+  diagnosis_agent: '诊断 Agent',
   evidence_agent: '证据 Agent',
   repurposing_agent: '药物重定位 Agent',
   trial_agent: '临床试验 Agent',
@@ -108,6 +118,11 @@ const a2aNodes = [
     name: 'Phenotype Agent',
     role: '表型结构化',
     desc: '把症状语言映射成疾病线索、重点表型和候选问题列表。',
+  },
+  {
+    name: 'RareDBridge Dx Agent',
+    role: '可追溯诊断',
+    desc: '融合自由文本、HPO、基因和变异线索，输出差异诊断排序与复核依据。',
   },
   {
     name: 'Evidence Agent',
@@ -177,7 +192,7 @@ const architectureBlocks = [
   },
   {
     name: 'React',
-    desc: '构建平台工作台和顶级入口页，让 5 大能力在一个界面里完成切换。',
+    desc: '构建平台工作台和顶级入口页，让 6 大能力在一个界面里完成切换。',
   },
   {
     name: 'MCP',
@@ -195,6 +210,7 @@ const architectureBlocks = [
 
 const starterPrompts = [
   '我有长期肌无力和吞咽困难，想先做罕见病方向判断。',
+  '男孩进行性肌无力、Gowers征、CK升高，DMD 基因有疑似变异，请做可追溯差异诊断。',
   '请帮我快速研究 Duchenne muscular dystrophy 的靶点和药物。',
   '想看 Fabry disease 还有哪些在招募的临床试验。',
 ];
@@ -207,6 +223,7 @@ const workspaceRecommendations = {
 
 const workspaceLeadAgents = {
   'symptom-check': 'phenotype_agent',
+  'deep-diagnosis': 'diagnosis_agent',
   'disease-research': 'evidence_agent',
   'drug-repurposing': 'repurposing_agent',
   'trial-matching': 'trial_agent',
@@ -1394,6 +1411,226 @@ function TrialMatchingWorkspace({ a2aMode }) {
   );
 }
 
+function parseVariantLines(text) {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(/[,\t，]+/).map((item) => item.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        return { gene: parts[0], variant: parts[1], consequence: parts.slice(2).join('，') };
+      }
+      const match = line.match(/\b([A-Z][A-Z0-9]{2,10})\b[:\s]+(c\.[A-Za-z0-9_>+\-.]+|p\.[A-Za-z0-9_>+\-.]+)/);
+      return match ? { gene: match[1], variant: match[2], consequence: line.replace(match[0], '').trim() } : { variant: line };
+    });
+}
+
+function RareDBridgeDiagnosisWorkspace({ a2aMode }) {
+  const mode = useMemo(() => a2aModes.find((item) => item.id === a2aMode) || a2aModes[0], [a2aMode]);
+  const [caseText, setCaseText] = useState(
+    '男孩，6岁，进行性肌无力，Gowers征阳性，腓肠肌假性肥大，CK显著升高。家族史提示母系亲属有类似运动障碍。基因检测提示 DMD c.100A>G 疑似变异。',
+  );
+  const [hpoInput, setHpoInput] = useState('HP:0001324, HP:0003391, HP:0003236');
+  const [geneInput, setGeneInput] = useState('DMD');
+  const [variantInput, setVariantInput] = useState('DMD, c.100A>G, suspicious pathogenic variant');
+  const [age, setAge] = useState('6');
+  const [gender, setGender] = useState('男');
+  const [familyHistory, setFamilyHistory] = useState('母系亲属有类似运动障碍');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setResult(null);
+    setError('');
+  }, [a2aMode]);
+
+  const runDiagnosis = async () => {
+    if (!caseText.trim() || loading) return;
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await parseJson(
+        await fetch('/api/v2/raredbridge/diagnosis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            case_text: caseText.trim(),
+            hpo_terms: hpoInput.split(/[,，;\n]+/).map((item) => item.trim()).filter(Boolean),
+            genes: geneInput.split(/[,，;\s]+/).map((item) => item.trim()).filter(Boolean),
+            variants: parseVariantLines(variantInput),
+            age: age ? Number(age) : null,
+            gender: gender || null,
+            family_history: familyHistory.trim() || null,
+            top_k: 5,
+          }),
+        }),
+      );
+      setResult(data);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const topCandidate = result?.ranked_diagnoses?.[0];
+
+  return (
+    <div className="workspace-stack">
+      <div className="workspace-banner">
+        <div>
+          <span className="workspace-banner-kicker">RareDBridge Dx</span>
+          <strong>可追溯差异诊断</strong>
+        </div>
+        <p>{mode.label} 下可作为诊断 Agent 的独立工作台，参考 DeepRare 的输入和推理形态，落到我们自己的平台能力。</p>
+      </div>
+
+      <div className="field-grid">
+        <label className="field field-large">
+          <span>病例文本</span>
+          <textarea
+            rows={9}
+            value={caseText}
+            onChange={(event) => setCaseText(event.target.value)}
+            placeholder="输入主诉、病程、体征、检查、基因检测摘要或出院小结"
+          />
+        </label>
+
+        <div className="field-column">
+          <label className="field">
+            <span>年龄</span>
+            <input type="number" value={age} onChange={(event) => setAge(event.target.value)} />
+          </label>
+          <label className="field">
+            <span>性别</span>
+            <select value={gender} onChange={(event) => setGender(event.target.value)}>
+              <option value="">未填写</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>家族史</span>
+            <input value={familyHistory} onChange={(event) => setFamilyHistory(event.target.value)} placeholder="可选" />
+          </label>
+        </div>
+      </div>
+
+      <div className="field-grid compact-grid">
+        <label className="field">
+          <span>HPO / 表型</span>
+          <textarea rows={4} value={hpoInput} onChange={(event) => setHpoInput(event.target.value)} />
+        </label>
+        <label className="field">
+          <span>基因</span>
+          <textarea rows={4} value={geneInput} onChange={(event) => setGeneInput(event.target.value)} />
+        </label>
+        <label className="field">
+          <span>变异摘要</span>
+          <textarea rows={4} value={variantInput} onChange={(event) => setVariantInput(event.target.value)} />
+        </label>
+      </div>
+
+      <button type="button" className="primary-button fit-button" disabled={loading || !caseText.trim()} onClick={runDiagnosis}>
+        <Icon name="target" />
+        {loading ? '诊断推理中...' : '运行 RareDBridge Dx'}
+      </button>
+
+      {error ? <div className="error-card">{error}</div> : null}
+      {loading ? <div className="loading-card">正在执行表型标准化、基因叠加、候选诊断排序和自反复核...</div> : null}
+
+      {result ? (
+        <div className="result-layout">
+          <div className="summary-grid">
+            <article className="summary-card">
+              <span>首位候选</span>
+              <strong>{topCandidate?.name_cn || '待确认'}</strong>
+              <p>{topCandidate?.name_en || '需要更多信息'}</p>
+            </article>
+            <article className="summary-card">
+              <span>综合评分</span>
+              <strong>{topCandidate?.score ?? '-'}</strong>
+              <p>置信度：{topCandidate?.confidence_label || result.self_reflection?.diagnostic_confidence}</p>
+            </article>
+            <article className="summary-card">
+              <span>HPO/表型</span>
+              <strong>{result.normalized_phenotypes?.length || 0}</strong>
+              <p>已标准化或保留为本地表型信号</p>
+            </article>
+            <article className="summary-card">
+              <span>候选诊断</span>
+              <strong>{result.ranked_diagnoses?.length || 0}</strong>
+              <p>按表型、基因和变异线索排序</p>
+            </article>
+          </div>
+
+          <div className="result-card">
+            <div className="card-topline">候选诊断排序</div>
+            <div className="list-stack">
+              {result.ranked_diagnoses.map((candidate) => (
+                <article key={`${candidate.rank}-${candidate.name_en}`} className="list-card">
+                  <div className="list-card-top">
+                    <code>#{candidate.rank} {candidate.omim_id || 'OMIM 待补充'}</code>
+                    <span>{candidate.confidence_label}</span>
+                  </div>
+                  <strong>{candidate.name_cn} / {candidate.name_en}</strong>
+                  <p>{candidate.reason}</p>
+                  <p>诊断建议：{candidate.diagnosis_method}</p>
+                  <p>治疗线索：{candidate.treatment}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="result-card">
+            <div className="card-topline">HPO 与表型标准化</div>
+            <div className="card-grid">
+              {result.normalized_phenotypes.map((phenotype) => (
+                <article key={`${phenotype.hpo_id}-${phenotype.source_text}`} className="mini-card">
+                  <div className="mini-card-top">
+                    <code>{phenotype.hpo_id || 'local'}</code>
+                    <span>{phenotype.status}</span>
+                  </div>
+                  <strong>{phenotype.source_text}</strong>
+                  <p>{phenotype.term}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="result-card">
+            <div className="card-topline">可追溯推理链</div>
+            <div className="chain-list">
+              {result.reasoning_chain.map((step, index) => (
+                <div key={step.step} className="chain-item">
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <strong>{step.title}</strong>
+                    <p>{step.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="result-card prose-card">
+            <div className="card-topline">自反复核与报告</div>
+            <TextBlock text={result.report} />
+            {result.self_reflection?.missing_information?.length ? (
+              <div className="warning-box">
+                {result.self_reflection.missing_information.join('；')}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function App() {
   const [activeCapability, setActiveCapability] = useState('ai-chat');
   const [a2aMode, setA2AMode] = useState('auto');
@@ -1452,6 +1689,8 @@ function App() {
     switch (activeCapability) {
       case 'symptom-check':
         return <SymptomCheckWorkspace a2aMode={a2aMode} />;
+      case 'deep-diagnosis':
+        return <RareDBridgeDiagnosisWorkspace a2aMode={a2aMode} />;
       case 'disease-research':
         return <DiseaseResearchWorkspace a2aMode={a2aMode} />;
       case 'drug-repurposing':
@@ -1573,9 +1812,9 @@ function App() {
 
         <section id="capabilities" className="content-section">
           <SectionHeader
-            eyebrow="5 大核心能力"
+            eyebrow="6 大核心能力"
             title="从一条主诉到一份可执行报告，全部落在同一个平台工作台里"
-            description="平台保留对话、症状、研究、重定位和试验匹配 5 个入口。每个入口都能被 A2A 编排层接管，而不是孤立的单点工具。"
+            description="平台保留对话、症状、可追溯诊断、研究、重定位和试验匹配 6 个入口。每个入口都能被 A2A 编排层接管，而不是孤立的单点工具。"
             align="center"
           />
 
@@ -1711,7 +1950,7 @@ function App() {
         <section id="workbench" ref={workbenchRef} className="content-section">
           <SectionHeader
             eyebrow="平台工作台"
-            title="现在就用同一个前端，接住 5 个核心能力"
+            title="现在就用同一个前端，接住 6 个核心能力"
             description="这里开始是实际可操作区域。你可以切换 A2A 模式，再选择具体能力。"
           />
 

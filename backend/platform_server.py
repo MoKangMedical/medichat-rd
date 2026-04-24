@@ -18,8 +18,10 @@ from openai import OpenAI
 
 try:
     from .a2a_orchestrator import A2AOrchestrator
+    from .raredbridge_diagnosis import RareDBridgeDiagnosisEngine
 except ImportError:
     from a2a_orchestrator import A2AOrchestrator
+    from raredbridge_diagnosis import RareDBridgeDiagnosisEngine
 
 # ═══════════════════════════════════════════════════
 # 配置
@@ -132,6 +134,23 @@ class A2AMessageRequest(BaseModel):
     content: str = Field(..., description="用户消息")
     disease_context: Optional[str] = Field(None, description="可选疾病上下文")
 
+
+class RareDBridgeVariant(BaseModel):
+    gene: Optional[str] = Field(None, description="基因名")
+    variant: Optional[str] = Field(None, description="变异记法，例如 c.123A>G 或 p.Arg12His")
+    consequence: Optional[str] = Field(None, description="变异影响或致病性摘要")
+
+
+class RareDBridgeDiagnosisRequest(BaseModel):
+    case_text: str = Field(..., description="病例自由文本、主诉、检查摘要或出院小结")
+    hpo_terms: List[str] = Field(default_factory=list, description="可选 HPO 编码或表型词")
+    genes: List[str] = Field(default_factory=list, description="可选基因列表")
+    variants: List[RareDBridgeVariant] = Field(default_factory=list, description="可选变异列表")
+    age: Optional[int] = Field(None, description="年龄")
+    gender: Optional[str] = Field(None, description="性别")
+    family_history: Optional[str] = Field(None, description="家族史")
+    top_k: int = Field(5, ge=1, le=10, description="返回候选诊断数量")
+
 # ═══════════════════════════════════════════════════
 # 知识库（121种罕见病）
 # ═══════════════════════════════════════════════════
@@ -158,6 +177,7 @@ a2a_orchestrator = A2AOrchestrator(
     load_disease_knowledge=load_disease_knowledge,
     mimo_available=bool(MIMO_API_KEY),
 )
+raredbridge_dx = RareDBridgeDiagnosisEngine()
 
 # ═══════════════════════════════════════════════════
 # API 路由
@@ -173,6 +193,7 @@ async def health_check():
         "mimo_configured": bool(MIMO_API_KEY),
         "mcp_available": True,
         "a2a_available": True,
+        "raredbridge_dx_available": True,
     }
 
 # --- AI 对话 ---
@@ -473,6 +494,46 @@ async def search_literature(
         "max_results": max_results
     })
     return result
+
+
+# --- RareDBridge Dx ---
+@app.get("/api/v2/raredbridge/capability")
+async def raredbridge_capability():
+    return {
+        "name": "RareDBridge Dx",
+        "description": "面向罕见病的可追溯差异诊断能力，支持自由文本、HPO、基因和变异线索。",
+        "inspired_by": [
+            "https://www.nature.com/articles/s41586-025-10097-9",
+            "https://deeprare.cn",
+        ],
+        "local_capabilities": [
+            "病例自由文本解析",
+            "HPO/表型标准化",
+            "基因与变异线索叠加",
+            "候选诊断排序",
+            "可追溯证据链",
+            "自反复核与缺口提示",
+        ],
+        "limitations": [
+            "当前版本使用本地罕见病知识库和 HPO 种子表",
+            "暂未接入 Exomiser/完整 VCF 解析",
+            "结果仅作为临床决策支持，不替代医生诊断",
+        ],
+    }
+
+
+@app.post("/api/v2/raredbridge/diagnosis")
+async def raredbridge_diagnosis(request: RareDBridgeDiagnosisRequest):
+    return raredbridge_dx.run(
+        case_text=request.case_text,
+        hpo_terms=request.hpo_terms,
+        genes=request.genes,
+        variants=[variant.model_dump(exclude_none=True) for variant in request.variants],
+        age=request.age,
+        gender=request.gender,
+        family_history=request.family_history,
+        top_k=request.top_k,
+    )
 
 
 # --- A2A Orchestration ---

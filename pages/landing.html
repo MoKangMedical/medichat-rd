@@ -375,7 +375,7 @@
     }
 
     .cap-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .cap-card,
@@ -694,7 +694,7 @@
           </h1>
           <p class="hero-description">
             MediChat-RD 不只是一个会聊天的医疗页面，而是一套可持续扩展的罕见病基础设施。
-            它将 AI 对话、症状自查、疾病研究、药物重定位和临床试验匹配放进同一个工作台，
+            它将 AI 对话、症状自查、可追溯诊断、疾病研究、药物重定位和临床试验匹配放进同一个工作台，
             同时吸收 MedRoundTable 的 A2A 模式，让“一句话启动协作”成为真正的产品能力。
           </p>
 
@@ -714,7 +714,7 @@
               <span>全球生物医学数据源</span>
             </div>
             <div class="hero-stat">
-              <strong>5</strong>
+              <strong>6</strong>
               <span>核心能力入口</span>
             </div>
             <div class="hero-stat">
@@ -748,6 +748,7 @@
             <div class="mode-chain" style="margin-top: 16px;">
               <span>患者入口 Agent</span>
               <span>表型 Agent</span>
+              <span>诊断 Agent</span>
               <span>证据 Agent</span>
               <span>药物重定位 Agent</span>
               <span>Trial Agent</span>
@@ -761,9 +762,9 @@
     <section id="capabilities">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">5 大核心能力</div>
+          <div class="eyebrow">6 大核心能力</div>
           <h2>一个页面，覆盖患者咨询、疾病研究到试验匹配的完整主路径</h2>
-          <p>平台保留真正能落地的 5 个核心入口，每个入口都能被 A2A 编排层接管，而不是互相割裂的静态按钮。</p>
+          <p>平台保留真正能落地的 6 个核心入口，每个入口都能被 A2A 编排层接管，而不是互相割裂的静态按钮。</p>
         </div>
 
         <div class="cap-grid">
@@ -779,16 +780,21 @@
           </article>
           <article class="cap-card">
             <span>03</span>
+            <h3>可追溯诊断</h3>
+            <p>参考 DeepRare 的多输入诊断形态，融合自由文本、HPO、基因和变异线索，输出差异诊断排序与可复核推理链。</p>
+          </article>
+          <article class="cap-card">
+            <span>04</span>
             <h3>疾病研究</h3>
             <p>整合靶点、药物、文献和试验信息，一键生成面向研究与讨论的疾病图谱。</p>
           </article>
           <article class="cap-card">
-            <span>04</span>
+            <span>05</span>
             <h3>药物重定位</h3>
             <p>从靶点与既有药物池出发，寻找值得验证的再利用候选和下一步实验假设。</p>
           </article>
           <article class="cap-card">
-            <span>05</span>
+            <span>06</span>
             <h3>临床试验匹配</h3>
             <p>围绕疾病和研究重点快速筛选 ClinicalTrials 条目，形成进一步跟进的行动清单。</p>
           </article>
@@ -812,6 +818,10 @@
                 <article class="a2a-node">
                   <strong>Phenotype</strong>
                   <p>结构化表型，整理关键疑点与追问。</p>
+                </article>
+                <article class="a2a-node">
+                  <strong>RareDBridge Dx</strong>
+                  <p>融合病例文本、HPO、基因和变异，输出可追溯差异诊断。</p>
                 </article>
                 <article class="a2a-node">
                   <strong>Evidence</strong>
@@ -923,6 +933,7 @@
             </p>
             <div class="tech-route">
               <span>患者入口</span>
+              <span>诊断入口</span>
               <span>研究入口</span>
               <span>Trial 入口</span>
               <span>社群回流</span>
@@ -943,7 +954,12 @@
             <article class="tech-card">
               <span>React</span>
               <h3>前端工作台</h3>
-              <p>用一个顶级界面承载 5 大能力。</p>
+              <p>用一个顶级界面承载 6 大能力。</p>
+            </article>
+            <article class="tech-card">
+              <span>RareDBridge Dx</span>
+              <h3>可追溯诊断层</h3>
+              <p>把 DeepRare 论文启发的多输入、排序和推理链能力实现为我们自己的平台模块。</p>
             </article>
             <article class="tech-card">
               <span>MCP</span>
