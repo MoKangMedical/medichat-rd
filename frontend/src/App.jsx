@@ -164,6 +164,73 @@ const flowSteps = [
   },
 ];
 
+const allianceConferences = [
+  {
+    title: '2026 罕见病国际交流会暨中国罕见病大会',
+    date: '2026.05.22 - 05.24',
+    location: '海南海口 + 中国罕见病联盟小程序线上参会',
+    desc: '聚焦罕见病全生命周期管理、国际协作、政策创新、诊疗体系和创新疗法转化，是下一场重点跟进会议。',
+    href: 'https://www.chard.org.cn/conference/detail/1246',
+  },
+  {
+    title: '2025 中国罕见病大会',
+    date: '2025.09.19 - 09.25',
+    location: '北京线下会议 + 线上议程',
+    desc: '以“罕见同心，聚力同行”为主题，覆盖政策、临床诊疗、药物研发、医疗保障和患者组织协作。',
+    href: 'https://www.chard.org.cn/detail/news/3136',
+  },
+  {
+    title: '2025 罕见病国际交流会 IRDCC',
+    date: '2025.05.23 - 05.25',
+    location: '海南海口，线上 + 线下',
+    desc: '面向国际合作、诊疗研究创新和全球罕见病交流的年度会议档案，可作为后续专家、议题和合作方追踪入口。',
+    href: 'https://www.chard.org.cn/conference',
+  },
+];
+
+const allianceResources = [
+  {
+    title: '中国罕见病联盟',
+    desc: '联盟介绍、组织定位和综合云服务平台入口。',
+    href: 'https://www.chard.org.cn/about/society/',
+  },
+  {
+    title: '会议中心',
+    desc: '中国罕见病大会、IRDCC、国际罕见病日活动和现场照片归档。',
+    href: 'https://www.chard.org.cn/conference',
+  },
+  {
+    title: '86 个罕见病病种诊疗指南',
+    desc: '国家卫健委 2025 年版第二批罕见病诊疗指南下载入口。',
+    href: 'https://www.chard.org.cn/detail/database/2914',
+  },
+  {
+    title: '罕见病研究 Journal of Rare Diseases',
+    desc: '覆盖基础医学、临床医学、转化医学、药学、伦理和政策法规研究。',
+    href: 'https://jrd.chard.org.cn/',
+  },
+  {
+    title: '全国罕见病诊疗协作网',
+    desc: '了解协作网建设、转诊协作和诊疗能力提升脉络。',
+    href: 'https://www.chard.org.cn/detail/news/301',
+  },
+  {
+    title: 'UPWARDS 医生培训项目',
+    desc: '中央专项彩票公益金支持的罕见病诊疗能力提升培训项目。',
+    href: 'https://www.chard.org.cn/detail/news/2862',
+  },
+  {
+    title: '罕见病药物研发趋势',
+    desc: '中国罕见病联盟收录的药物研发趋势与政策研究资料。',
+    href: 'https://www.chard.org.cn/detail/database/2253',
+  },
+  {
+    title: 'MG Base 单病种管理平台',
+    desc: '联盟自主搭建的重症肌无力管理平台进展，可作为患者管理场景参考。',
+    href: 'https://www.chard.org.cn/detail/news/2787/',
+  },
+];
+
 const dataSources = [
   { name: 'OpenTargets', type: '靶点与疾病关联' },
   { name: 'ChEMBL', type: '药物与化合物' },
@@ -1725,6 +1792,7 @@ function App() {
         <nav className="nav-links">
           <a href="#capabilities">核心能力</a>
           <a href="#a2a">A2A 模式</a>
+          <a href="#alliance">联盟资源</a>
           <a href="#sources">数据源</a>
           <a href="#architecture">技术架构</a>
           <a href="#workbench">工作台</a>
@@ -1897,6 +1965,35 @@ function App() {
                 <strong>{step.title}</strong>
                 <p>{step.desc}</p>
               </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="alliance" className="content-section section-contrast">
+          <SectionHeader
+            eyebrow="罕见病联盟"
+            title="把会议、指南、培训和患者管理资源接入同一个网址"
+            description="基于 2026-04-25 可访问的中国罕见病联盟公开信息整理，作为 RareDBridge 的会议追踪、专家协作和资料入口。"
+            align="center"
+          />
+
+          <div className="flow-grid">
+            {allianceConferences.map((conference, index) => (
+              <a key={conference.title} className="flow-card" href={conference.href} target="_blank" rel="noreferrer">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <strong>{conference.title}</strong>
+                <p>{conference.date} · {conference.location}</p>
+                <p>{conference.desc}</p>
+              </a>
+            ))}
+          </div>
+
+          <div className="source-grid alliance-resource-grid">
+            {allianceResources.map((resource) => (
+              <a key={resource.title} className="source-card" href={resource.href} target="_blank" rel="noreferrer">
+                <strong>{resource.title}</strong>
+                <p>{resource.desc}</p>
+              </a>
             ))}
           </div>
         </section>
