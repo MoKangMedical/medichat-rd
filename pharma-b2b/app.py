@@ -17,6 +17,18 @@ def setup():
 def index():
     return render_template("dashboard.html")
 
+@app.route("/patient")
+def patient():
+    return render_template("patient_h5.html")
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/pricing")
+def pricing():
+    return render_template("pricing.html")
+
 @app.route("/api/dashboard")
 def api_dashboard():
     return jsonify(get_dashboard_stats())
@@ -51,7 +63,3 @@ def api_content():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
-
-@app.route("/patient")
-def patient():
-    return render_template("patient_h5.html")
