@@ -5634,6 +5634,264 @@ button.disease-orbit-variable-card:disabled {
   color: var(--ink-faint);
 }
 
+.deeprare-domain-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 252, 247, 0.74)),
+    rgba(12, 24, 49, 0.025);
+}
+
+.deeprare-domain-summary {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.35fr) 1fr;
+  gap: 14px;
+}
+
+.deeprare-domain-focus {
+  padding: 20px;
+  border-radius: 24px;
+  color: white;
+  background: linear-gradient(145deg, rgba(12, 24, 49, 0.96), rgba(13, 191, 155, 0.78));
+}
+
+.deeprare-domain-focus small,
+.deeprare-domain-focus span {
+  display: block;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.deeprare-domain-focus strong {
+  display: block;
+  margin: 12px 0 8px;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.deeprare-domain-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.deeprare-domain-facts div,
+.deeprare-mechanism-card,
+.deeprare-acmg-card,
+.deeprare-actionability-card,
+.deeprare-agent-node,
+.deeprare-domain-block.compact {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(12, 24, 49, 0.07);
+}
+
+.deeprare-domain-facts small,
+.deeprare-actionability-card small,
+.deeprare-timeline-row small {
+  display: block;
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+
+.deeprare-domain-facts strong,
+.deeprare-actionability-card strong,
+.deeprare-timeline-row strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+}
+
+.deeprare-domain-facts p,
+.deeprare-mechanism-card p,
+.deeprare-mechanism-card small,
+.deeprare-acmg-card p,
+.deeprare-actionability-card p,
+.deeprare-actionability-card span,
+.deeprare-agent-node p,
+.deeprare-agent-node small,
+.deeprare-timeline-row p {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.deeprare-domain-block {
+  margin-top: 18px;
+}
+
+.deeprare-domain-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.deeprare-domain-title strong {
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-size: 1rem;
+}
+
+.deeprare-domain-title span {
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+}
+
+.deeprare-mechanism-grid,
+.deeprare-acmg-grid,
+.deeprare-actionability-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.deeprare-mechanism-head,
+.deeprare-acmg-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.deeprare-mechanism-head strong,
+.deeprare-acmg-head strong {
+  color: var(--ink);
+}
+
+.deeprare-mechanism-head span,
+.deeprare-acmg-head span {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(13, 191, 155, 0.12);
+  color: var(--mint-deep);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.deeprare-acmg-criteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.deeprare-acmg-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 74px;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: rgba(12, 24, 49, 0.055);
+}
+
+.deeprare-acmg-chip.status-supporting {
+  background: rgba(13, 191, 155, 0.12);
+}
+
+.deeprare-acmg-chip.status-pending,
+.deeprare-acmg-chip.status-missing {
+  background: rgba(217, 173, 67, 0.12);
+}
+
+.deeprare-acmg-chip strong {
+  color: var(--ink);
+}
+
+.deeprare-acmg-chip span,
+.deeprare-acmg-chip small {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.deeprare-actionability-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.deeprare-actionability-score {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(#FF7A59 0deg, #D9AD43 260deg, rgba(12, 24, 49, 0.08) 0deg);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.deeprare-actionability-card > div:first-child {
+  max-width: calc(100% - 64px);
+}
+
+.deeprare-agent-rail {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.deeprare-agent-node {
+  border-top: 4px solid rgba(13, 191, 155, 0.72);
+}
+
+.deeprare-agent-node.status-waiting_for_vcf,
+.deeprare-agent-node.status-needs_input {
+  border-top-color: #D9AD43;
+}
+
+.deeprare-agent-node strong,
+.deeprare-agent-node span {
+  display: block;
+}
+
+.deeprare-agent-node strong {
+  color: var(--ink);
+}
+
+.deeprare-agent-node span {
+  margin-top: 6px;
+  color: var(--mint-deep);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.deeprare-domain-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.deeprare-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.deeprare-timeline-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+}
+
+.deeprare-timeline-row > span {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--mint-deep);
+  box-shadow: 0 0 0 6px rgba(13, 191, 155, 0.12);
+}
+
+.deeprare-phenopacket-preview pre {
+  max-height: 360px;
+}
+
 .deeprare-phenotype {
   display: inline-flex;
   align-items: center;
@@ -5943,6 +6201,13 @@ button.disease-orbit-variable-card:disabled {
   .deeprare-visual-flow,
   .deeprare-kpi-grid,
   .deeprare-output-grid,
+  .deeprare-domain-summary,
+  .deeprare-domain-facts,
+  .deeprare-mechanism-grid,
+  .deeprare-acmg-grid,
+  .deeprare-actionability-grid,
+  .deeprare-agent-rail,
+  .deeprare-domain-split,
   .deeprare-workbench,
   .quick-card-grid {
     grid-template-columns: 1fr;
