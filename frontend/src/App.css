@@ -5169,6 +5169,99 @@ button.disease-orbit-variable-card:disabled {
   font-size: 0.98rem;
 }
 
+.deeprare-case-showcase {
+  margin-top: 18px;
+}
+
+.deeprare-case-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.deeprare-case-card {
+  padding: 20px;
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(13, 191, 155, 0.08)),
+    rgba(12, 24, 49, 0.035);
+  border: 1px solid rgba(12, 24, 49, 0.08);
+}
+
+.deeprare-case-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--mint-deep);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.deeprare-case-top small {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(13, 191, 155, 0.13);
+  color: var(--mint-deep);
+  font-size: 0.72rem;
+}
+
+.deeprare-case-card h3 {
+  margin: 14px 0 8px;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-size: 1.15rem;
+}
+
+.deeprare-case-phenotype,
+.deeprare-case-privacy,
+.deeprare-case-disclaimer {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.75;
+}
+
+.deeprare-case-privacy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(12, 24, 49, 0.05);
+  font-size: 0.88rem;
+}
+
+.deeprare-case-block {
+  margin-top: 16px;
+}
+
+.deeprare-case-block strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.deeprare-case-block p,
+.deeprare-case-block li {
+  color: var(--ink-soft);
+  line-height: 1.75;
+}
+
+.deeprare-case-block p,
+.deeprare-case-block ul {
+  margin: 0;
+}
+
+.deeprare-case-block ul {
+  padding-left: 18px;
+}
+
+.deeprare-case-card .ghost-btn {
+  margin-top: 18px;
+}
+
+.deeprare-case-disclaimer {
+  margin-top: 14px;
+  font-size: 0.88rem;
+}
+
 .deeprare-workbench {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
@@ -5524,6 +5617,7 @@ button.disease-orbit-variable-card:disabled {
   .program-grid,
   .related-grid,
   .deeprare-hero,
+  .deeprare-case-grid,
   .deeprare-workbench,
   .quick-card-grid {
     grid-template-columns: 1fr;
