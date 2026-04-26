@@ -149,6 +149,24 @@ const VISUALIZATION_MODES = [
   },
 ];
 
+function scoreFromConfidence(value, fallback = 0) {
+  if (typeof value === 'number') {
+    return Math.round((value <= 1 ? value * 100 : value));
+  }
+  if (typeof value === 'string') {
+    const numberMatch = value.match(/\d+(\.\d+)?/);
+    if (numberMatch) return Math.round(Number(numberMatch[0]));
+    if (value.includes('高')) return 82;
+    if (value.includes('中')) return 58;
+    if (value.includes('低')) return 34;
+  }
+  return fallback;
+}
+
+function clampScore(score) {
+  return Math.max(0, Math.min(100, Number.isFinite(score) ? score : 0));
+}
+
 function PhenotypeTag({ hpo_id, name, confidence }) {
   const level = confidence >= 0.85 ? 'strong' : confidence >= 0.65 ? 'medium' : 'soft';
   return (
@@ -160,7 +178,44 @@ function PhenotypeTag({ hpo_id, name, confidence }) {
   );
 }
 
+function ResultKpi({ label, value, detail, score, tone = 'mint' }) {
+  const safeScore = clampScore(score);
+  return (
+    <div className={`deeprare-kpi-card tone-${tone}`}>
+      <div
+        className="deeprare-kpi-ring"
+        style={{ '--score-angle': `${safeScore * 3.6}deg` }}
+        aria-label={`${label} ${safeScore}%`}
+      >
+        <span>{value}</span>
+      </div>
+      <div>
+        <small>{label}</small>
+        <strong>{detail}</strong>
+      </div>
+    </div>
+  );
+}
+
+function EvidenceBar({ label, value, meta, tone = 'mint' }) {
+  const safeScore = clampScore(value);
+  return (
+    <div className="deeprare-evidence-bar">
+      <div className="deeprare-evidence-bar-head">
+        <span>{label}</span>
+        <strong>{safeScore}%</strong>
+      </div>
+      <div className="deeprare-evidence-track">
+        <span className={`tone-${tone}`} style={{ width: `${safeScore}%` }} />
+      </div>
+      {meta && <small>{meta}</small>}
+    </div>
+  );
+}
+
 function DiagnosisCard({ diagnosis }) {
+  const score = clampScore(scoreFromConfidence(diagnosis.confidence));
+
   return (
     <div className={`deeprare-diagnosis-card ${diagnosis.rank === 1 ? 'top' : ''}`}>
       <div className="deeprare-diagnosis-head">
@@ -170,7 +225,12 @@ function DiagnosisCard({ diagnosis }) {
           <p>{diagnosis.reasoning}</p>
         </div>
       </div>
-      <div className="deeprare-diagnosis-score">{diagnosis.confidence}</div>
+      <div className="deeprare-diagnosis-score">
+        <span>{diagnosis.confidence}</span>
+        <div className="deeprare-diagnosis-meter" aria-label={`置信度 ${score}%`}>
+          <i style={{ width: `${score}%` }} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -186,6 +246,18 @@ export default function DeepRarePanel() {
   const reasoningLines = result?.reasoning_chain
     ? result.reasoning_chain.split('\n').map((line) => line.trim()).filter(Boolean)
     : [];
+  const topDiagnosis = result?.differential_diagnosis?.[0];
+  const topDiagnosisScore = clampScore(scoreFromConfidence(topDiagnosis?.confidence));
+  const phenotypeScores = result?.phenotypes?.map((item) => clampScore(scoreFromConfidence(item.confidence))) || [];
+  const avgPhenotypeScore = phenotypeScores.length
+    ? Math.round(phenotypeScores.reduce((sum, score) => sum + score, 0) / phenotypeScores.length)
+    : 0;
+  const completedWorkflowCount = result?.workflow_phase_status?.filter((item) => (
+    ['已接收', '可继续复核', '已完成', '已生成'].includes(item.status)
+  )).length || 0;
+  const workflowScore = result?.workflow_phase_status?.length
+    ? Math.round((completedWorkflowCount / result.workflow_phase_status.length) * 100)
+    : 0;
 
   const handleDiagnose = async () => {
     if (!input.trim() || loading) return;
@@ -437,19 +509,112 @@ export default function DeepRarePanel() {
               <div className="signal-grid">
                 <div className="signal-cell">
                   <small>候选诊断</small>
-                  <strong>{result.differential_diagnosis?.length || 0}</strong>
+                  <strong>{result.differential_diagnosis?.length || 0} 个</strong>
                 </div>
                 <div className="signal-cell">
                   <small>HPO 表型</small>
-                  <strong>{result.phenotypes?.length || 0}</strong>
+                  <strong>{result.phenotypes?.length || 0} 个</strong>
                 </div>
                 <div className="signal-cell">
                   <small>推荐动作</small>
-                  <strong>{result.recommendations?.length || 0}</strong>
+                  <strong>{result.recommendations?.length || 0} 条</strong>
                 </div>
                 <div className="signal-cell">
                   <small>推理链</small>
-                  <strong>{reasoningLines.length}</strong>
+                  <strong>{reasoningLines.length} 步</strong>
+                </div>
+              </div>
+            </section>
+
+            <section className="result-panel deeprare-output-visual">
+              <div className="section-head">
+                <span>结果可视化</span>
+                <span className="section-note">把置信度、表型证据和工作流状态从数字变成可读图谱</span>
+              </div>
+              <div className="deeprare-kpi-grid">
+                <ResultKpi
+                  label="首位诊断置信度"
+                  value={`${topDiagnosisScore}%`}
+                  detail={topDiagnosis?.disease || '等待候选诊断'}
+                  score={topDiagnosisScore}
+                  tone="mint"
+                />
+                <ResultKpi
+                  label="表型匹配强度"
+                  value={`${avgPhenotypeScore}%`}
+                  detail={`${result.phenotypes?.length || 0} 个 HPO/表型信号`}
+                  score={avgPhenotypeScore}
+                  tone="gold"
+                />
+                <ResultKpi
+                  label="工作流完成度"
+                  value={`${workflowScore}%`}
+                  detail={`${completedWorkflowCount}/${result.workflow_phase_status?.length || 5} 阶段已完成`}
+                  score={workflowScore}
+                  tone="blue"
+                />
+                <ResultKpi
+                  label="行动可执行度"
+                  value={`${Math.min((result.recommendations?.length || 0) * 25, 100)}%`}
+                  detail={`${result.recommendations?.length || 0} 条下一步建议`}
+                  score={Math.min((result.recommendations?.length || 0) * 25, 100)}
+                  tone="rose"
+                />
+              </div>
+
+              <div className="deeprare-output-grid">
+                <div className="deeprare-chart-card">
+                  <div className="deeprare-chart-head">
+                    <strong>HPO 表型证据</strong>
+                    <span>{avgPhenotypeScore}% 平均匹配</span>
+                  </div>
+                  <div className="deeprare-evidence-list">
+                    {(result.phenotypes || []).slice(0, 6).map((item) => (
+                      <EvidenceBar
+                        key={`${item.hpo_id}-${item.name}`}
+                        label={item.name}
+                        value={scoreFromConfidence(item.confidence)}
+                        meta={`${item.hpo_id} · 原文匹配：${item.matched}`}
+                        tone="mint"
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="deeprare-chart-card">
+                  <div className="deeprare-chart-head">
+                    <strong>鉴别诊断排序</strong>
+                    <span>{topDiagnosis?.disease || '暂无首位候选'}</span>
+                  </div>
+                  <div className="deeprare-evidence-list">
+                    {(result.differential_diagnosis || []).map((diagnosis) => (
+                      <EvidenceBar
+                        key={`${diagnosis.rank}-${diagnosis.disease}`}
+                        label={`${diagnosis.rank}. ${diagnosis.disease}`}
+                        value={scoreFromConfidence(diagnosis.confidence)}
+                        meta={diagnosis.reasoning}
+                        tone={diagnosis.rank === 1 ? 'gold' : 'blue'}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="deeprare-chart-card deeprare-workflow-card">
+                  <div className="deeprare-chart-head">
+                    <strong>五阶段推理进度</strong>
+                    <span>{workflowScore}%</span>
+                  </div>
+                  <div className="deeprare-workflow-rail">
+                    {(result.workflow_phase_status || []).map((item, index) => (
+                      <div key={item.phase} className={`deeprare-workflow-node ${item.status.includes('待') || item.status.includes('不足') || item.status.includes('未') ? 'pending' : 'done'}`}>
+                        <span>{index + 1}</span>
+                        <div>
+                          <strong>{item.phase}</strong>
+                          <small>{item.status}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>

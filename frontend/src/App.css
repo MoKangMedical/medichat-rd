@@ -5431,6 +5431,209 @@ button.disease-orbit-variable-card:disabled {
   margin-top: 18px;
 }
 
+.deeprare-output-visual {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(13, 191, 155, 0.14), transparent 32%),
+    radial-gradient(circle at 90% 0%, rgba(76, 125, 255, 0.12), transparent 34%),
+    rgba(255, 252, 247, 0.82);
+}
+
+.deeprare-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.deeprare-kpi-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(12, 24, 49, 0.07);
+}
+
+.deeprare-kpi-ring {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.94) 58%, transparent 60%),
+    conic-gradient(var(--ring-color, var(--mint-deep)) var(--score-angle), rgba(12, 24, 49, 0.08) 0deg);
+}
+
+.deeprare-kpi-ring span {
+  color: var(--ink);
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+  font-size: 0.95rem;
+}
+
+.deeprare-kpi-card small {
+  display: block;
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+
+.deeprare-kpi-card strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.deeprare-kpi-card.tone-gold {
+  --ring-color: #D9AD43;
+}
+
+.deeprare-kpi-card.tone-blue {
+  --ring-color: #4C7DFF;
+}
+
+.deeprare-kpi-card.tone-rose {
+  --ring-color: #FF7A59;
+}
+
+.deeprare-output-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.deeprare-chart-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(12, 24, 49, 0.07);
+}
+
+.deeprare-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.deeprare-chart-head strong {
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+}
+
+.deeprare-chart-head span {
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.deeprare-evidence-list {
+  display: grid;
+  gap: 14px;
+}
+
+.deeprare-evidence-bar-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.deeprare-evidence-bar-head span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deeprare-evidence-track {
+  height: 9px;
+  overflow: hidden;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: rgba(12, 24, 49, 0.08);
+}
+
+.deeprare-evidence-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint-deep), #0DBF9B);
+}
+
+.deeprare-evidence-track span.tone-gold {
+  background: linear-gradient(90deg, #D9AD43, #F7C948);
+}
+
+.deeprare-evidence-track span.tone-blue {
+  background: linear-gradient(90deg, #4C7DFF, #38BDF8);
+}
+
+.deeprare-evidence-track span.tone-rose {
+  background: linear-gradient(90deg, #FF7A59, #FB7185);
+}
+
+.deeprare-evidence-bar small {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-faint);
+  line-height: 1.55;
+}
+
+.deeprare-workflow-rail {
+  display: grid;
+  gap: 10px;
+}
+
+.deeprare-workflow-node {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(13, 191, 155, 0.09);
+}
+
+.deeprare-workflow-node.pending {
+  background: rgba(217, 173, 67, 0.1);
+}
+
+.deeprare-workflow-node > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mint-deep);
+  color: white;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+}
+
+.deeprare-workflow-node.pending > span {
+  background: #D9AD43;
+}
+
+.deeprare-workflow-node strong,
+.deeprare-workflow-node small {
+  display: block;
+}
+
+.deeprare-workflow-node strong {
+  color: var(--ink);
+}
+
+.deeprare-workflow-node small {
+  margin-top: 2px;
+  color: var(--ink-faint);
+}
+
 .deeprare-phenotype {
   display: inline-flex;
   align-items: center;
@@ -5523,11 +5726,32 @@ button.disease-orbit-variable-card:disabled {
 
 .deeprare-diagnosis-score {
   align-self: start;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(12, 24, 49, 0.08);
+  min-width: 92px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: rgba(12, 24, 49, 0.07);
   color: var(--ink);
   font-weight: 700;
+}
+
+.deeprare-diagnosis-score span {
+  display: block;
+  text-align: right;
+}
+
+.deeprare-diagnosis-meter {
+  height: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: rgba(12, 24, 49, 0.1);
+}
+
+.deeprare-diagnosis-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint-deep), #D9AD43);
 }
 
 .deeprare-action-card {
@@ -5717,6 +5941,8 @@ button.disease-orbit-variable-card:disabled {
   .deeprare-case-grid,
   .deeprare-visual-board,
   .deeprare-visual-flow,
+  .deeprare-kpi-grid,
+  .deeprare-output-grid,
   .deeprare-workbench,
   .quick-card-grid {
     grid-template-columns: 1fr;
