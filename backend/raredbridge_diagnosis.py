@@ -69,8 +69,33 @@ DEEPRARE_METHOD_FRAMEWORK = {
     "source": {
         "title": "An agentic system for rare disease diagnosis with traceable reasoning",
         "doi": "10.1038/s41586-025-10097-9",
+        "github": "https://github.com/MAGIC-AI4Med/DeepRare",
         "local_pdf": "/Users/linzhang/Downloads/罕见病-An agentic system for rare disease diagnosis with traceable reasoning.pdf",
         "role": "Methodology reference. RareDBridge implements its own platform module and does not copy DeepRare code, data, weights, or performance claims.",
+    },
+    "github_implementation_reference": {
+        "repository": "MAGIC-AI4Med/DeepRare",
+        "description": "Code implementation of DeepRare (Nature 2026).",
+        "observed_modules": [
+            "hpo_extractor.py for free-text phenotype preprocessing",
+            "diagnosis.py for HPO-based diagnosis workflow",
+            "diagnosisGene.py for HPO plus gene/genotype workflow",
+            "tools/ for specialized retrieval and analysis tools",
+            "api/interface.py for LLM provider abstraction",
+            "inference.sh, inference_gene.sh and extract_hpo.sh for runnable pipelines",
+        ],
+        "web_engineering_reference": [
+            "FastAPI workflow packaging",
+            "central host backed by a local DeepSeek-V3 deployment in the reference implementation",
+            "Redis session management",
+            "SQL persistent storage",
+            "Exomiser integration for gene/VCF-oriented analysis",
+        ],
+        "raredbridge_adaptation_policy": [
+            "Use the repository to map functional modules and deployment patterns.",
+            "Do not vendor, copy, or depend on DeepRare source code in this platform.",
+            "Implement RareDBridge Dx as a separate A2A-native capability using our own local disease DB and APIs.",
+        ],
     },
     "problem_formulation": {
         "input_modalities": [

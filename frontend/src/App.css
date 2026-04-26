@@ -675,16 +675,6 @@ main {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.paper-agent-grid {
-  margin-top: 18px;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-
-.paper-workflow-grid {
-  margin-top: 18px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
 .source-card strong {
   display: block;
   margin-bottom: 6px;

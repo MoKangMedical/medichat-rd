@@ -506,6 +506,7 @@ async def raredbridge_capability():
         "inspired_by": [
             "https://www.nature.com/articles/s41586-025-10097-9",
             "https://deeprare.cn",
+            "https://github.com/MAGIC-AI4Med/DeepRare",
             "https://www.icthealth.org/news/deeprare-ai-outperforms-physicians-in-rare-disease-diagnosis",
         ],
         "benchmark_context": [
@@ -519,6 +520,7 @@ async def raredbridge_capability():
             "候选诊断排序",
             "可追溯证据链",
             "自反复核与缺口提示",
+            "DeepRare GitHub 模块映射，不复制其源码",
         ],
         "limitations": [
             "当前版本使用本地罕见病知识库和 HPO 种子表",
