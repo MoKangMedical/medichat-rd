@@ -65,3 +65,4 @@ scripts/generate_technical_white_paper_50000.py
 *.pem
 *_secret*
 credentials.json
+pharma-b2b/*.db
