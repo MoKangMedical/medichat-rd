@@ -72,6 +72,81 @@ const ANONYMIZED_CASES = [
       gender: 'male',
     },
   },
+  {
+    label: '匿名案例 C',
+    title: '神经发育异常伴癫痫',
+    phenotype: '发育迟缓 / 智力发育受累 / 癫痫 / 肢体发育异常',
+    privacy: '已去除原病例编号、队伍成员信息、精确位点坐标、转录本号、检查日期和机构地点',
+    question: '多系统神经发育表型与测序结果之间存在候选变异，核心问题是如何把 VUS 级线索升级成可复核的诊断证据。',
+    evidence: [
+      '三联体分析提示某神经发育相关候选为新发错义变异，但公开展示不暴露具体坐标。',
+      '表型、遗传模式、低频证据和计算预测共同支持优先级上调。',
+      '另一个复合杂合候选仍需保留，但因人群频率和证据强度限制，不应过早确诊。',
+    ],
+    turn: '诊断路径从“候选变异列表”转向“ACMG 证据矩阵 + 表型匹配 + 家系来源”的可追溯升级判断。',
+    next: [
+      '复核新发来源和亲子关系质量控制。',
+      '补充表型-疾病谱匹配证据，形成可审计的证据表。',
+      '对次级候选做分离验证和功能域证据复核。',
+      '输出 LP/VUS 边界判断，供临床遗传团队复核。',
+    ],
+    preset: {
+      text: '儿童存在发育迟缓、智力发育受累、癫痫发作和肢体发育异常，三联体测序提示一个神经发育相关新发错义候选，同时还有一个证据不足的复合杂合候选。请帮助用 ACMG 证据、表型匹配和家系来源梳理诊断优先级。',
+      age: '',
+      gender: '',
+    },
+  },
+  {
+    label: '匿名案例 D',
+    title: '面肩肱肌营养不良谱系疑案',
+    phenotype: '面肩肱肌无力 / 翼状肩胛 / 足下垂 / 表观遗传线索',
+    privacy: '已去除原病例编号、精确重复次数、单倍型细节、样本图像和家系可识别信息',
+    question: '临床表现像 FSHD，但常规 1 型解释不足，核心问题是如何通过表观遗传机制重新定位。',
+    evidence: [
+      '重复区域结果不支持典型 1 型机制，不能只按单一路径结束分析。',
+      '甲基化降低为 2 型或表观遗传相关机制提供方向。',
+      '病程、体征和分子证据需要放在同一张时间轴和机制分流图中解释。',
+    ],
+    turn: '诊断路径从“是否为 FSHD1”转向“FSHD 谱系机制分型和表观遗传验证”。',
+    next: [
+      '复核相关重复区域、单倍型和甲基化检测质量。',
+      '补充 FSHD2 相关基因和表观遗传调控线索。',
+      '用病程时间轴标注肌力、步态、肩胛和呼吸功能变化。',
+      '生成遗传咨询、康复评估和随访监测清单。',
+    ],
+    preset: {
+      text: '患者存在面肩肱肌无力、翼状肩胛和足下垂，临床表现符合面肩肱肌营养不良谱系，但常规 1 型机制证据不足，甲基化结果提示可能存在表观遗传机制。请帮助建立机制分流和下一步验证路径。',
+      age: '',
+      gender: '',
+    },
+  },
+];
+
+const VISUALIZATION_MODES = [
+  {
+    title: 'VCF + HPO 多 Agent 工作流',
+    summary: '把患者叙述、VCF/候选变异和 HPO 表型放进同一条流水线，明确每个 Agent 负责的证据层。',
+    chips: ['输入层', 'HPO 标准化', '变异分诊', 'ACMG 证据', '报告输出'],
+    output: '适合展示“从原始数据到可复核结论”的全过程。',
+  },
+  {
+    title: 'ACMG 证据矩阵',
+    summary: '把新发来源、功能域、人群频率、计算预测、表型特异性和文献证据拆成可审计格子。',
+    chips: ['PS/PM/PP', '证据强度', '冲突证据', '升级边界', '审计备注'],
+    output: '适合展示 VUS 到 LP 边界判断，避免黑箱式结论。',
+  },
+  {
+    title: '患者病程时间轴',
+    summary: '用年龄段而非精确日期展示症状、检查、治疗反应和关键诊断转向，保护身份同时保留临床逻辑。',
+    chips: ['早期表现', '关键检查', '诊断转向', '验证动作', '随访节点'],
+    output: '适合患者、医生和团队快速对齐“发生了什么”。',
+  },
+  {
+    title: '机制分流图',
+    summary: '把相似表型按不同机制拆开，例如单基因、重复扩增、甲基化、免疫、可治疗 mimic。',
+    chips: ['分型入口', '排除依据', '支持证据', '下一验证', '临床动作'],
+    output: '适合展示“为什么不是 A，而要转向 B/C”。',
+  },
 ];
 
 function PhenotypeTag({ hpo_id, name, confidence }) {
@@ -228,8 +303,40 @@ export default function DeepRarePanel() {
             ))}
           </div>
           <p className="deeprare-case-disclaimer">
-            展示内容仅用于说明 RareDBridge 的推理路径，不包含原始病例编号、个人身份、机构、日期或可回溯原始报告的信息，不能替代临床诊断。
+            展示内容仅用于说明 RareDBridge / RareProfiler 的推理路径，不包含原始病例编号、个人身份、机构、日期或可回溯原始报告的信息，不能替代临床诊断。
           </p>
+        </section>
+
+        <section className="result-panel deeprare-visual-showcase">
+          <div className="section-head">
+            <span>脱敏可视化呈现模式</span>
+            <span className="section-note">参考 RareProfiler 的汇报结构，转成平台可复用组件</span>
+          </div>
+          <div className="deeprare-visual-board">
+            {VISUALIZATION_MODES.map((mode, index) => (
+              <article key={mode.title} className="deeprare-visual-card">
+                <div className="deeprare-visual-index">{String(index + 1).padStart(2, '0')}</div>
+                <div>
+                  <h3>{mode.title}</h3>
+                  <p>{mode.summary}</p>
+                  <div className="deeprare-visual-chip-row">
+                    {mode.chips.map((chip) => (
+                      <span key={chip}>{chip}</span>
+                    ))}
+                  </div>
+                  <div className="deeprare-visual-output">{mode.output}</div>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="deeprare-visual-flow" aria-label="脱敏展示流程">
+            {['病例脱敏', '表型抽象', '证据矩阵', '机制分流', '下一步动作'].map((step, index) => (
+              <div key={step} className="deeprare-visual-flow-step">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <strong>{step}</strong>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="deeprare-workbench">

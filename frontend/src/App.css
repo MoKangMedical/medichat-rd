@@ -5262,6 +5262,103 @@ button.disease-orbit-variable-card:disabled {
   font-size: 0.88rem;
 }
 
+.deeprare-visual-showcase {
+  margin-top: 18px;
+}
+
+.deeprare-visual-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.deeprare-visual-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(12, 24, 49, 0.045);
+  border: 1px solid rgba(12, 24, 49, 0.07);
+}
+
+.deeprare-visual-index {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(13, 191, 155, 0.14);
+  color: var(--mint-deep);
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+}
+
+.deeprare-visual-card h3 {
+  margin: 0;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-size: 1rem;
+}
+
+.deeprare-visual-card p {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  line-height: 1.75;
+}
+
+.deeprare-visual-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.deeprare-visual-chip-row span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.deeprare-visual-output {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid rgba(13, 191, 155, 0.62);
+  color: var(--ink);
+  background: rgba(13, 191, 155, 0.08);
+  border-radius: 12px;
+  line-height: 1.7;
+}
+
+.deeprare-visual-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.deeprare-visual-flow-step {
+  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(12, 24, 49, 0.9), rgba(23, 58, 104, 0.82));
+  color: white;
+}
+
+.deeprare-visual-flow-step span {
+  display: block;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.deeprare-visual-flow-step strong {
+  display: block;
+  margin-top: 8px;
+  line-height: 1.35;
+}
+
 .deeprare-workbench {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
@@ -5618,6 +5715,8 @@ button.disease-orbit-variable-card:disabled {
   .related-grid,
   .deeprare-hero,
   .deeprare-case-grid,
+  .deeprare-visual-board,
+  .deeprare-visual-flow,
   .deeprare-workbench,
   .quick-card-grid {
     grid-template-columns: 1fr;
