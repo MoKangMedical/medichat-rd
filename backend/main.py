@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse, FileResponse, HTMLResponse, JSO
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Dict, Optional, List
 from datetime import datetime
 import uuid
 import os
@@ -104,7 +104,8 @@ async def security_mw(request: Request, call_next):
         if _xss_re.search(body):
             return JSONResponse(status_code=400, content={"error": "invalid_input"})
     resp = await call_next(request)
-    resp.headers.pop("server", None)
+    if "server" in resp.headers:
+        del resp.headers["server"]
     return resp
 
 # 初始化MIMO客户端

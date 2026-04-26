@@ -297,6 +297,43 @@ export default function DeepRarePanel() {
               </section>
             )}
 
+            {result.workflow_phase_status?.length > 0 && (
+              <section className="result-panel">
+                <div className="section-head">
+                  <span>论文五阶段工作流</span>
+                  <span className="section-note">保留原工作台结构，仅补充 DeepRare 方法状态</span>
+                </div>
+                <div className="deeprare-action-grid">
+                  {result.workflow_phase_status.map((item) => (
+                    <div key={item.phase} className="deeprare-action-card">
+                      <span className="reason-mark" />
+                      <p><strong>{item.phase}</strong> · {item.status}</p>
+                      <p>{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {result.github_module_mapping?.length > 0 && (
+              <section className="result-panel">
+                <div className="section-head">
+                  <span>DeepRare GitHub 开源模块映射</span>
+                  <span className="section-note">参考 MAGIC-AI4Med/DeepRare，不复制其源码</span>
+                </div>
+                <div className="deeprare-action-grid">
+                  {result.github_module_mapping.map((item) => (
+                    <div key={item.module} className="deeprare-action-card">
+                      <span className="reason-mark" />
+                      <p><strong>{item.module}</strong></p>
+                      <p>{item.capability}</p>
+                      <p>{item.medichat_mapping}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {reasoningLines.length > 0 && (
               <section className="result-panel">
                 <div className="section-head">
