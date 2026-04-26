@@ -502,6 +502,7 @@ async def raredbridge_capability():
     return {
         "name": "RareDBridge Dx",
         "description": "面向罕见病的可追溯差异诊断能力，支持自由文本、HPO、基因和变异线索。",
+        "paper_methodology": raredbridge_dx.get_methodology(),
         "inspired_by": [
             "https://www.nature.com/articles/s41586-025-10097-9",
             "https://deeprare.cn",
@@ -525,6 +526,11 @@ async def raredbridge_capability():
             "结果仅作为临床决策支持，不替代医生诊断",
         ],
     }
+
+
+@app.get("/api/v2/raredbridge/paper-framework")
+async def raredbridge_paper_framework():
+    return raredbridge_dx.get_methodology()
 
 
 @app.post("/api/v2/raredbridge/diagnosis")

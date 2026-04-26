@@ -675,6 +675,7 @@
       <nav class="nav-links">
         <a href="#capabilities">核心能力</a>
         <a href="#flow">使用流程</a>
+        <a href="#paper-theory">论文理论</a>
         <a href="#alliance">联盟资源</a>
         <a href="#data">数据源</a>
         <a href="#architecture">技术架构</a>
@@ -858,6 +859,51 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="paper-theory">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">DeepRare 论文理论落地</div>
+          <h2>从三层 Agentic 架构，到可追溯诊断闭环</h2>
+          <p>根据本地论文 PDF《An agentic system for rare disease diagnosis with traceable reasoning》抽象方法论，并映射为 RareDBridge 自己的产品能力。</p>
+        </div>
+
+        <div class="flow-grid">
+          <article class="flow-card">
+            <span>已落地</span>
+            <h3>中央 Host + 记忆库</h3>
+            <p>负责任务拆解、证据综合、候选生成和自反复核；在我们平台中对应 A2A Orchestrator、session artifacts 和 RareDBridge Dx 报告生成。</p>
+          </article>
+          <article class="flow-card">
+            <span>部分落地</span>
+            <h3>专用 Agent Servers</h3>
+            <p>表型抽取、疾病标准化、知识检索、相似病例检索、表型分析和基因型分析，被映射为诊断 Agent 与后续工具适配器。</p>
+          </article>
+          <article class="flow-card">
+            <span>持续扩展</span>
+            <h3>外部证据环境</h3>
+            <p>用文献、指南、罕见病知识库、相似病例库和遗传变异库支撑可追溯推理；当前已接入本地病种库、证据链接和 MCP 数据源。</p>
+          </article>
+        </div>
+
+        <div class="data-grid" style="margin-top: 18px;">
+          <article class="data-card"><strong>Phenotype Extractor</strong><p>自由文本转 HPO/表型信号，HPO 种子表已实现。</p></article>
+          <article class="data-card"><strong>Disease Normalizer</strong><p>候选疾病标准化到 OMIM/Orphanet 等标识，本地病种库已实现。</p></article>
+          <article class="data-card"><strong>Knowledge Searcher</strong><p>检索文献、指南、数据库和可信网页，MCP 与证据链接部分实现。</p></article>
+          <article class="data-card"><strong>Case Searcher</strong><p>基于 HPO profile 检索相似病例并复核相关性，作为下一阶段路线图。</p></article>
+          <article class="data-card"><strong>Phenotype Analyser</strong><p>调用表型诊断工具或本地排序器，本地排序器已实现。</p></article>
+          <article class="data-card"><strong>Genotype Analyser</strong><p>结合 VCF、Exomiser、ClinVar 和人群频率做变异优先级排序，VCF 待接入。</p></article>
+        </div>
+
+        <div class="flow-grid" style="margin-top: 18px;">
+          <article class="flow-card"><span>01</span><h3>临床资料录入</h3><p>采集年龄、性别、家族史、主诉、检查摘要、基因和变异线索，并预留 VCF/检验/影像上传。</p></article>
+          <article class="flow-card"><span>02</span><h3>系统化临床追问</h3><p>围绕系统受累、疾病进展、阴性体征和遗传方式生成下一轮追问，减少信息缺口。</p></article>
+          <article class="flow-card"><span>03</span><h3>HPO 表型映射</h3><p>把临床语言标准化为 HPO 或本地 phenotype signal，支持医生后续修订。</p></article>
+          <article class="flow-card"><span>04</span><h3>诊断分析与自反复核</h3><p>综合表型、基因、变异、文献和知识库证据，生成候选诊断并验证或反驳假设。</p></article>
+          <article class="flow-card"><span>05</span><h3>可追溯报告导出</h3><p>输出排序、理由、证据链接、缺失信息和下一步建议，后续扩展 PDF/Word 与病历归档。</p></article>
         </div>
       </div>
     </section>

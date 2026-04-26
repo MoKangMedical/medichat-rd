@@ -65,6 +65,115 @@ HPO_SEED_TERMS = {
     "肾血管平滑肌脂肪瘤": {"hpo_id": "HP:0006772", "term": "Renal angiomyolipoma"},
 }
 
+DEEPRARE_METHOD_FRAMEWORK = {
+    "source": {
+        "title": "An agentic system for rare disease diagnosis with traceable reasoning",
+        "doi": "10.1038/s41586-025-10097-9",
+        "local_pdf": "/Users/linzhang/Downloads/罕见病-An agentic system for rare disease diagnosis with traceable reasoning.pdf",
+        "role": "Methodology reference. RareDBridge implements its own platform module and does not copy DeepRare code, data, weights, or performance claims.",
+    },
+    "problem_formulation": {
+        "input_modalities": [
+            "free_text_clinical_description",
+            "structured_hpo_terms",
+            "gene_or_variant_summary",
+            "future_raw_vcf_or_lab_files",
+        ],
+        "output_objects": [
+            "ranked_differential_diagnoses",
+            "evidence_grounded_reasoning_chain",
+            "self_reflection_gaps",
+            "clinician_review_report",
+        ],
+    },
+    "three_tier_architecture": [
+        {
+            "tier": "central_host_with_memory",
+            "paper_role": "Coordinate diagnostic workflow, synthesize evidence, generate and re-check hypotheses.",
+            "raredbridge_mapping": "A2A orchestrator plus RareDBridge Dx report builder and session artifacts.",
+            "status": "implemented",
+        },
+        {
+            "tier": "specialized_agent_servers",
+            "paper_role": "Run phenotype, genotype, retrieval, case search and normalization tools.",
+            "raredbridge_mapping": "Diagnosis Agent, phenotype Agent, evidence Agent, trial Agent and planned external tool adapters.",
+            "status": "partially_implemented",
+        },
+        {
+            "tier": "external_evidence_environment",
+            "paper_role": "Use medical literature, rare disease knowledge bases, similar cases and genetic variant resources.",
+            "raredbridge_mapping": "Local rare disease DB, HPO seed table, OMIM/PubMed/Orphanet links, MCP evidence APIs and future case-bank/VCF integrations.",
+            "status": "partially_implemented",
+        },
+    ],
+    "agent_server_map": [
+        {
+            "agent": "phenotype_extractor",
+            "paper_function": "Convert free-text clinical descriptions into standardized HPO-like phenotype entities.",
+            "raredbridge_status": "implemented_seed",
+        },
+        {
+            "agent": "disease_normalizer",
+            "paper_function": "Normalize candidate disease names to controlled disease identifiers.",
+            "raredbridge_status": "implemented_local_db",
+        },
+        {
+            "agent": "knowledge_searcher",
+            "paper_function": "Retrieve and summarize literature, rare disease databases and reliable medical pages.",
+            "raredbridge_status": "partially_implemented_mcp_and_links",
+        },
+        {
+            "agent": "case_searcher",
+            "paper_function": "Search similar patient cases based on HPO profile similarity and re-rank relevance.",
+            "raredbridge_status": "roadmap",
+        },
+        {
+            "agent": "phenotype_analyser",
+            "paper_function": "Call phenotype-driven diagnostic tools and combine their suggestions.",
+            "raredbridge_status": "implemented_local_ranker",
+        },
+        {
+            "agent": "genotype_analyser",
+            "paper_function": "Prioritize variants with HPO context and genetic databases.",
+            "raredbridge_status": "roadmap_variant_summary_now_vcf_next",
+        },
+    ],
+    "web_workflow": [
+        {
+            "phase": "clinical_data_entry",
+            "label": "临床资料录入",
+            "paper_function": "Collect demographics, family history, symptoms and optional clinical/genomic files.",
+        },
+        {
+            "phase": "systematic_clinical_enquiry",
+            "label": "系统化追问",
+            "paper_function": "Clarify organ involvement, disease progression and family/genetic clues.",
+        },
+        {
+            "phase": "hpo_phenotype_mapping",
+            "label": "HPO 表型映射",
+            "paper_function": "Map clinical input to standardized phenotype terms with clinician curation.",
+        },
+        {
+            "phase": "diagnostic_analysis",
+            "label": "诊断分析输出",
+            "paper_function": "Invoke tools, literature and case evidence to rank diagnoses and treatment clues.",
+        },
+        {
+            "phase": "report_export",
+            "label": "报告导出",
+            "paper_function": "Export structured clinical reports for documentation and follow-up.",
+        },
+    ],
+    "diagnostic_loop": [
+        "information_collection",
+        "hypothesis_generation",
+        "self_reflection_validation_or_refutation",
+        "evidence_linked_rationale",
+        "ranked_report",
+    ],
+}
+
 
 class RareDBridgeDiagnosisEngine:
     """Local traceable diagnosis engine for the platform."""
@@ -112,6 +221,7 @@ class RareDBridgeDiagnosisEngine:
         return {
             "capability": "RareDBridge Dx",
             "timestamp": datetime.now().isoformat(),
+            "paper_methodology": self.get_methodology(),
             "input_summary": {
                 "case_text": case_text,
                 "age": age,
@@ -123,6 +233,14 @@ class RareDBridgeDiagnosisEngine:
             "normalized_phenotypes": normalized_hpo,
             "ranked_diagnoses": candidates,
             "reasoning_chain": reasoning_chain,
+            "workflow_phase_status": self._workflow_phase_status(
+                case_text=case_text,
+                normalized_hpo=normalized_hpo,
+                genes=normalized_genes,
+                variants=normalized_variants,
+                candidates=candidates,
+                reflection=reflection,
+            ),
             "self_reflection": reflection,
             "report": self._build_report(candidates, normalized_hpo, reflection),
             "references": [
@@ -149,6 +267,9 @@ class RareDBridgeDiagnosisEngine:
             ],
             "disclaimer": "本结果用于罕见病诊断决策支持，不构成临床诊断。需要由遗传科、专科医生结合检查和基因检测复核。",
         }
+
+    def get_methodology(self) -> Dict[str, Any]:
+        return DEEPRARE_METHOD_FRAMEWORK
 
     def _normalize_phenotypes(self, case_text: str, hpo_terms: List[str]) -> List[Dict[str, Any]]:
         normalized: List[Dict[str, Any]] = []
@@ -384,6 +505,49 @@ class RareDBridgeDiagnosisEngine:
             f"建议下一步：{top['diagnosis_method']}。"
             f"需要补充的信息：{'；'.join(reflection['missing_information']) if reflection['missing_information'] else '暂无关键缺口。'}"
         )
+
+    def _workflow_phase_status(
+        self,
+        *,
+        case_text: str,
+        normalized_hpo: List[Dict[str, Any]],
+        genes: List[str],
+        variants: List[Dict[str, Any]],
+        candidates: List[Dict[str, Any]],
+        reflection: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        return [
+            {
+                "phase": "clinical_data_entry",
+                "label": "临床资料录入",
+                "status": "active" if case_text else "missing",
+                "detail": "已接收病例文本、人口学信息、家族史、基因和变异摘要；原始 VCF/影像/检验文件为下一阶段能力。",
+            },
+            {
+                "phase": "systematic_clinical_enquiry",
+                "label": "系统化追问",
+                "status": "needs_review" if reflection["missing_information"] else "sufficient_for_first_pass",
+                "detail": "通过自反复核列出缺失信息，用于下一轮病史、系统受累和遗传方式追问。",
+            },
+            {
+                "phase": "hpo_phenotype_mapping",
+                "label": "HPO 表型映射",
+                "status": "active" if normalized_hpo else "missing",
+                "detail": f"已标准化或保留 {len(normalized_hpo)} 个表型信号；当前使用 HPO 种子词表，完整 HPO 检索为路线图。",
+            },
+            {
+                "phase": "diagnostic_analysis",
+                "label": "诊断分析输出",
+                "status": "active" if candidates else "insufficient_evidence",
+                "detail": f"已结合表型、{len(genes)} 个基因和 {len(variants)} 条变异线索生成 {len(candidates)} 个候选诊断。",
+            },
+            {
+                "phase": "report_export",
+                "label": "报告导出",
+                "status": "text_report_available",
+                "detail": "当前可生成结构化文本报告；PDF/Word 导出和电子病历归档为后续产品能力。",
+            },
+        ]
 
     def _extract_fallback_symptoms(self, case_text: str) -> List[str]:
         result = []

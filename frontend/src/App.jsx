@@ -231,6 +231,64 @@ const allianceResources = [
   },
 ];
 
+const paperTheoryBlocks = [
+  {
+    title: '中央 Host + 记忆库',
+    subtitle: 'Central host with memory',
+    desc: '负责诊断任务拆解、证据综合、候选生成和自反复核；在我们平台中对应 A2A Orchestrator、session artifacts 和 RareDBridge Dx 报告生成。',
+    status: '已落地',
+  },
+  {
+    title: '专用 Agent Servers',
+    subtitle: 'Phenotype / genotype / retrieval tools',
+    desc: '论文中的表型抽取、疾病标准化、知识检索、相似病例检索、表型分析和基因型分析，被映射为诊断 Agent 及后续工具适配器。',
+    status: '部分落地',
+  },
+  {
+    title: '外部证据环境',
+    subtitle: 'Literature, cases, OMIM, HPO, variants',
+    desc: '用文献、指南、罕见病知识库、相似病例库和遗传变异库支撑可追溯推理；当前已接入本地病种库、证据链接和 MCP 数据源。',
+    status: '持续扩展',
+  },
+];
+
+const paperAgentModules = [
+  { name: 'Phenotype Extractor', desc: '自由文本转 HPO/表型信号', status: 'HPO 种子表已实现' },
+  { name: 'Disease Normalizer', desc: '候选疾病标准化到 OMIM/Orphanet 等标识', status: '本地病种库已实现' },
+  { name: 'Knowledge Searcher', desc: '检索文献、指南、数据库和可信网页', status: 'MCP 与证据链接部分实现' },
+  { name: 'Case Searcher', desc: '基于 HPO profile 检索相似病例并复核相关性', status: '路线图' },
+  { name: 'Phenotype Analyser', desc: '调用 PhenoBrain/PubCaseFinder 类工具或本地排序器', status: '本地排序器已实现' },
+  { name: 'Genotype Analyser', desc: '结合 VCF、Exomiser、ClinVar 和人群频率做变异优先级排序', status: '变异摘要已实现，VCF 待接入' },
+];
+
+const paperWorkflowStages = [
+  {
+    step: '01',
+    title: '临床资料录入',
+    desc: '采集年龄、性别、家族史、主诉、检查摘要、基因和变异线索，并预留 VCF/检验/影像上传。',
+  },
+  {
+    step: '02',
+    title: '系统化临床追问',
+    desc: '围绕系统受累、疾病进展、阴性体征和遗传方式生成下一轮追问，减少信息缺口。',
+  },
+  {
+    step: '03',
+    title: 'HPO 表型映射',
+    desc: '把临床语言标准化为 HPO 或本地 phenotype signal，支持医生后续修订。',
+  },
+  {
+    step: '04',
+    title: '诊断分析与自反复核',
+    desc: '综合表型、基因、变异、文献和知识库证据，生成候选诊断并验证或反驳假设。',
+  },
+  {
+    step: '05',
+    title: '可追溯报告导出',
+    desc: '输出排序、理由、证据链接、缺失信息和下一步建议，后续扩展 PDF/Word 与病历归档。',
+  },
+];
+
 const dataSources = [
   { name: 'OpenTargets', type: '靶点与疾病关联' },
   { name: 'ChEMBL', type: '药物与化合物' },
@@ -1689,6 +1747,24 @@ function RareDBridgeDiagnosisWorkspace({ a2aMode }) {
             </div>
           </div>
 
+          {result.workflow_phase_status?.length ? (
+            <div className="result-card">
+              <div className="card-topline">论文五阶段工作流映射</div>
+              <div className="card-grid">
+                {result.workflow_phase_status.map((phase) => (
+                  <article key={phase.phase} className="mini-card">
+                    <div className="mini-card-top">
+                      <code>{phase.phase}</code>
+                      <span>{phase.status}</span>
+                    </div>
+                    <strong>{phase.label}</strong>
+                    <p>{phase.detail}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="result-card prose-card">
             <div className="card-topline">自反复核与报告</div>
             <TextBlock text={result.report} />
@@ -1792,6 +1868,7 @@ function App() {
         <nav className="nav-links">
           <a href="#capabilities">核心能力</a>
           <a href="#a2a">A2A 模式</a>
+          <a href="#paper-theory">论文理论</a>
           <a href="#alliance">联盟资源</a>
           <a href="#sources">数据源</a>
           <a href="#architecture">技术架构</a>
@@ -1947,6 +2024,46 @@ function App() {
                 </button>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="paper-theory" className="content-section">
+          <SectionHeader
+            eyebrow="DeepRare 论文理论落地"
+            title="从三层 Agentic 架构，到可追溯诊断闭环"
+            description="根据本地 PDF《An agentic system for rare disease diagnosis with traceable reasoning》抽象出方法论，并映射为 RareDBridge 自己的产品能力。"
+            align="center"
+          />
+
+          <div className="flow-grid">
+            {paperTheoryBlocks.map((block) => (
+              <article key={block.title} className="flow-card">
+                <span>{block.status}</span>
+                <strong>{block.title}</strong>
+                <p>{block.subtitle}</p>
+                <p>{block.desc}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="source-grid paper-agent-grid">
+            {paperAgentModules.map((agent) => (
+              <article key={agent.name} className="source-card">
+                <strong>{agent.name}</strong>
+                <p>{agent.desc}</p>
+                <p>{agent.status}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="flow-grid paper-workflow-grid">
+            {paperWorkflowStages.map((stage) => (
+              <article key={stage.step} className="flow-card">
+                <span>{stage.step}</span>
+                <strong>{stage.title}</strong>
+                <p>{stage.desc}</p>
+              </article>
+            ))}
           </div>
         </section>
 
