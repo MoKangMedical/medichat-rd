@@ -619,6 +619,181 @@ export default function DeepRarePanel() {
               </div>
             </section>
 
+            {(result.phenotype_profile || result.mechanism_routing?.length > 0 || result.acmg_evidence_matrix?.length > 0) && (
+              <section className="result-panel deeprare-domain-panel">
+                <div className="section-head">
+                  <span>领域知识推理层</span>
+                  <span className="section-note">HPO + 机制分流 + ACMG + 可治疗性 + Phenopacket</span>
+                </div>
+
+                {result.phenotype_profile && (
+                  <div className="deeprare-domain-summary">
+                    <div className="deeprare-domain-focus">
+                      <small>表型特异性</small>
+                      <strong>{result.phenotype_profile.specificity_score || 0}%</strong>
+                      <span>{result.phenotype_profile.hpo_count || 0} 个 HPO · {result.phenotype_profile.systems?.length || 0} 个系统</span>
+                    </div>
+                    <div className="deeprare-domain-facts">
+                      <div>
+                        <small>起病阶段</small>
+                        <strong>{result.phenotype_profile.onset?.label || '未明确'}</strong>
+                        <p>{result.phenotype_profile.onset?.evidence}</p>
+                      </div>
+                      <div>
+                        <small>进展模式</small>
+                        <strong>{result.phenotype_profile.progression?.label || '未明确'}</strong>
+                        <p>{result.phenotype_profile.progression?.evidence}</p>
+                      </div>
+                      <div>
+                        <small>阴性/边界信号</small>
+                        <strong>{result.phenotype_profile.negative_or_boundary_signals?.length || 0} 条</strong>
+                        <p>{result.phenotype_profile.negative_or_boundary_signals?.slice(0, 2).join('；')}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {result.mechanism_routing?.length > 0 && (
+                  <div className="deeprare-domain-block">
+                    <div className="deeprare-domain-title">
+                      <strong>机制分流</strong>
+                      <span>先判断机制，再决定下一项验证</span>
+                    </div>
+                    <div className="deeprare-mechanism-grid">
+                      {result.mechanism_routing.slice(0, 6).map((route) => (
+                        <article key={route.mechanism} className="deeprare-mechanism-card">
+                          <div className="deeprare-mechanism-head">
+                            <strong>{route.mechanism}</strong>
+                            <span>{route.score}%</span>
+                          </div>
+                          <div className="deeprare-evidence-track">
+                            <span className={route.score >= 80 ? 'tone-gold' : 'tone-blue'} style={{ width: `${route.score}%` }} />
+                          </div>
+                          <p>{route.status}</p>
+                          <small>{route.next_action}</small>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {result.acmg_evidence_matrix?.length > 0 && (
+                  <div className="deeprare-domain-block">
+                    <div className="deeprare-domain-title">
+                      <strong>ACMG/AMP 证据矩阵</strong>
+                      <span>把 VUS/LP 边界拆成可审计证据</span>
+                    </div>
+                    <div className="deeprare-acmg-grid">
+                      {result.acmg_evidence_matrix.slice(0, 3).map((candidate) => (
+                        <article key={candidate.candidate} className="deeprare-acmg-card">
+                          <div className="deeprare-acmg-head">
+                            <strong>{candidate.candidate}</strong>
+                            <span>{candidate.classification_boundary}</span>
+                          </div>
+                          <div className="deeprare-acmg-criteria">
+                            {candidate.criteria.map((criterion) => (
+                              <div key={`${candidate.candidate}-${criterion.code}`} className={`deeprare-acmg-chip status-${criterion.status}`}>
+                                <strong>{criterion.code}</strong>
+                                <span>{criterion.strength}</span>
+                                <small>{criterion.status}</small>
+                              </div>
+                            ))}
+                          </div>
+                          <p>{candidate.next_evidence?.[0]}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {(result.actionability_map?.length > 0 || result.agent_orchestration?.length > 0 || result.longitudinal_timeline?.length > 0) && (
+              <section className="result-panel deeprare-domain-panel">
+                <div className="section-head">
+                  <span>行动与协作闭环</span>
+                  <span className="section-note">把诊断结果转成下一步验证、Agent 分工和病程结构</span>
+                </div>
+
+                {result.actionability_map?.length > 0 && (
+                  <div className="deeprare-domain-block">
+                    <div className="deeprare-domain-title">
+                      <strong>可治疗性 / Mimic 安全网</strong>
+                      <span>先找不能漏掉、可干预的方向</span>
+                    </div>
+                    <div className="deeprare-actionability-grid">
+                      {result.actionability_map.slice(0, 5).map((item) => (
+                        <article key={`${item.target}-${item.type}`} className="deeprare-actionability-card">
+                          <div>
+                            <small>{item.type}</small>
+                            <strong>{item.target}</strong>
+                          </div>
+                          <div className="deeprare-actionability-score">{item.actionability_score}%</div>
+                          <p>{item.why_it_matters}</p>
+                          <span>{item.recommended_action}</span>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {result.agent_orchestration?.length > 0 && (
+                  <div className="deeprare-domain-block">
+                    <div className="deeprare-domain-title">
+                      <strong>A2A Agent 编排</strong>
+                      <span>把医学角色转成可执行 session orchestration</span>
+                    </div>
+                    <div className="deeprare-agent-rail">
+                      {result.agent_orchestration.map((agent) => (
+                        <div key={agent.agent} className={`deeprare-agent-node status-${agent.status}`}>
+                          <strong>{agent.agent}</strong>
+                          <span>{agent.status}</span>
+                          <p>{agent.domain_contract}</p>
+                          <small>{agent.output}</small>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="deeprare-domain-split">
+                  {result.longitudinal_timeline?.length > 0 && (
+                    <div className="deeprare-domain-block compact">
+                      <div className="deeprare-domain-title">
+                        <strong>病程时间轴</strong>
+                        <span>年龄段替代精确日期</span>
+                      </div>
+                      <div className="deeprare-timeline">
+                        {result.longitudinal_timeline.map((event) => (
+                          <div key={`${event.timepoint}-${event.event}`} className="deeprare-timeline-row">
+                            <span />
+                            <div>
+                              <small>{event.timepoint}</small>
+                              <strong>{event.event}</strong>
+                              <p>{event.evidence}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {result.phenopacket_lite && (
+                    <div className="deeprare-domain-block compact">
+                      <div className="deeprare-domain-title">
+                        <strong>Phenopacket-lite</strong>
+                        <span>病例进入研究和随访的统一结构</span>
+                      </div>
+                      <div className="preview-box deeprare-phenopacket-preview">
+                        <span className="preview-title">{result.phenopacket_lite.id}</span>
+                        <pre>{JSON.stringify(result.phenopacket_lite, null, 2)}</pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
             {result.phenotypes?.length > 0 && (
               <section className="result-panel">
                 <div className="section-head">
