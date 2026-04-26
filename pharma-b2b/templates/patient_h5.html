@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MediChat-RD 患者健康助手</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f5f7fa;max-width:420px;margin:0 auto;color:#333}
+.hdr{background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:20px;text-align:center;border-radius:0 0 20px 20px}
+.hdr h1{font-size:18px}.hdr p{font-size:12px;opacity:.8;margin-top:4px}
+.wrap{padding:16px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.card h3{font-size:14px;color:#1a73e8;margin-bottom:10px}
+.btn{display:block;width:100%;padding:12px;background:#1a73e8;color:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer;margin-top:8px;text-align:center}
+.btn:active{background:#1557b0}
+.btn.green{background:#34a853}
+.btn.orange{background:#f9a825}
+.medicine-info{display:flex;align-items:center;gap:12px;padding:12px;background:#e3f2fd;border-radius:10px;margin-bottom:10px}
+.medicine-info .icon{font-size:28px}
+.medicine-info .detail{font-size:13px}.medicine-info .detail strong{display:block;font-size:15px}
+.next-dose{background:#fff3e0;border-radius:10px;padding:14px;text-align:center;margin:10px 0}
+.next-dose .time{font-size:24px;font-weight:700;color:#e65100}
+.next-dose .label{font-size:12px;color:#888}
+.chat-area{min-height:100px}
+.msg{padding:10px 14px;border-radius:12px;margin-bottom:8px;font-size:13px;line-height:1.6;max-width:85%}
+.msg.user{background:#e3f2fd;margin-left:auto;text-align:right}
+.msg.bot{background:#f1f8e9}
+.chat-input{display:flex;gap:8px;margin-top:10px}
+.chat-input input{flex:1;padding:10px;border:1px solid #ddd;border-radius:20px;font-size:14px}
+.chat-input button{padding:10px 16px;background:#1a73e8;color:#fff;border:none;border-radius:20px;font-size:14px}
+.adherence-bar{height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin:8px 0}
+.adherence-bar .fill{height:100%;border-radius:4px;transition:width .5s}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;margin:2px}
+.tag.green{background:#e6f4ea;color:#34a853}
+.tag.orange{background:#fef7e0;color:#f9a825}
+.tag.red{background:#fce8e6;color:#ea4335}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>💊 MediChat-RD 患者助手</h1>
+  <p>您的专属罕见病健康管家</p>
+</div>
+<div class="wrap">
+  <!-- 用药信息 -->
+  <div class="card">
+    <h3>💉 我的用药</h3>
+    <div class="medicine-info">
+      <div class="icon">💊</div>
+      <div class="detail">
+        <strong id="medName">阿糖苷酶α（美而赞）</strong>
+        <span id="medDose">每2周静脉输注一次 · 20mg/kg</span>
+      </div>
+    </div>
+    <div class="next-dose">
+      <div class="label">下次用药时间</div>
+      <div class="time" id="nextDose">05月09日</div>
+      <div class="label">还有 <strong>13天</strong></div>
+    </div>
+    <button class="btn orange" onclick="remindMe()">⏰ 设置用药提醒</button>
+  </div>
+
+  <!-- 依从性 -->
+  <div class="card">
+    <h3>📊 我的依从性</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:28px;font-weight:700;color:#34a853">85%</div>
+        <div style="font-size:12px;color:#888">过去30天服药率</div>
+      </div>
+      <div>
+        <span class="tag green">优秀</span>
+      </div>
+    </div>
+    <div class="adherence-bar"><div class="fill" style="width:85%;background:#34a853"></div></div>
+    <div style="font-size:12px;color:#888;margin-top:4px">本月已服药 5/6 次 · 坚持就是胜利💪</div>
+  </div>
+
+  <!-- 快捷服务 -->
+  <div class="card">
+    <h3>🩺 快捷服务</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn" onclick="sendQuick('用药指导')">💊 用药指导</button>
+      <button class="btn" onclick="sendQuick('副作用应对')">⚠️ 副作用</button>
+      <button class="btn" onclick="sendQuick('复查提醒')">📅 复查提醒</button>
+      <button class="btn" onclick="sendQuick('疾病知识')">📚 疾病知识</button>
+    </div>
+  </div>
+
+  <!-- AI对话 -->
+  <div class="card">
+    <h3>🤖 AI健康助手</h3>
+    <div class="chat-area" id="chatArea">
+      <div class="msg bot">您好！我是您的专属健康助手 🤖<br><br>我可以帮您：<br>• 💊 用药指导和提醒<br>• ⚠️ 副作用应对建议<br>• 📅 复查提醒<br>• 📚 疾病知识科普<br><br>请随时向我提问！</div>
+    </div>
+    <div class="chat-input">
+      <input id="chatInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">发送</button>
+    </div>
+  </div>
+
+  <!-- 健康档案 -->
+  <div class="card">
+    <h3>📁 健康档案</h3>
+    <div style="font-size:13px;line-height:2">
+      👤 患者ID：RD0001<br>
+      🏥 确诊疾病：庞贝病<br>
+      💊 当前用药：阿糖苷酶α<br>
+      📅 确诊时间：2024年3月<br>
+      🏥 主治医院：北京协和医院<br>
+      👨‍⚕️ 主治医师：张教授
+    </div>
+  </div>
+</div>
+
+<script>
+function sendQuick(q){
+  document.getElementById('chatInput').value=q;
+  sendMsg();
+}
+function sendMsg(){
+  const input=document.getElementById('chatInput');
+  const q=input.value.trim();if(!q)return;
+  const area=document.getElementById('chatArea');
+  area.innerHTML+=`<div class="msg user">${q}</div>`;
+  input.value='';
+  
+  const responses={
+    '用药':'💉 用药指导\n\n阿糖苷酶α每2周静脉输注一次。\n\n注意事项：\n1. 请提前预约输注中心\n2. 输注前请确保无发热/感染\n3. 输注后观察1小时\n4. 如出现过敏反应立即通知医护人员',
+    '副作用':'⚠️ 副作用应对\n\n常见副作用及处理：\n1. 输注反应（发热/寒战）→ 减慢输注速度\n2. 头痛 → 休息+多饮水\n3. 恶心 → 少量多餐\n4. 皮疹 → 记录并告知医生\n\n⚠️ 如出现呼吸困难/严重过敏，请立即拨打120！',
+    '复查':'📅 复查提醒\n\n建议每3个月复查：\n• 血常规\n• 肝肾功能\n• 心脏超声\n• 肺功能检测\n• 6分钟步行试验\n\n下次复查建议时间：2026年7月',
+    '知识':'📚 庞贝病知识\n\n庞贝病是一种罕见的遗传性代谢疾病，由酸性α-葡萄糖苷酶(GAA)缺乏引起。\n\n类型：\n• 婴儿型：出生后数月发病\n• 晚发型：儿童至成年发病\n\n治疗：\n• 酶替代疗法(ERT)是标准治疗\n• 早期治疗效果更好\n\n如需更多信息，请回复具体问题。'
+  };
+  
+  let response='感谢您的提问！我是您的AI健康助手，可以帮您解答用药、副作用、复查、疾病知识等问题。请告诉我具体需要什么帮助？';
+  for(let k in responses){
+    if(q.includes(k)){response=responses[k];break;}
+  }
+  
+  setTimeout(()=>{
+    area.innerHTML+=`<div class="msg bot">${response.replace(/\n/g,'<br>')}</div>`;
+    area.scrollTop=area.scrollHeight;
+  },500);
+}
+function remindMe(){
+  alert('✅ 用药提醒已设置！\n\n我们将在每次用药前3天、1天分别通过微信提醒您。');
+}
+</script>
+</body>
+</html>
