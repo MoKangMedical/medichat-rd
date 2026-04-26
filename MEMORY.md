@@ -8,6 +8,12 @@
 
 ## ⭐ 核心价值与原则
 
+### -1. 自动推送铁律 ⭐
+**规则**：每次创新产出（MVP/理论/文档）必须在10分钟内推送到GitHub
+**协议**：`projects/GITHUB_PUSH_PROTOCOL.md`
+**流程**：代码→commit→push → README更新→commit→push → 理论文档→commit→push → memory更新
+**目的**：GitHub实时呈现最新能力，不让产出积压
+
 ### 0. 理论宪法 — 全部理论的元框架 ⭐
 **文档**：`projects/THEORETICAL_CONSTITUTION.md`（v1.0 | 2026-04-19）
 - 四卷八章：认知论（鉴别诊断+知识驱动）→ 方法论（Harness+棘轮+归海）→ 价值论（红杉+OPC+思想基础设施）→ 元理论（统一架构+进化机制）
