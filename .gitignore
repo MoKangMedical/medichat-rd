@@ -1,9 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+*.egg
+scientific-runtime/.venv-science/
+scientific-runtime/.cache/
+scientific-runtime/.pytest_cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
 .env
 .env.local
-.env.production
-.env.*.local
-__pycache__/
-*.pyc
+.secrets/
+
+# Docker data
+postgres_data/
+redis_data/
+data/
+
+# OS
 .DS_Store
-.venv/
-node_modules/
+Thumbs.db
+
+# Logs
+*.log
+nohup.out
+
+# Demo视频和帧（太大不推GitHub）
+demo-video/frames*/
+demo-video/*.mp4
+demo-video/screenshots/
+pages/*.mp4
+
+# 临时文件
+*.pyc
+__pycache__/
+.env
+*.log
+
+# 商业计划书等敏感文件不上传
+docs/BUSINESS_PLAN.md
+docs/MEDIChat-RD_Business_Plan.docx
+docs/CAPABILITY_MATRIX.md
+docs/assets/architecture_v5.png
+scripts/generate_bp.py
+frontend/dist/capabilities.html
+docs/BUSINESS_PLAN_*.md
+docs/HOSPITAL_PARTNERSHIP_BRIEF.md
+docs/TECHNICAL_WHITE_PAPER_AI_RD_PLATFORM_50000.md
+scripts/generate_bp_*.py
+scripts/generate_technical_white_paper_50000.py
+*.key
+*.pem
+*_secret*
+credentials.json
+pharma-b2b/*.db
