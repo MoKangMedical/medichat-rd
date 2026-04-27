@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MediChat-RD 罕见病远程诊疗</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #007AFF;
+            --primary-dark: #0051D5;
+            --danger: #FF3B30;
+            --warning: #FF9500;
+            --success: #34C759;
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --text: #1C1C1E;
+            --text-secondary: #8E8E93;
+            --radius: 16px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            padding: 48px 20px 30px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { font-size: 24px; font-weight: 700; }
+        .header p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+        
+        /* 页面容器 */
+        .page { display: none; padding: 20px; max-width: 500px; margin: 0 auto; }
+        .page.active { display: block; }
+        
+        /* 卡片 */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* 病种选择 */
+        .disease-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .disease-card {
+            background: var(--card);
+            border: 2px solid #E5E5EA;
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .disease-card:hover, .disease-card.selected {
+            border-color: var(--primary);
+            background: #F0F7FF;
+        }
+        .disease-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .disease-card .name { font-size: 15px; font-weight: 600; }
+        .disease-card .icd { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+        
+        /* 评估问题 */
+        .question-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .question-number {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .options {
+            display: flex;
+            gap: 10px;
+        }
+        .option-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #E5E5EA;
+            border-radius: 12px;
+            background: white;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* 分析结果 */
+        .result-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+        .risk-high { background: #FFE5E5; color: var(--danger); }
+        .risk-medium { background: #FFF3E0; color: var(--warning); }
+        .risk-low { background: #E8F5E9; color: var(--success); }
+        .risk-score {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 16px 0;
+        }
+        .risk-detail { font-size: 14px; color: var(--text-secondary); line-height: 1.8; text-align: left; }
+        
+        /* 医院匹配 */
+        .hospital-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .hospital-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .hospital-info h3 { font-size: 16px; font-weight: 600; }
+        .hospital-info p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .hospital-badge {
+            background: var(--success);
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-top: 6px;
+            display: inline-block;
+        }
+        
+        /* 按钮 */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary:disabled { background: #C7C7CC; cursor: not-allowed; }
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        /* 进度条 */
+        .progress-bar {
+            height: 4px;
+            background: #E5E5EA;
+            border-radius: 2px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        /* 统计面板 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .stat-item {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        
+        /* 合作伙伴标记 */
+        .partner-section {
+            background: linear-gradient(135deg, #F0F7FF 0%, #F5F0FF 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .partner-title { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 12px; }
+        .partner-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .partner-tag {
+            background: white;
+            border: 1px solid #D1D1D6;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        /* 底部 */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* 动画 */
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 隐私声明 */
+        .privacy-note {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+        .privacy-note a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏥 MediChat-RD</h1>
+        <p>罕见病远程诊疗平台 · AI驱动 · 专业可靠</p>
+    </div>
+
+    <!-- 页面1：首页/病种选择 -->
+    <div class="page active" id="page-home">
+        <div class="card">
+            <div class="card-title">📋 选择您的病种</div>
+            <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">我们目前支持以下罕见病的AI辅助评估</p>
+            <div class="disease-grid" id="disease-grid"></div>
+        </div>
+        
+        <div class="partner-section">
+            <div class="partner-title">🏥 合作医疗机构</div>
+            <div class="partner-list" id="hospital-list"></div>
+        </div>
+        
+        <button class="btn btn-primary" id="btn-start" disabled onclick="startAssessment()">
+            开始AI健康评估 →
+        </button>
+        
+        <div class="privacy-note">
+            🔒 您的数据将严格保密，仅用于医疗评估<br>
+            <a href="#">《隐私政策》</a> · <a href="#">《用户协议》</a>
+        </div>
+    </div>
+
+    <!-- 页面2：AI评估问卷 -->
+    <div class="page" id="page-assessment">
+        <div class="card">
+            <div class="card-title" id="assessment-title">🔬 AI健康评估</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+                问题 <span id="current-q">1</span> / <span id="total-q">8</span>
+            </p>
+        </div>
+        <div id="question-container"></div>
+        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">
+            下一题 →
+        </button>
+        <button class="btn btn-outline" style="margin-top:12px" onclick="showPage('page-home')">
+            ← 返回选择病种
+        </button>
+    </div>
+
+    <!-- 页面3：评估结果 -->
+    <div class="page" id="page-result">
+        <div class="result-card fade-in" id="result-content"></div>
+        
+        <div class="hospital-card fade-in" id="matched-hospital" style="display:none"></div>
+        
+        <button class="btn btn-primary" id="btn-consult" onclick="createConsultation()" style="display:none">
+            🩺 立即预约远程问诊
+        </button>
+        <button class="btn btn-outline" style="margin-top:12px" onclick="showPage('page-home')">
+            重新评估
+        </button>
+    </div>
+
+    <!-- 页面4：问诊确认 -->
+    <div class="page" id="page-consultation">
+        <div class="card fade-in">
+            <div class="card-title">✅ 问诊已安排</div>
+            <div id="consult-info"></div>
+        </div>
+        
+        <div class="partner-section fade-in">
+            <div class="partner-title">📋 后续流程</div>
+            <div style="font-size:14px;line-height:2;">
+                1️⃣ 专科医生将在 <strong>15分钟内</strong> 接诊<br>
+                2️⃣ 通过微信视频/语音进行远程问诊<br>
+                3️⃣ 医生出具诊疗方案和处方<br>
+                4️⃣ 合作药房配送药品到家
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="showPage('page-home')">
+            返回首页
+        </button>
+    </div>
+
+    <div class="footer">
+        MediChat-RD · 罕见病远程诊疗平台<br>
+        合作医疗机构持有互联网医院牌照 · AI辅助仅供参考，最终诊疗以医生判断为准
+    </div>
+
+    <script>
+        // ========== 状态管理 ==========
+        let state = {
+            diseases: {},
+            hospitals: [],
+            selectedDisease: null,
+            assessmentId: null,
+            questions: [],
+            currentQuestion: 0,
+            answers: {},
+            patientId: null,
+        };
+
+        const API = window.location.origin;
+
+        // ========== 初始化 ==========
+        async function init() {
+            // 加载病种
+            const diseases = await fetch(`${API}/api/diseases`).then(r => r.json());
+            state.diseases = diseases;
+            renderDiseases(diseases);
+            
+            // 加载合作医院
+            const hospitals = await fetch(`${API}/api/hospitals`).then(r => r.json());
+            state.hospitals = hospitals;
+            renderHospitals(hospitals);
+            
+            // 注册患者
+            const patient = await fetch(`${API}/api/register`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phone: 'wx_' + Date.now(), name: '微信用户'})
+            }).then(r => r.json());
+            state.patientId = patient.id;
+        }
+
+        function renderDiseases(diseases) {
+            const grid = document.getElementById('disease-grid');
+            const icons = {MG: '🧠', SMA: '💪', DMD: '🏃', ALS: '⚡', PKU: '🧬'};
+            grid.innerHTML = Object.entries(diseases).map(([code, info]) => `
+                <div class="disease-card" data-code="${code}" onclick="selectDisease('${code}')">
+                    <div class="icon">${icons[code] || '🏥'}</div>
+                    <div class="name">${info.name}</div>
+                    <div class="icd">ICD-10: ${info.icd10}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderHospitals(hospitals) {
+            const list = document.getElementById('hospital-list');
+            list.innerHTML = hospitals.map(h => `
+                <div class="partner-tag">🏥 ${h.name}</div>
+            `).join('');
+        }
+
+        function selectDisease(code) {
+            state.selectedDisease = code;
+            document.querySelectorAll('.disease-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-code="${code}"]`).classList.add('selected');
+            document.getElementById('btn-start').disabled = false;
+        }
+
+        // ========== 评估流程 ==========
+        async function startAssessment() {
+            if (!state.selectedDisease) return;
+            
+            const result = await fetch(`${API}/api/assessment/start`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    patient_id: state.patientId,
+                    disease_type: state.selectedDisease
+                })
+            }).then(r => r.json());
+            
+            if (result.error) { alert(result.error); return; }
+            
+            state.assessmentId = result.assessment_id;
+            state.questions = result.questions;
+            state.currentQuestion = 0;
+            state.answers = {};
+            
+            document.getElementById('assessment-title').innerHTML = `🔬 ${result.disease} AI评估`;
+            document.getElementById('total-q').textContent = result.total;
+            
+            renderQuestion();
+            showPage('page-assessment');
+        }
+
+        function renderQuestion() {
+            const q = state.questions[state.currentQuestion];
+            const container = document.getElementById('question-container');
+            
+            document.getElementById('current-q').textContent = state.currentQuestion + 1;
+            document.getElementById('progress-fill').style.width = 
+                `${((state.currentQuestion + 1) / state.questions.length) * 100}%`;
+            
+            if (q.type === 'choice') {
+                container.innerHTML = `
+                    <div class="question-card fade-in">
+                        <div class="question-number">问题 ${q.id}</div>
+                        <div class="question-text">${q.text}</div>
+                        <div class="options">
+                            ${q.options.map(opt => `
+                                <div class="option-btn ${state.answers[q.id] === opt ? 'selected' : ''}" 
+                                     onclick="selectOption(${q.id}, '${opt}', this)">
+                                    ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('btn-next').textContent = 
+                state.currentQuestion === state.questions.length - 1 ? '提交评估 📤' : '下一题 →';
+        }
+
+        function selectOption(qId, value, el) {
+            state.answers[qId] = value;
+            el.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        async function nextQuestion() {
+            const q = state.questions[state.currentQuestion];
+            if (!state.answers[q.id]) {
+                alert('请选择一个答案');
+                return;
+            }
+            
+            if (state.currentQuestion < state.questions.length - 1) {
+                state.currentQuestion++;
+                renderQuestion();
+            } else {
+                // 提交评估
+                const result = await fetch(`${API}/api/assessment/submit`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        assessment_id: state.assessmentId,
+                        answers: state.answers
+                    })
+                }).then(r => r.json());
+                
+                showResult(result);
+            }
+        }
+
+        // ========== 结果展示 ==========
+        function showResult(result) {
+            const analysis = result.analysis;
+            const riskClass = analysis.risk_level === '高' ? 'risk-high' : 
+                             analysis.risk_level === '中' ? 'risk-medium' : 'risk-low';
+            
+            let html = `
+                <div style="font-size:48px;margin-bottom:8px;">
+                    ${analysis.risk_level === '高' ? '⚠️' : analysis.risk_level === '中' ? '📋' : '✅'}
+                </div>
+                <h2 style="font-size:20px;margin-bottom:8px;">${analysis.disease} 评估结果</h2>
+                <div class="risk-badge ${riskClass}">${analysis.risk_level}风险</div>
+                <div class="risk-score">${analysis.risk_score}%</div>
+                <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+                    阳性症状 ${analysis.positive_symptoms}/${analysis.total_questions} 项
+                </p>
+                <div class="risk-detail">
+                    <strong>AI建议：</strong>${analysis.recommendation}<br>
+                    <strong>推荐科室：</strong>${analysis.specialty}<br>
+                    <strong>分析模型：</strong>${analysis.ai_model}
+                </div>
+            `;
+            
+            document.getElementById('result-content').innerHTML = html;
+            
+            // 显示匹配的医院
+            if (result.matched_hospital && analysis.urgency !== 'monitor') {
+                const h = result.matched_hospital;
+                document.getElementById('matched-hospital').innerHTML = `
+                    <div class="hospital-icon">🏥</div>
+                    <div class="hospital-info">
+                        <h3>${h.name}</h3>
+                        <p>擅长：${h.specialties.join('、')}</p>
+                        <span class="hospital-badge">✅ 已对接</span>
+                    </div>
+                `;
+                document.getElementById('matched-hospital').style.display = 'flex';
+                document.getElementById('btn-consult').style.display = 'block';
+            } else {
+                document.getElementById('matched-hospital').style.display = 'none';
+                document.getElementById('btn-consult').style.display = 'none';
+            }
+            
+            showPage('page-result');
+        }
+
+        // ========== 问诊预约 ==========
+        async function createConsultation() {
+            const result = await fetch(`${API}/api/consultation/create`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({assessment_id: state.assessmentId})
+            }).then(r => r.json());
+            
+            if (result.error) { alert(result.error); return; }
+            
+            document.getElementById('consult-info').innerHTML = `
+                <p style="font-size:14px;line-height:2;">
+                    🆔 问诊编号：<strong>${result.consultation_id}</strong><br>
+                    🏥 合作医院：<strong>${result.hospital.name}</strong><br>
+                    👨‍⚕️ 医生状态：<strong>已分配</strong><br>
+                    ⏱️ 预计等待：<strong>${result.estimated_wait}</strong>
+                </p>
+            `;
+            
+            showPage('page-consultation');
+        }
+
+        // ========== 页面切换 ==========
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>

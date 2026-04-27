@@ -3,84 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediChat-RD — Rare Disease AI Assistant</title>
-<meta name="description" content="罕见病AI对话助手——精准医疗知识问答。为罕见病患者和医生提供专业AI支持。">
-<meta property="og:title" content="MediChat-RD — Rare Disease AI Assistant">
-<meta property="og:description" content="罕见病AI对话助手——精准医疗知识问答。为罕见病患者和医生提供专业AI支持。">
+<title>MediChat-RD — Multi-Agent Medical Diagnosis — Rare Disease Edition | MoKangMedical</title>
+<meta name="description" content="Multi-agent diagnosis powered by CrewAI. Rare disease edition with MG, SCA, LPD knowledge bases. Differential diagnosis, PubMed search, empathetic patient communication.">
+<meta name="keywords" content="rare disease diagnosis,medical AI,crewai,multi-agent,differential diagnosis,myasthenia gravis,SCA,clinical reasoning,diagnostic assistant">
+<meta property="og:title" content="MediChat-RD — Multi-Agent Medical Diagnosis — Rare Disease Edition">
+<meta property="og:description" content="CrewAI驱动的多Agent医疗诊断平台。罕见病专版集成MG、SCA知识库，鉴别诊断+文献检索+患者沟通。">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://github.com/MoKangMedical/medichat-rd">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://mokangmedical.github.io/medichat-rd/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MediChat-RD","description":"Multi-agent diagnosis powered by CrewAI. Rare disease edition with MG, SCA, LPD knowledge bases. Differential diagnosis, PubMed search, empathetic patient communication.","url":"https://mokangmedical.github.io/medichat-rd/","author":{"@type":"Person","name":"MoKangMedical","url":"https://github.com/MoKangMedical"},"codeRepository":"https://github.com/MoKangMedical/medichat-rd","license":"https://opensource.org/licenses/MIT","keywords":"rare disease diagnosis,medical AI,crewai,multi-agent,differential diagnosis,myasthenia gravis,SCA,clinical reasoning,diagnostic assistant","operatingSystem":"Cross-platform","applicationCategory":"DeveloperApplication","isAccessibleForFree":true}
+</script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#060a14;--card:#0d1425;--border:#152035;--text:#e8edf5;--dim:#7b8ba4;--c1:#ec4899;--c2:#a855f7;--grad:linear-gradient(135deg,var(--c1),var(--c2))}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;background-image:linear-gradient(rgba(0,229,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.015) 1px,transparent 1px);background-size:60px 60px;-webkit-font-smoothing:antialiased}
-.hero{text-align:center;padding:8rem 2rem 5rem;max-width:900px;margin:0 auto}
-.hero h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1.5rem}
-.hero p{color:var(--dim);font-size:1.1rem;line-height:1.8;max-width:650px;margin:0 auto 2.5rem}
-.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 2rem;border-radius:12px;font-size:1rem;font-weight:600;text-decoration:none;transition:all .3s;border:none;cursor:pointer}
-.btn-primary{background:var(--grad);color:#fff;box-shadow:0 0 20px rgba(0,229,255,.2)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,229,255,.35)}
-.btn-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--border)}
-.btn-ghost:hover{border-color:var(--c1)}
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:1100px;margin:4rem auto;padding:0 2rem}
-.feature{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s}
-.feature:hover{border-color:rgba(0,229,255,.2);transform:translateY(-3px);box-shadow:0 0 30px rgba(0,229,255,.05)}
-.feature h3{font-size:1.05rem;margin-bottom:.5rem}
-.feature p{color:var(--dim);font-size:.88rem;line-height:1.6}
-.feature .ico{font-size:2rem;margin-bottom:1rem}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;max-width:800px;margin:0 auto 3rem}
-.stat-val{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-lbl{font-size:.82rem;color:var(--dim);margin-top:.2rem}
-footer{text-align:center;padding:4rem 2rem;color:var(--dim);font-size:.85rem}
-footer a{color:var(--c1);text-decoration:none}
+:root{--c:#1a1a2e;--a:#1a73e8;--bg:#fff;--card:#f8f9fa;--border:#e0e0e0}
+body{font-family:system-ui,-apple-system,sans-serif;max-width:860px;margin:0 auto;padding:2rem;color:var(--c);line-height:1.8;background:var(--bg)}
+h1{font-size:2.2rem;margin-bottom:.3rem}.sub{color:#666;font-size:1.1rem;margin-top:0}
+.bilingual{display:grid;grid-template-columns:1fr 1fr;gap:1rem;background:var(--card);padding:1.5rem;border-radius:8px;margin:1.5rem 0}
+a{color:var(--a);text-decoration:none}a:hover{text-decoration:underline}
+.badge{display:inline-block;background:#e8f0fe;color:var(--a);padding:.25rem .7rem;border-radius:12px;font-size:.85rem;margin:.2rem}
+.badges{margin:1rem 0}
+.features{background:var(--card);padding:1.5rem;border-radius:8px}
+.faq .qa{border-bottom:1px solid var(--border);padding:1rem 0}.faq .qa:last-child{border:none}
+.cross{display:flex;flex-wrap:wrap;gap:.5rem}.cross-link{background:var(--card);padding:.4rem .8rem;border-radius:6px;font-size:.9rem}
+footer{margin-top:3rem;text-align:center;color:#999;font-size:.85rem}
+@media(max-width:640px){.bilingual{grid-template-columns:1fr}h1{font-size:1.6rem}}
 </style>
 </head>
 <body>
-<div class="hero">
-  <h1>MediChat-RD</h1>
-  <p>罕见病AI对话助手——精准医疗知识问答。为罕见病患者和医生提供专业AI支持。</p>
-  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem">
-    <a href="https://github.com/MoKangMedical/medichat-rd" class="btn btn-primary">View on GitHub</a>
-    <a href="#features" class="btn btn-ghost">Explore Features</a>
-  </div>
+<h1>MediChat-RD</h1>
+<p class="sub">Multi-Agent Medical Diagnosis — Rare Disease Edition</p>
+<div class="badges">
+<a href="https://github.com/MoKangMedical/medichat-rd" class="badge">⭐ GitHub</a>
+<a href="https://github.com/MoKangMedical/medichat-rd/issues" class="badge">🐛 Issues</a>
+<a href="https://github.com/MoKangMedical/medichat-rd/blob/main/CONTRIBUTING.md" class="badge">🤝 Contributing</a>
+<a href="https://pypi.org/project/openclaw-medical-harness/" class="badge">📦 PyPI</a>
 </div>
-<div class="features" id="features">
-    <div class="feature">
-      <div class="ico">🔍</div>
-      <h3>Disease Knowledge</h3>
-      <p>覆盖7000+罕见疾病的AI知识库</p>
-    </div>
-    <div class="feature">
-      <div class="ico">💊</div>
-      <h3>Treatment Guide</h3>
-      <p>循证治疗方案推荐和药物信息</p>
-    </div>
-    <div class="feature">
-      <div class="ico">🧬</div>
-      <h3>Gene Analysis</h3>
-      <p>基因突变解读和遗传咨询支持</p>
-    </div>
-    <div class="feature">
-      <div class="ico">📋</div>
-      <h3>Clinical Trials</h3>
-      <p>相关临床试验检索和入组评估</p>
-    </div>
-    <div class="feature">
-      <div class="ico">🌐</div>
-      <h3>Multi-Language</h3>
-      <p>中英文双语支持</p>
-    </div>
-    <div class="feature">
-      <div class="ico">🔒</div>
-      <h3>HIPAA Ready</h3>
-      <p>符合医疗数据隐私保护标准</p>
-    </div>
+<div class="bilingual">
+<div><strong>中文</strong><p>CrewAI驱动的多Agent医疗诊断平台。罕见病专版集成MG、SCA知识库，鉴别诊断+文献检索+患者沟通。</p></div>
+<div><strong>English</strong><p>Multi-agent diagnosis powered by CrewAI. Rare disease edition with MG, SCA, LPD knowledge bases. Differential diagnosis, PubMed search, empathetic patient communication.</p></div>
 </div>
+<h2>核心功能 Use Cases</h2>
+<div class="features"><p>鉴别诊断 · 文献检索 · 患者沟通 · 伦理审查 · 罕见病筛查 · 临床决策支持</p></div>
+<h2>快速开始 Quick Start</h2>
+<div class="features"><pre>git clone https://github.com/MoKangMedical/medichat-rd.git
+cd medichat-rd
+# See README.md for detailed setup</pre></div>
+<h2>常见问题 FAQ</h2>
+<div class="faq"><div class="qa"><p><strong>Q: 支持哪些罕见病？</strong></p><p>A: 目前覆盖重症肌无力(MG)、脊髓小脑性共济失调(SCA)、淋巴增殖性疾病(LPD)等。</p></div>
+<div class="qa"><p><strong>Q: 多Agent如何协作？</strong></p><p>A: 诊断/文献/沟通/伦理四个专业Agent协作，各司其职。</p></div>
+<div class="qa"><p><strong>Q: 可以用于临床吗？</strong></p><p>A: 作为辅助诊断工具，最终诊断由医生确认。</p></div></div>
+<h2>MoKangMedical 生态</h2>
+<div class="cross"><a href="https://mokangmedical.github.io/chronicdiseasemanagement/" class="cross-link">慢康智枢</a>
+<a href="https://mokangmedical.github.io/cloud-memorial/" class="cross-link">云思园</a>
+<a href="https://mokangmedical.github.io/digital-sage/" class="cross-link">数字智者</a>
+<a href="https://mokangmedical.github.io/drugmind/" class="cross-link">DrugMind</a>
+<a href="https://mokangmedical.github.io/medi-pharma/" class="cross-link">MediPharma</a>
+<a href="https://mokangmedical.github.io/tianyan/" class="cross-link">天眼</a></div>
 <footer>
-  <p>MediChat-RD — Built with ❤️ by <a href="https://github.com/MoKangMedical">MoKangMedical</a></p>
+<p><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a> · <a href="https://mokangmedical.github.io/openclaw-medical-harness/">Medical Harness</a> · MIT License</p>
 </footer>
-</body>
-</html>
+</body></html>

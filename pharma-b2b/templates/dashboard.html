@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediChat-RD 药企管理后台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#333}
+.header{background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:20px 30px;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:22px}
+.header .badge{background:rgba(255,255,255,.2);padding:6px 14px;border-radius:20px;font-size:13px}
+.header nav{display:flex;gap:12px;margin-top:6px}
+.header nav a{color:rgba(255,255,255,.85);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.1)}
+.header nav a:hover{background:rgba(255,255,255,.2);color:#fff}
+.container{max-width:1200px;margin:20px auto;padding:0 20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.card .label{font-size:13px;color:#888;margin-bottom:4px}
+.card .value{font-size:28px;font-weight:700;color:#1a73e8}
+.card .value.green{color:#34a853}
+.card .value.red{color:#ea4335}
+.card .value.orange{color:#fbbc04}
+.section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:24px}
+.section h2{font-size:16px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eee}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid #f0f0f0}
+th{background:#fafafa;color:#666;font-weight:600}
+.risk-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.risk-low{background:#e6f4ea;color:#34a853}
+.risk-medium{background:#fef7e0;color:#f9a825}
+.risk-high{background:#fce8e6;color:#ea4335}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chart-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sim-box{display:flex;gap:10px;margin-top:10px}
+.sim-box input{flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:8px}
+.sim-box button{padding:8px 16px;background:#1a73e8;color:#fff;border:none;border-radius:8px;cursor:pointer}
+.sim-response{margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;white-space:pre-line;font-size:13px;display:none}
+.roi-highlight{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:12px;padding:20px;margin-top:16px}
+.roi-highlight .big{font-size:36px;font-weight:800;color:#2e7d32}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>💊 MediChat-RD 药企管理后台</h1>
+  <div><span class="badge">越狱思维 · 药企付费模式</span><nav><a href="/">📊 药企后台</a><a href="/patient">👤 患者端预览</a><a href="/pricing">💰 定价方案</a></nav></div>
+</div>
+<div class="container">
+  <div class="cards" id="stats-cards"></div>
+  <div class="section">
+    <h2>📊 依从性趋势（30天）</h2>
+    <canvas id="trendChart" height="80"></canvas>
+  </div>
+  <div class="section">
+    <h2>👥 患者管理</h2>
+    <div style="margin-bottom:10px">
+      <button onclick="loadPatients('')" style="padding:6px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer">全部</button>
+      <button onclick="loadPatients('high')" style="padding:6px 12px;border:1px solid #ea4335;border-radius:6px;background:#fce8e6;color:#ea4335;cursor:pointer">高风险</button>
+      <button onclick="loadPatients('medium')" style="padding:6px 12px;border:1px solid #f9a825;border-radius:6px;background:#fef7e0;color:#f9a825;cursor:pointer">中风险</button>
+      <button onclick="loadPatients('low')" style="padding:6px 12px;border:1px solid #34a853;border-radius:6px;background:#e6f4ea;color:#34a853;cursor:pointer">低风险</button>
+    </div>
+    <table><thead><tr><th>患者ID</th><th>疾病</th><th>用药</th><th>依从性</th><th>风险</th><th>最后互动</th></tr></thead><tbody id="patient-table"></tbody></table>
+  </div>
+  <div class="section">
+    <h2>🤖 微信消息模拟</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:8px">模拟患者通过微信发送消息，AI自动回复</p>
+    <div class="sim-box">
+      <input id="sim-patient" value="RD0001" placeholder="患者ID" style="max-width:100px">
+      <input id="sim-msg" value="我今天忘了吃药怎么办" placeholder="输入患者消息">
+      <button onclick="simulateWechat()">发送</button>
+    </div>
+    <div class="sim-response" id="sim-response"></div>
+  </div>
+  <div class="chart-row">
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-box">
+      <h3>🟠 患者风险分布</h3>
+      <canvas id="riskChart" height="80"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>💊 用药依从性分布</h3>
+      <canvas id="adherenceChart" height="80"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-box">
+      <h3>📈 患者活跃度趋势</h3>
+      <canvas id="activeChart" height="80"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>🎯 治疗效果评估</h3>
+      <canvas id="outcomeChart" height="80"></canvas>
+    </div>
+  </div>
+    <div class="chart-box">
+      <h2 style="font-size:16px;margin-bottom:12px">💰 ROI计算器</h2>
+      <div id="roi-content"></div>
+    </div>
+    <div class="chart-box">
+      <h2 style="font-size:16px;margin-bottom:12px">📚 教育内容</h2>
+      <div id="content-list"></div>
+    </div>
+  </div>
+</div>
+<script>
+async function api(url){return (await fetch(url)).json()}
+function riskClass(r){return r==='low'?'risk-low':r==='high'?'risk-high':'risk-medium'}
+function riskLabel(r){return r==='low'?'低风险':r==='high'?'高风险':'中风险'}
+
+async function init(){
+  const stats=await api('/api/dashboard');
+  document.getElementById('stats-cards').innerHTML=`
+    <div class="card"><div class="label">总患者数</div><div class="value">${stats.total_patients}</div></div>
+    <div class="card"><div class="label">平均依从性</div><div class="value ${stats.avg_adherence>75?'green':'orange'}">${stats.avg_adherence}%</div></div>
+    <div class="card"><div class="label">高风险患者</div><div class="value red">${stats.high_risk_count}</div></div>
+    <div class="card"><div class="label">教育覆盖率</div><div class="value green">${stats.education_coverage}%</div></div>
+    <div class="card"><div class="label">30天互动量</div><div class="value">${stats.interactions_30d||'—'}</div></div>
+    <div class="card"><div class="label">预估保收入</div><div class="value green">¥${(stats.estimated_revenue_saved||0).toLocaleString()}</div></div>`;
+  loadTrend();loadPatients('');loadROI();loadContent();
+}
+
+async function loadTrend(){
+  const data=await api('/api/trend?days=30');
+  new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:data.map(d=>d.date.slice(5)),datasets:[{label:'服药率 %',data:data.map(d=>d.take_rate),borderColor:'#1a73e8',backgroundColor:'rgba(26,115,232,.1)',fill:true,tension:.3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:0,max:100}}}});
+
+  // 风险分布
+  new Chart(document.getElementById("riskChart"),{type:"doughnut",data:{labels:["高风险","中风险","低风险"],datasets:[{data:[8,22,20],backgroundColor:["#ef5350","#ff9800","#4caf50"]}]},options:{responsive:true,plugins:{legend:{position:"bottom",labels:{font:{size:11}}}}}});
+
+  // 依从性分布
+  new Chart(document.getElementById("adherenceChart"),{type:"bar",data:{labels:[">90%","80-90%","60-80%","<60%"],datasets:[{label:"患者数",data:[15,18,12,5],backgroundColor:["#1a73e8","#42a5f5","#90caf9","#ef5350"]}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+  // 活跃度趋势
+  new Chart(document.getElementById("activeChart"),{type:"line",data:{labels:["W1","W2","W3","W4","W5","W6"],datasets:[{label:"日活",data:[32,38,42,45,48,52],borderColor:"#4caf50",backgroundColor:"rgba(76,175,80,.1)",fill:true,tension:.3}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+
+  // 治疗效果
+  new Chart(document.getElementById("outcomeChart"),{type:"radar",data:{labels:["症状改善","生活质量","用药依从","医患沟通","心理状态"],datasets:[{label:"干预前",data:[45,50,60,40,55],borderColor:"#ff9800",backgroundColor:"rgba(255,152,0,.1)"},{label:"干预后",data:[72,75,85,80,78],borderColor:"#1a73e8",backgroundColor:"rgba(26,115,232,.1)"}]},options:{responsive:true,scales:{r:{min:0,max:100}}}});
+
+}
+
+async function loadPatients(risk){
+  const data=await api('/api/patients?risk='+risk);
+  document.getElementById('patient-table').innerHTML=data.map(p=>`<tr><td>${p.patient_id}</td><td>${p.disease}</td><td>${p.medication}</td><td><strong>${p.adherence_score}%</strong></td><td><span class="risk-badge ${riskClass(p.risk_level)}">${riskLabel(p.risk_level)}</span></td><td>${p.last_interaction||'—'}</td></tr>`).join('');
+}
+
+async function simulateWechat(){
+  const pid=document.getElementById('sim-patient').value;
+  const msg=document.getElementById('sim-msg').value;
+  const res=await fetch('/api/wechat/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient_id:pid,message:msg})});
+  const data=await res.json();
+  const el=document.getElementById('sim-response');
+  el.style.display='block';
+  el.innerHTML=`<strong>👤 ${data.patient_id} (${data.patient_disease} · ${data.medication})</strong>\n\n📨 患者消息: ${data.message}\n\n🤖 AI回复:\n${data.ai_response}`;
+}
+
+async function loadROI(){
+  const r=await api('/api/roi');
+  document.getElementById('roi-content').innerHTML=`
+    <div style="font-size:13px;color:#666;line-height:2">
+      当前依从性: <strong>${r.current_adherence}%</strong><br>
+      预期提升至: <strong>${r.projected_adherence}%</strong><br>
+      患者数: <strong>${r.patient_count}</strong><br>
+      单患者年药品收入: <strong>¥${r.per_patient_annual_revenue.toLocaleString()}</strong>
+    </div>
+    <div class="roi-highlight">
+      <div style="font-size:13px;color:#555">依从性提升${r.improvement_pct}%的额外收入</div>
+      <div class="big">¥${r.additional_revenue.toLocaleString()}</div>
+      <div style="font-size:13px;color:#555;margin-top:4px">平台年费 ¥${r.platform_cost.toLocaleString()} → ROI ${r.roi_multiple}x</div>
+    </div>`;
+}
+
+async function loadContent(){
+  const data=await api('/api/content');
+  document.getElementById('content-list').innerHTML=data.map(c=>`<div style="padding:8px 0;border-bottom:1px solid #f0f0f0"><strong style="font-size:13px">${c.title}</strong><span style="font-size:11px;color:#888;margin-left:8px">${c.category}</span><div style="font-size:12px;color:#666;margin-top:2px">${c.content_text.slice(0,60)}...</div></div>`).join('');
+}
+
+init();
+</script>
+</body>
+</html>

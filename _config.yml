@@ -1,0 +1,49 @@
+# GitHub Pages 配置
+# MediChat-RD 罕见病在线诊疗平台
+
+title: MediChat-RD - 罕见病在线诊疗平台
+description: 基于多Agent协作的罕见病在线诊疗平台，集成药物重定位、患者定位、智能对话等功能
+baseurl: ""
+url: "https://medichatrd.cloud"
+
+# 构建设置
+markdown: kramdown
+highlighter: rouge
+
+# 主题配置
+theme: minima
+
+# 排除文件
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - README.md
+  - docs/
+  - scripts/
+  - agents/
+  - backend/
+  - __pycache__/
+  - "*.pyc"
+
+# 包含文件
+include:
+  - pages/
+
+# GitHub Pages 配置
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# 头部配置
+header_pages:
+  - pages/index.html
+
+# 社交链接
+social:
+  - platform: github
+    url: https://github.com/MoKangMedical/medichat-rd
+
+# Google Analytics (可选)
+# google_analytics: UA-XXXXXXXX-X

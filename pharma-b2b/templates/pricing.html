@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MediChat-RD 定价方案</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; padding: 40px 0; }
+        .plan-card { border-radius: 16px; border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .plan-card:hover { transform: translateY(-4px); }
+        .plan-price { font-size: 2.5rem; font-weight: 700; color: #1a73e8; }
+        .plan-popular { border: 2px solid #1a73e8; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="text-center mb-5">
+        <h2>🧬 MediChat-RD 定价方案</h2>
+        <p class="text-muted">越狱思维模式：按患者依从性提升效果定价</p>
+    </div>
+    <div class="row g-4">
+        {% for pid, plan in plans.items() %}
+        <div class="col-md-4">
+            <div class="card plan-card p-4 h-100 {% if pid == 'pro' %}plan-popular{% endif %}">
+                {% if pid == 'pro' %}<span class="badge bg-primary mb-2" style="width:fit-content">推荐</span>{% endif %}
+                <h4>{{ plan.name }}</h4>
+                <div class="plan-price">¥{{ '{:,.0f}'.format(plan.price) }}</div>
+                <div class="text-muted mb-3">/年</div>
+                <ul class="list-unstyled">
+                    <li>💊 药物数量: {% if plan.drugs == 999 %}不限{% else %}{{ plan.drugs }}个{% endif %}</li>
+                    <li>👥 患者容量: {% if plan.patients == 999999 %}不限{% else %}{{ plan.patients }}人{% endif %}</li>
+                </ul>
+                <hr>
+                <ul class="list-unstyled">
+                    {% for f in plan.features %}
+                    <li>✅ {{ f }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="/dashboard" class="btn btn-outline-primary w-100 mt-auto">体验Demo</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-5">
+        <a href="/dashboard" class="btn btn-primary btn-lg">← 返回后台</a>
+    </div>
+</div>
+</body>
+</html>

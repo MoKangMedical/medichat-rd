@@ -1,0 +1,16 @@
+[Unit]
+Description=MediChat-RD FastAPI service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/medichat-rd/backend
+EnvironmentFile=/opt/medichat-rd/.env.local
+ExecStart=/opt/medichat-rd/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=3
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

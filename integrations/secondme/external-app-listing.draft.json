@@ -1,0 +1,78 @@
+{
+  "listingDraft": {
+    "title": "MediChat-RD 罕见病助手",
+    "slug": "medichat-rd",
+    "subtitle": "AI-driven rare disease screening, knowledge search, and patient support",
+    "developerName": "MoKangMedical",
+    "category": "health",
+    "tags": [
+      "rare-disease",
+      "medical-ai",
+      "symptom-screening",
+      "knowledge-search",
+      "patient-support",
+      "clinical-research"
+    ],
+    "websiteUrl": {
+      "recommended": "https://github.com/MoKangMedical/medichat-rd",
+      "note": "当前仓库地址可作为临时官网候选；若你有正式产品页或演示站，提交审核前建议替换。"
+    },
+    "supportUrl": {
+      "recommended": "https://github.com/MoKangMedical/medichat-rd/issues",
+      "note": "当前先用 GitHub Issues 作为支持入口；若你有专门支持页，可在提交前替换。"
+    },
+    "privacyPolicyUrl": {
+      "recommendedAfterDeploy": "https://your-public-app-domain.example/privacy-policy.html",
+      "recommendedAfterPush": "https://github.com/MoKangMedical/medichat-rd/blob/main/PRIVACY_POLICY.md",
+      "localSource": "/Users/apple/Desktop/罕见病/medichat-rd/PRIVACY_POLICY.md",
+      "frontendSource": "/Users/apple/Desktop/罕见病/medichat-rd/frontend/public/privacy-policy.html",
+      "note": "审核时优先填写部署域名下的 /privacy-policy.html；当前本地已备好 HTML 与 Markdown 两份政策文本。"
+    },
+    "appUrl": {
+      "recommendedAfterDeploy": "https://your-public-app-domain.example/",
+      "note": "建议使用正式公开站点地址，至少应与 OAuth 回调域名一致。"
+    },
+    "icon": {
+      "localPath": "/Users/apple/Desktop/罕见病/output/secondme-listing/icon.png",
+      "note": "应用图标，建议用于 iconUrl。"
+    },
+    "ogImage": {
+      "localPath": "/Users/apple/Desktop/罕见病/output/secondme-listing/og-image.png",
+      "note": "开放图和 listing 封面，建议用于 ogImageUrl。"
+    },
+    "screenshots": [
+      {
+        "label": "首页概览",
+        "localPath": "/Users/apple/Desktop/罕见病/output/secondme-listing/home-listing.png",
+        "caption": "平台首页，展示罕见病数据规模、核心功能与知识来源。"
+      },
+      {
+        "label": "DeepRare 智能诊断",
+        "localPath": "/Users/apple/Desktop/罕见病/output/secondme-listing/deeprare-listing.png",
+        "caption": "DeepRare 诊断页，突出表型提取、可追溯推理与症状输入。"
+      },
+      {
+        "label": "罕见病互助社群",
+        "localPath": "/Users/apple/Desktop/罕见病/output/secondme-listing/community-listing.png",
+        "caption": "SecondMe OAuth 联调与 AI 分身社群入口页面。"
+      },
+      {
+        "label": "AI 医学助手",
+        "localPath": "/Users/apple/Desktop/罕见病/output/secondme-listing/ai-assistant-listing.png",
+        "caption": "面向患者教育和问答的 AI 医学助手界面。"
+      }
+    ]
+  },
+  "submissionReadiness": {
+    "copyReady": true,
+    "screenshotsReady": true,
+    "publicWebsiteReady": true,
+    "publicPrivacyPolicyReady": false,
+    "notes": [
+      "title 应通过 external app update 更新 appName；subtitle、category、tags 等通过 apply-listing 提交。",
+      "截图已经就绪，但正式提交前需要先上传到 SecondMe CDN 或替换为公开 URL。",
+      "隐私政策文本已准备完成，推荐通过部署域名下的 /privacy-policy.html 暴露为公开 URL。",
+      "如果你有正式官网域名，建议把 websiteUrl 从 GitHub 仓库替换为产品站。"
+    ]
+  }
+}
