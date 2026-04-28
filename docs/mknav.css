@@ -1,0 +1,20 @@
+
+/* MoKangMedical Cross-Project Navigation */
+.mknav-toggle{position:fixed;bottom:20px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#10b981);color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(99,102,241,.3);transition:transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center}
+.mknav-toggle:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(99,102,241,.4)}
+.mknav-panel{position:fixed;bottom:80px;right:20px;z-index:9998;background:#111113;border:1px solid #27272a;border-radius:16px;padding:0;width:280px;max-height:420px;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.5);transform:translateY(20px) scale(.95);opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.mknav-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+.mknav-header{padding:16px 20px 12px;border-bottom:1px solid #27272a;display:flex;align-items:center;gap:10px}
+.mknav-header .logo{font-weight:800;font-size:14px;color:#10b981}
+.mknav-header .sub{font-size:10px;color:#71717a}
+.mknav-section{padding:8px 12px 4px}
+.mknav-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:#52525b;padding:4px 8px}
+.mknav-link{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;color:#a1a1aa;font-size:12px;text-decoration:none;transition:all .15s}
+.mknav-link:hover{background:#18181b;color:#fafafa}
+.mknav-link .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.mknav-link .dot.live{background:#10b981}
+.mknav-link .dot.beta{background:#f59e0b}
+.mknav-link .dot.dev{background:#6366f1}
+.mknav-footer{padding:12px 20px;border-top:1px solid #27272a;text-align:center}
+.mknav-footer a{font-size:11px;color:#6366f1;text-decoration:none}
+.mknav-footer a:hover{text-decoration:underline}
