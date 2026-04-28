@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://mokangmedical.github.io/medichat-rd/">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body style="padding-bottom:60px">
 
 <!-- Navigation -->
 <nav class="navbar">
@@ -392,5 +392,17 @@
 </footer>
 
 <script src="js/app.js"></script>
+
+<!-- MoKangMedical Ecosystem Bar -->
+<div id="mokang-eco-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:rgba(10,15,26,0.95);backdrop-filter:blur(12px);border-top:1px solid rgba(99,102,241,0.2);padding:10px 24px;display:flex;align-items:center;justify-content:center;gap:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:rgba(255,255,255,0.7);flex-wrap:wrap">
+  <span style="font-weight:600;color:rgba(255,255,255,0.9);white-space:nowrap">🌐 Part of MoKangMedical Ecosystem</span>
+  <span style="color:rgba(255,255,255,0.2)">|</span>
+  <a href="https://mokangmedical.github.io/PharmaSim/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">PharmaSim</a>
+  <a href="https://mokangmedical.github.io/tianyan/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">Tianyan</a>
+  <a href="https://mokangmedical.github.io/chronicdiseasemanagement/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">ChroniCare</a>
+  <a href="https://mokangmedical.github.io/DrugMind/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">DrugMind</a>
+  <a href="https://mokangmedical.github.io/medichat-rd/" style="color:#818cf8;text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s;font-weight:500" onmouseover="this.style.background='rgba(99,102,241,0.15)'" onmouseout="this.style.background='none'">MediChat-RD</a>
+  <button onclick="document.getElementById('mokang-eco-bar').style.display='none';document.body.style.paddingBottom='0'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:2px 8px;line-height:1;margin-left:8px;border-radius:4px" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='none'">&times;</button>
+</div>
 </body>
 </html>
