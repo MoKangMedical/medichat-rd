@@ -7,13 +7,13 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mokangmedical.github.io/medichat-rd/knowledge-graph.html</loc>
+    <loc>https://mokangmedical.github.io/medichat-rd/diagnosis.html</loc>
     <lastmod>2026-04-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://mokangmedical.github.io/medichat-rd/diagnosis.html</loc>
+    <loc>https://mokangmedical.github.io/medichat-rd/knowledge-graph.html</loc>
     <lastmod>2026-04-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -22,6 +22,18 @@
     <loc>https://mokangmedical.github.io/medichat-rd/repurposing.html</loc>
     <lastmod>2026-04-28</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mokangmedical.github.io/medichat-rd/database.html</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mokangmedical.github.io/medichat-rd/pricing.html</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
@@ -37,15 +49,9 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mokangmedical.github.io/medichat-rd/database.html</loc>
-    <lastmod>2026-04-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://mokangmedical.github.io/medichat-rd/api-docs.html</loc>
     <lastmod>2026-04-28</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 </urlset>
