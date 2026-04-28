@@ -3,142 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent协作 — MediChat-RD</title>
-<meta name="description" content="多Agent协作罕见病诊疗系统 - 10个专业Agent协同工作">
+<title>Multi-Agent System — MediChat-RD</title>
+<meta name="description" content="10 specialized AI agents collaborating on rare disease diagnosis. Geneticist, pathologist, pharmacist, and more.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="styles.css">
-<style>
-.container{max-width:1000px}
-.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
-.agent-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1.2rem;transition:border-color .2s,transform .2s}
-.agent-card:hover{border-color:var(--primary);transform:translateY(-2px)}
-.agent-icon{font-size:2rem;margin-bottom:.5rem}
-.agent-name{font-weight:700;font-size:1.1rem;margin-bottom:.3rem;color:var(--text)}
-.agent-role{color:var(--primary);font-size:.85rem;margin-bottom:.5rem}
-.agent-desc{color:var(--text-light);font-size:.9rem}
-.status{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:.3rem}
-.flow-diagram{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:center;margin:2rem 0}
-.flow-node{background:var(--gradient-primary);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:600}
-.flow-arrow{font-size:1.5rem;color:var(--text-muted)}
-.collab-demo{background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0}
-textarea{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;resize:vertical;min-height:100px;background:var(--bg-input);color:var(--text)}
-textarea:focus{border-color:var(--primary)}
-textarea::placeholder{color:var(--text-muted)}
-button{margin-top:.5rem}
-.result-box{background:#0f172a;color:var(--text-light);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.9rem;font-family:monospace;max-height:400px;overflow-y:auto}
-</style>
 </head>
 <body>
-<div class="topnav">
-  <div class="logo">🧬 MediChat-RD</div>
-  <nav>
-    <a href="index.html">首页</a>
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html">AI诊断</a>
-    <a href="repurposing.html">药物重定位</a>
-    <a href="community.html">患者社区</a>
-    <a href="agents.html" class="active">Agent协作</a>
-    <a href="database.html">罕见病数据库</a>
-    <a href="api-docs.html">API文档</a>
-  </nav>
-</div>
 
-<div class="container">
-  <h1>🤖 Agent协作</h1>
-  <p class="sub">10个专业Agent协同工作 · 分诊→病史→评估→用药→教育→随访</p>
-
-  <!-- Agent Flow -->
-  <div class="card">
-    <h3>🔄 协作流程</h3>
-    <div class="flow-diagram">
-      <div class="flow-node">分诊Agent</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">病史Agent</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">评估Agent</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">用药Agent</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">教育Agent</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">随访Agent</div>
-    </div>
-    <div class="flow-diagram" style="margin-top:1rem">
-      <div class="flow-node" style="background:#a855f7">知识Agent</div>
-      <div class="flow-node" style="background:#ef4444">文献Agent</div>
-      <div class="flow-node" style="background:#f59e0b">基因组Agent</div>
-      <div class="flow-node" style="background:#10b981">药物Agent</div>
-    </div>
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      MediChat-RD
+    </a>
+    <button class="nav-toggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="diagnosis.html">AI Diagnosis</a></li>
+      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+      <li><a href="database.html">Disease DB</a></li>
+      <li><a href="repurposing.html">Drug Repurposing</a></li>
+      <li><a href="agents.html" class="active">Multi-Agent</a></li>
+      <li><a href="api-docs.html">API</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
+    </ul>
   </div>
+</nav>
 
-  <!-- Agent Cards -->
-  <div class="card">
-    <h3>📋 全部Agent</h3>
-    <div class="agent-grid" id="agentGrid">
-      <div class="agent-card"><div class="agent-icon">🏥</div><div class="agent-name"><span class="status"></span>分诊分流Agent</div><div class="agent-role">智能分诊员</div><div class="agent-desc">根据患者症状进行初步分诊，推荐就诊科室</div></div>
-      <div class="agent-card"><div class="agent-icon">📝</div><div class="agent-name"><span class="status"></span>病史采集Agent</div><div class="agent-role">病史采集专家</div><div class="agent-desc">系统性采集患者病史信息</div></div>
-      <div class="agent-card"><div class="agent-icon">🔬</div><div class="agent-name"><span class="status"></span>症状评估Agent</div><div class="agent-role">症状分析专家</div><div class="agent-desc">深度分析症状特征，生成鉴别诊断</div></div>
-      <div class="agent-card"><div class="agent-icon">💊</div><div class="agent-name"><span class="status"></span>用药指导Agent</div><div class="agent-role">临床药师</div><div class="agent-desc">提供用药建议和药物相互作用检查</div></div>
-      <div class="agent-card"><div class="agent-icon">📖</div><div class="agent-name"><span class="status"></span>健康教育Agent</div><div class="agent-role">健康教育专家</div><div class="agent-desc">提供疾病知识和健康管理建议</div></div>
-      <div class="agent-card"><div class="agent-icon">📋</div><div class="agent-name"><span class="status"></span>随访管理Agent</div><div class="agent-role">随访管理专员</div><div class="agent-desc">制定随访计划和康复指导</div></div>
-      <div class="agent-card"><div class="agent-icon">📚</div><div class="agent-name"><span class="status"></span>知识检索Agent</div><div class="agent-role">知识工程师</div><div class="agent-desc">检索罕见病知识库、OMIM、Orphanet</div></div>
-      <div class="agent-card"><div class="agent-icon">📄</div><div class="agent-name"><span class="status"></span>文献检索Agent</div><div class="agent-role">循证医学专家</div><div class="agent-desc">检索PubMed文献，提供循证依据</div></div>
-      <div class="agent-card"><div class="agent-icon">🧬</div><div class="agent-name"><span class="status"></span>基因组分析Agent</div><div class="agent-role">遗传分析师</div><div class="agent-desc">分析基因变异，评估致病性</div></div>
-      <div class="agent-card"><div class="agent-icon">💊</div><div class="agent-name"><span class="status"></span>药物重定位Agent</div><div class="agent-role">药物研发顾问</div><div class="agent-desc">评估老药新用可能性</div></div>
+<!-- Header -->
+<section class="section" style="padding-top:120px">
+  <div class="container">
+    <div class="section-label reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Collaborative Intelligence
     </div>
+    <h1 class="reveal">Multi-Agent <span style="color:var(--accent)">Collaboration</span></h1>
+    <p class="text-dim reveal" style="max-width:700px;font-size:1.1rem">10 specialized AI agents collaborate on complex diagnostic cases with consensus reasoning. Each agent brings domain expertise.</p>
   </div>
+</section>
 
-  <!-- Collaborative Demo -->
-  <div class="card">
-    <h3>🎯 协作诊断演示</h3>
-    <div class="collab-demo">
-      <textarea id="collabInput" placeholder="输入患者信息进行多Agent协作诊断...&#10;&#10;例如: 8岁男孩，进行性肌无力2年，步态异常，Gowers征阳性，腓肠肌假性肥大"></textarea>
-      <button onclick="runCollab()">🚀 启动多Agent协作</button>
-      <div class="result-box" id="collabResult" style="display:none"></div>
+<!-- Workflow -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">Collaboration Flow</div>
+    <h2 class="reveal">How Agents Work Together</h2>
+    <div class="reveal mt-3" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;justify-content:center">
+      <div style="background:var(--accent);color:#fff;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem">Triage Agent</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>
+      <div style="background:var(--cyan);color:#fff;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem">History Agent</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>
+      <div style="background:var(--green);color:#fff;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem">Assessment Agent</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>
+      <div style="background:var(--purple);color:#fff;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem">Pharmacist Agent</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>
+      <div style="background:var(--amber);color:#fff;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem">Education Agent</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>
+      <div style="background:var(--accent);color:#fff;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem">Follow-up Agent</div>
+    </div>
+    <div class="reveal mt-2" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;justify-content:center">
+      <div style="background:#a855f7;color:#fff;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem">Knowledge Agent</div>
+      <div style="background:#ef4444;color:#fff;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem">Literature Agent</div>
+      <div style="background:#f59e0b;color:#fff;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem">Genomic Agent</div>
+      <div style="background:#10b981;color:#fff;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem">Drug Agent</div>
     </div>
   </div>
+</section>
 
-  <!-- API -->
-  <div class="card">
-    <h3>🔌 API接口</h3>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/agents</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/agents/{id}</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/agents/collaborate</span></div>
+<!-- Agent Cards -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">All Agents</div>
+    <h2 class="reveal">Meet the Team</h2>
+    <div class="grid grid-3 mt-3">
+      <div class="card reveal">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <h3>Triage Agent</h3>
+        <p style="color:var(--cyan);font-size:0.8rem;margin-bottom:0.5rem">Smart Triage Specialist</p>
+        <p>Initial symptom assessment and department routing for optimal patient care pathway.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon cyan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <h3>History Agent</h3>
+        <p style="color:var(--cyan);font-size:0.8rem;margin-bottom:0.5rem">Medical History Expert</p>
+        <p>Systematic collection of patient medical history, family history, and clinical timeline.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <h3>Assessment Agent</h3>
+        <p style="color:var(--green);font-size:0.8rem;margin-bottom:0.5rem">Symptom Analysis Expert</p>
+        <p>Deep analysis of symptom features with differential diagnosis generation and confidence scoring.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </div>
+        <h3>Pharmacist Agent</h3>
+        <p style="color:var(--purple);font-size:0.8rem;margin-bottom:0.5rem">Clinical Pharmacist</p>
+        <p>Medication recommendations with drug interaction checking and dosing guidance.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3>Education Agent</h3>
+        <p style="color:var(--amber);font-size:0.8rem;margin-bottom:0.5rem">Health Educator</p>
+        <p>Disease education, lifestyle guidance, and patient empowerment resources.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <h3>Follow-up Agent</h3>
+        <p style="color:var(--accent);font-size:0.8rem;margin-bottom:0.5rem">Follow-up Coordinator</p>
+        <p>Follow-up planning, recovery guidance, and longitudinal care coordination.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M2 12h20"/></svg>
+        </div>
+        <h3>Knowledge Agent</h3>
+        <p style="color:#a855f7;font-size:0.8rem;margin-bottom:0.5rem">Knowledge Engineer</p>
+        <p>Rare disease knowledge base retrieval from OMIM, Orphanet, and ClinVar databases.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        </div>
+        <h3>Literature Agent</h3>
+        <p style="color:#ef4444;font-size:0.8rem;margin-bottom:0.5rem">Evidence-Based Medicine</p>
+        <p>PubMed literature retrieval with evidence grading and systematic review support.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Genomic Agent</h3>
+        <p style="color:#f59e0b;font-size:0.8rem;margin-bottom:0.5rem">Genetic Analyst</p>
+        <p>Gene variant analysis, pathogenicity assessment, and genetic counseling support.</p>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<script>
-const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+<!-- API -->
+<section class="section">
+  <div class="container" style="max-width:700px">
+    <div class="card reveal text-center" style="padding:2rem">
+      <h3 style="margin-bottom:1rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24" style="vertical-align:-5px"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Agent API
+      </h3>
+      <p style="color:var(--text-dim);margin-bottom:1.5rem">Access multi-agent collaboration programmatically.</p>
+      <div style="text-align:left">
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);margin-bottom:0.4rem">
+          <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.15rem 0.5rem;border-radius:6px;font-size:0.75rem;font-weight:700">GET</span>
+          <code style="font-size:0.85rem;color:var(--text-bright)">/api/v1/agents</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);margin-bottom:0.4rem">
+          <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.15rem 0.5rem;border-radius:6px;font-size:0.75rem;font-weight:700">POST</span>
+          <code style="font-size:0.85rem;color:var(--text-bright)">/api/v1/agents/collaborate</code>
+        </div>
+      </div>
+      <a href="api-docs.html" class="btn btn-primary mt-3">View Full API Docs</a>
+    </div>
+  </div>
+</section>
 
-async function loadAgents() {
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/agents`);
-    const data = await resp.json();
-    if(data.agents) {
-      // Update status from API
-    }
-  } catch(e) { console.log('Using demo agent data'); }
-}
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <strong>MediChat-RD</strong>
+        </div>
+        <p>AI-powered rare disease diagnostic platform by MoKangMedical.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="diagnosis.html">AI Diagnosis</a></li>
+          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+          <li><a href="agents.html">Multi-Agent</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="api-docs.html">API Documentation</a></li>
+          <li><a href="database.html">Disease Database</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
+          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
+      <span>MediChat-RD is not a medical device.</span>
+    </div>
+  </div>
+</footer>
 
-async function runCollab() {
-  const text = document.getElementById('collabInput').value.trim();
-  if(!text) return;
-  const result = document.getElementById('collabResult');
-  result.style.display = 'block';
-  result.textContent = '⏳ 正在协调多个Agent...\n';
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/agents/collaborate`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({patient_input:text})
-    });
-    const data = await resp.json();
-    result.textContent = JSON.stringify(data, null, 2);
-  } catch(e) {
-    result.textContent = `❌ 协作失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
-  }
-}
-
-loadAgents();
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>

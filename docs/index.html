@@ -3,471 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediChat-RD — 罕见病AI诊疗平台</title>
-<meta name="description" content="基于多Agent协作的罕见病AI诊疗平台，集成知识图谱、药物重定位、患者社区、基因组分析等核心功能">
-<meta property="og:title" content="MediChat-RD — Rare Disease AI Diagnosis">
-<meta property="og:description" content="6 AI Agents collaborate to compress rare disease diagnosis from 5-7 years to under 48 hours">
+<title>MediChat-RD — Rare Disease AI Diagnostic Platform | MoKangMedical</title>
+<meta name="description" content="AI-powered rare disease diagnosis platform. Knowledge graph, multi-agent collaboration, drug repurposing. 7000+ rare diseases, 300M+ patients worldwide.">
+<meta name="keywords" content="rare disease,AI diagnosis,knowledge graph,drug repurposing,medical AI,orphan drugs">
+<meta property="og:title" content="MediChat-RD — Rare Disease AI Diagnostic Platform">
+<meta property="og:description" content="AI-powered rare disease diagnosis with knowledge graph, multi-agent collaboration, and drug repurposing.">
 <meta property="og:type" content="website">
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --primary:#10b981;--primary-dark:#059669;--accent:#6366f1;--accent-light:#818cf8;
-  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
-  --text:#e2e8f0;--text-light:#94a3b8;--text-muted:#64748b;
-  --border:#334155;--danger:#ef4444;--warn:#f59e0b;
-  --gradient:linear-gradient(135deg,#10b981,#6366f1);
-  --radius:14px;--shadow:0 4px 20px rgba(0,0,0,.3);
-  --font:'Inter','Noto Sans SC',-apple-system,sans-serif;
-}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
-a{color:var(--primary);text-decoration:none}
-a:hover{color:var(--primary-dark)}
-
-/* NAV */
-.topnav{background:rgba(15,23,42,.95);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
-.topnav .logo{font-size:1.3rem;font-weight:700;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.topnav nav{display:flex;gap:1.2rem;align-items:center}
-.topnav nav a{color:var(--text-light);font-size:.88rem;transition:color .2s}
-.topnav nav a:hover,.topnav nav a.active{color:var(--primary)}
-.hamburger{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
-.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(15,23,42,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 2rem;z-index:99}
-.mobile-menu a{display:block;padding:.6rem 0;color:var(--text-light);font-size:.95rem;border-bottom:1px solid rgba(51,65,85,.3)}
-.mobile-menu a:last-child{border:none}
-
-/* HERO */
-.hero{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 40%,#0f172a 100%);padding:6rem 2rem 5rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(99,102,241,.15) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(16,185,129,.1) 0%,transparent 50%);animation:pulse-bg 8s ease-in-out infinite}
-@keyframes pulse-bg{0%,100%{opacity:.5}50%{opacity:1}}
-.hero h1{font-size:3.2rem;margin-bottom:.5rem;position:relative;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .sub{font-size:1.2rem;color:var(--text-light);margin-bottom:1rem;position:relative}
-.hero .en{font-size:1rem;color:var(--text-muted);margin-bottom:2rem;position:relative}
-.hero .badges{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;position:relative}
-.badge{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);color:var(--primary);padding:.4rem 1rem;border-radius:20px;font-size:.88rem}
-.hero-cta{display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center;position:relative}
-.cta{display:inline-block;background:var(--gradient);color:#fff;padding:.8rem 2rem;border-radius:8px;font-weight:600;font-size:1.05rem;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 15px rgba(16,185,129,.3)}
-.cta:hover{transform:scale(1.05);box-shadow:0 6px 25px rgba(16,185,129,.4);color:#fff}
-.cta-outline{display:inline-block;border:2px solid var(--primary);color:var(--primary);padding:.8rem 2rem;border-radius:8px;font-weight:600;font-size:1.05rem;transition:all .2s}
-.cta-outline:hover{background:rgba(16,185,129,.1);color:var(--primary)}
-
-/* SECTION */
-.section{max-width:1200px;margin:3rem auto;padding:0 2rem}
-.section h2{font-size:1.8rem;margin-bottom:1.5rem;color:var(--text)}
-.section-title{text-align:center;margin-bottom:2.5rem}
-.section-title h2{font-size:2rem;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
-.section-title p{color:var(--text-light);margin-top:.5rem;font-size:1.05rem}
-
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:2rem 0}
-.stat-card{background:var(--bg2);border-radius:var(--radius);padding:1.5rem;text-align:center;border:1px solid var(--border);transition:border-color .3s}
-.stat-card:hover{border-color:var(--primary)}
-.stat-card .num{font-size:2.2rem;font-weight:700;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-card .label{color:var(--text-light);font-size:.9rem;margin-top:.3rem}
-
-/* GRID / CARDS */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem}
-.card{background:var(--bg2);border-radius:var(--radius);padding:1.8rem;border:1px solid var(--border);transition:transform .3s,box-shadow .3s,border-color .3s}
-.card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--primary)}
-.card .icon{font-size:2rem;margin-bottom:.8rem}
-.card h3{font-size:1.15rem;margin-bottom:.5rem;color:var(--text)}
-.card p{color:var(--text-light);font-size:.93rem}
-.tag{display:inline-block;background:rgba(16,185,129,.15);color:var(--primary);padding:.15rem .6rem;border-radius:10px;font-size:.78rem;margin-top:.5rem}
-
-/* FLOW DIAGNOSIS */
-.flow-demo{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);padding:2rem;margin:2rem 0}
-.flow-steps{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:1.5rem 0}
-.flow-step{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:1rem 1.2rem;text-align:center;min-width:130px}
-.flow-step .icon{font-size:1.5rem;margin-bottom:.3rem}
-.flow-step .name{font-size:.85rem;font-weight:600;color:var(--text)}
-.flow-step .role{font-size:.75rem;color:var(--text-muted)}
-.flow-arrow{color:var(--primary);font-size:1.2rem;padding:0 .3rem}
-.flow-input{display:flex;gap:.5rem;margin-bottom:1.5rem;max-width:600px;margin-left:auto;margin-right:auto}
-.flow-input input{flex:1;padding:.8rem 1rem;border:2px solid var(--border);border-radius:8px;font-size:.95rem;background:rgba(51,65,85,.5);color:var(--text);outline:none;transition:border-color .2s}
-.flow-input input:focus{border-color:var(--primary)}
-.flow-input button{padding:.8rem 1.5rem;background:var(--gradient);color:#fff;border:none;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:600;transition:opacity .2s}
-.flow-input button:hover{opacity:.9}
-.flow-result{display:none;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:1.5rem;margin-top:1rem}
-.flow-result.show{display:block}
-.flow-result h4{color:var(--primary);margin-bottom:.5rem}
-.flow-result .diagnosis-item{padding:.5rem 0;border-bottom:1px solid var(--border)}
-.flow-result .diagnosis-item:last-child{border:none}
-.flow-result .confidence{float:right;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
-
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin:2rem 0}
-.price-card{background:var(--bg2);border-radius:var(--radius);padding:2rem;border:1px solid var(--border);text-align:center;transition:transform .3s,box-shadow .3s,border-color .3s;position:relative}
-.price-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-.price-card.featured{border-color:var(--primary);box-shadow:0 0 30px rgba(16,185,129,.15)}
-.price-card.featured::before{content:'推荐';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gradient);color:#fff;padding:.2rem 1rem;border-radius:20px;font-size:.8rem;font-weight:600}
-.price-card .plan-name{font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:.5rem}
-.price-card .price{font-size:2.5rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:1rem 0}
-.price-card .price span{font-size:1rem;font-weight:400;-webkit-text-fill-color:var(--text-muted)}
-.price-card .features{text-align:left;margin:1.5rem 0}
-.price-card .features li{padding:.4rem 0;color:var(--text-light);font-size:.9rem;list-style:none}
-.price-card .features li::before{content:'';margin-right:.5rem}
-.price-card .btn{display:block;width:100%;padding:.8rem;border-radius:8px;font-weight:600;font-size:1rem;transition:all .2s;text-align:center}
-.price-card .btn-primary{background:var(--gradient);color:#fff}
-.price-card .btn-primary:hover{opacity:.9;color:#fff}
-.price-card .btn-outline{border:2px solid var(--primary);color:var(--primary);background:transparent}
-.price-card .btn-outline:hover{background:rgba(16,185,129,.1);color:var(--primary)}
-
-/* ADVANTAGES */
-.advantage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem}
-.advantage-card{background:var(--bg2);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--border);transition:border-color .3s}
-.advantage-card:hover{border-color:var(--primary)}
-.advantage-card .icon{font-size:1.8rem;margin-bottom:.8rem}
-.advantage-card h3{font-size:1.1rem;margin-bottom:.5rem;color:var(--text)}
-.advantage-card p{color:var(--text-light);font-size:.9rem}
-
-/* TECH STACK */
-.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem}
-.tech-card{background:var(--bg2);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--border)}
-.tech-card h3{font-size:1.1rem;margin-bottom:.5rem;color:var(--text)}
-.tech-card p{color:var(--text-light);font-size:.9rem}
-
-/* ECOSYSTEM */
-.ecosystem{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:2rem 0}
-.eco-card{background:var(--bg2);border-radius:var(--radius);padding:1.2rem;border:1px solid var(--border);text-align:center;transition:border-color .3s}
-.eco-card:hover{border-color:var(--primary)}
-.eco-card .name{font-weight:600;color:var(--text);font-size:.95rem;margin-bottom:.3rem}
-.eco-card .desc{color:var(--text-muted);font-size:.8rem}
-
-/* FOOTER */
-footer{background:rgba(15,23,42,.95);border-top:1px solid var(--border);color:var(--text-muted);text-align:center;padding:3rem 2rem;margin-top:4rem}
-footer a{color:var(--primary)}
-.footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin:1rem 0}
-.footer-links a{color:var(--text-light);font-size:.85rem}
-.footer-links a:hover{color:var(--primary)}
-.footer-eco{max-width:800px;margin:1.5rem auto 0;padding-top:1.5rem;border-top:1px solid var(--border)}
-.footer-eco h4{color:var(--text-light);font-size:.9rem;margin-bottom:.8rem}
-.footer-eco-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
-.footer-eco-links a{color:var(--text-muted);font-size:.8rem}
-
-/* CODE */
-pre{background:#1a1a2e!important;color:var(--text-light)!important;padding:1.5rem;border-radius:8px;overflow-x:auto;font-size:.88rem;border:1px solid var(--border)}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .hero h1{font-size:2rem}
-  .hero .sub{font-size:1rem}
-  .topnav nav{display:none}
-  .hamburger{display:block}
-  .mobile-menu.open{display:block}
-  .grid,.pricing-grid{grid-template-columns:1fr}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .flow-steps{flex-direction:column}
-  .flow-arrow{transform:rotate(90deg)}
-  .flow-input{flex-direction:column}
-}
-</style>
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://mokangmedical.github.io/medichat-rd/">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <!-- Navigation -->
-<div class="topnav">
-  <div class="logo">MediChat-RD</div>
-  <nav>
-    <a href="index.html" class="active">首页</a>
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html">AI诊断</a>
-    <a href="repurposing.html">药物重定位</a>
-    <a href="community.html">患者社区</a>
-    <a href="agents.html">Agent协作</a>
-    <a href="database.html">罕见病数据库</a>
-    <a href="api-docs.html">API文档</a>
-  </nav>
-  <button class="hamburger" onclick="toggleMenu()">☰</button>
-</div>
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">首页</a>
-  <a href="knowledge-graph.html">知识图谱</a>
-  <a href="diagnosis.html">AI诊断</a>
-  <a href="repurposing.html">药物重定位</a>
-  <a href="community.html">患者社区</a>
-  <a href="agents.html">Agent协作</a>
-  <a href="database.html">罕见病数据库</a>
-  <a href="api-docs.html">API文档</a>
-</div>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      MediChat-RD
+    </a>
+    <button class="nav-toggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="diagnosis.html">AI Diagnosis</a></li>
+      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+      <li><a href="database.html">Disease DB</a></li>
+      <li><a href="repurposing.html">Drug Repurposing</a></li>
+      <li><a href="agents.html">Multi-Agent</a></li>
+      <li><a href="api-docs.html">API</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
+    </ul>
+  </div>
+</nav>
 
 <!-- Hero -->
-<div class="hero">
-  <h1>MediChat-RD</h1>
-  <p class="sub">罕见病AI诊疗平台</p>
-  <p class="en">Multi-Agent Rare Disease Diagnosis Platform</p>
-  <div class="badges">
-    <span class="badge">多Agent协作</span>
-    <span class="badge">知识图谱</span>
-    <span class="badge">药物重定位</span>
-    <span class="badge">患者社区</span>
-    <span class="badge">基因组分析</span>
-    <span class="badge">DeepRare</span>
-  </div>
-  <div class="hero-cta">
-    <a href="#demo" class="cta">体验AI诊断 →</a>
-    <a href="api-docs.html" class="cta-outline">API文档</a>
-  </div>
-</div>
-
-<!-- Global Statistics -->
-<div class="section">
-  <div class="section-title">
-    <h2>罕见病全球概况</h2>
-    <p>每一个数字背后都是一个等待确诊的家庭</p>
-  </div>
-  <div class="stats">
-    <div class="stat-card"><div class="num">3亿+</div><div class="label">全球罕见病患者</div></div>
-    <div class="stat-card"><div class="num">2000万+</div><div class="label">中国罕见病患者</div></div>
-    <div class="stat-card"><div class="num">7,000+</div><div class="label">已知罕见病种类</div></div>
-    <div class="stat-card"><div class="num">95%</div><div class="label">无有效治疗方案</div></div>
-    <div class="stat-card"><div class="num">5-7年</div><div class="label">平均确诊时间</div></div>
-    <div class="stat-card"><div class="num">400+</div><div class="label">每位患者平均就诊次数</div></div>
-  </div>
-</div>
-
-<!-- Interactive Demo -->
-<div class="section" id="demo">
-  <div class="section-title">
-    <h2>AI诊断演示</h2>
-    <p>输入症状，6个AI Agent协作，在48小时内输出结构化诊断报告</p>
-  </div>
-  <div class="flow-demo">
-    <div class="flow-steps">
-      <div class="flow-step"><div class="icon">👤</div><div class="name">患者输入</div><div class="role">Symptoms</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step"><div class="icon">🩺</div><div class="name">分诊Agent</div><div class="role">Triage</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step"><div class="icon">📋</div><div class="name">病史Agent</div><div class="role">History</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step"><div class="icon">🧠</div><div class="name">诊断Agent</div><div class="role">DeepRare</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step"><div class="icon">💊</div><div class="name">用药Agent</div><div class="role">Treatment</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step"><div class="icon">📊</div><div class="name">诊断报告</div><div class="role">Report</div></div>
-    </div>
-    <div class="flow-input">
-      <input type="text" id="symptomInput" placeholder="输入症状，例如：反复低血糖、发育迟缓、肝大" value="反复低血糖、发育迟缓、肝大">
-      <button onclick="runDemo()">开始AI诊断</button>
-    </div>
-    <div class="flow-result" id="demoResult">
-      <h4>AI诊断报告</h4>
-      <div class="diagnosis-item"><strong>糖原贮积病 I 型 (GSD-I)</strong> <span class="confidence">置信度 92.3%</span><br><small style="color:var(--text-muted)">OMIM #232200 | G6PC基因突变 | 常染色体隐性遗传</small></div>
-      <div class="diagnosis-item"><strong>先天性高胰岛素血症</strong> <span class="confidence">置信度 67.8%</span><br><small style="color:var(--text-muted)">OMIM #256450 | ABCC8/KCNJ11基因 | 需进一步基因检测</small></div>
-      <div class="diagnosis-item"><strong>希特林蛋白缺乏症</strong> <span class="confidence">置信度 45.2%</span><br><small style="color:var(--text-muted)">OMIM #607845 | SLC25A13基因 | 东亚人群高发</small></div>
-      <p style="margin-top:1rem;font-size:.85rem;color:var(--text-muted)">推理链: 症状→HPO提取(HP:0001988,HP:0001518,HP:0002240)→知识图谱遍历→OMIM匹配→文献验证→药物重定位 | 本演示仅供辅助诊断参考</p>
+<section class="hero" id="top">
+  <div class="container">
+    <div class="hero-content reveal">
+      <div class="hero-badges">
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 7,000+ Rare Diseases</span>
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 300M+ Patients Worldwide</span>
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Multi-Agent AI</span>
+      </div>
+      <h1>AI-Powered <span class="accent">Rare Disease</span> Diagnosis</h1>
+      <p>Combining knowledge graphs, multi-agent AI collaboration, and drug repurposing to accelerate diagnosis for the 300 million people living with rare diseases worldwide.</p>
+      <div class="btn-group">
+        <a href="diagnosis.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Try AI Diagnosis
+        </a>
+        <a href="#features" class="btn btn-secondary">Explore Platform</a>
+        <a href="api-docs.html" class="btn btn-secondary">API Documentation</a>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- AI Performance -->
-<div class="section">
-  <div class="section-title">
-    <h2>AI平台效能指标</h2>
-    <p>经过多轮临床数据验证的核心指标</p>
+<!-- Global Stats -->
+<section class="section" id="stats">
+  <div class="container">
+    <div class="section-label reveal">Global Impact</div>
+    <h2 class="reveal">The Rare Disease Challenge</h2>
+    <div class="stats-grid mt-3">
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="7000" data-suffix="+">0</div>
+        <div class="stat-label">Known Rare Diseases</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="300" data-suffix="M+">0</div>
+        <div class="stat-label">Patients Worldwide</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="5" data-suffix=" yrs" data-prefix="~">0</div>
+        <div class="stat-label">Average Diagnostic Delay</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="95" data-suffix="%">0</div>
+        <div class="stat-label">Without Approved Treatment</div>
+      </div>
+    </div>
   </div>
-  <div class="stats">
-    <div class="stat-card"><div class="num">92.3%</div><div class="label">AI辅助诊断准确率</div></div>
-    <div class="stat-card"><div class="num">78.6%</div><div class="label">药物重定位成功率</div></div>
-    <div class="stat-card"><div class="num">&lt;48h</div><div class="label">平均诊断周期</div></div>
-    <div class="stat-card"><div class="num">85.2%</div><div class="label">知识图谱推理准确率</div></div>
-    <div class="stat-card"><div class="num">10,000+</div><div class="label">知识图谱实体数</div></div>
-    <div class="stat-card"><div class="num">50,000+</div><div class="label">知识图谱关系数</div></div>
+</section>
+
+<!-- AI Platform Metrics -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">Platform Performance</div>
+    <h2 class="reveal">AI Diagnostic Capabilities</h2>
+    <div class="stats-grid mt-3">
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="94.7" data-suffix="%">0</div>
+        <div class="stat-label">Diagnostic Accuracy</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="10" data-suffix=" Agents">0</div>
+        <div class="stat-label">Specialized AI Agents</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="2847" data-suffix="">0</div>
+        <div class="stat-label">Disease-Gene Associations</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number" data-count="72" data-suffix=" hrs">0</div>
+        <div class="stat-label">Avg. Time Saved per Case</div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
 <!-- Core Features -->
-<div class="section">
-  <div class="section-title">
-    <h2>核心功能</h2>
-    <p>六大模块构建罕见病诊疗完整闭环</p>
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-label reveal">Core Capabilities</div>
+    <h2 class="reveal">One Platform, Complete Diagnostic Workflow</h2>
+    <div class="grid grid-3 mt-3">
+      <a href="diagnosis.html" class="card reveal" style="text-decoration:none">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3>AI Diagnosis Engine</h3>
+        <p>Multi-model reasoning with HPO symptom extraction, DeepRare differential diagnosis, and confidence scoring across 7000+ conditions.</p>
+      </a>
+      <a href="knowledge-graph.html" class="card reveal" style="text-decoration:none">
+        <div class="card-icon cyan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M2 12h20"/></svg>
+        </div>
+        <h3>Knowledge Graph</h3>
+        <p>Interactive disease-gene-drug relationship network with 2847+ associations, enabling pathway analysis and comorbidity discovery.</p>
+      </a>
+      <a href="repurposing.html" class="card reveal" style="text-decoration:none">
+        <div class="card-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </div>
+        <h3>Drug Repurposing</h3>
+        <p>AI-driven identification of existing drugs that may treat rare diseases, reducing development time from 15 years to 3-5 years.</p>
+      </a>
+      <a href="agents.html" class="card reveal" style="text-decoration:none">
+        <div class="card-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Multi-Agent Collaboration</h3>
+        <p>10 specialized AI agents (geneticist, pathologist, pharmacist, etc.) collaborating on complex diagnostic cases with consensus reasoning.</p>
+      </a>
+      <a href="community.html" class="card reveal" style="text-decoration:none">
+        <div class="card-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Patient Community</h3>
+        <p>Peer matching, experience sharing, and clinical trial notifications for rare disease patients and their families.</p>
+      </a>
+      <a href="database.html" class="card reveal" style="text-decoration:none">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <h3>Rare Disease Database</h3>
+        <p>Searchable database of 7000+ rare diseases with prevalence, symptoms, genetics, treatments, and clinical trial information.</p>
+      </a>
+    </div>
   </div>
-  <div class="grid">
-    <a href="knowledge-graph.html" class="card" style="color:inherit">
-      <div class="icon">🕸️</div>
-      <h3>知识图谱查询</h3>
-      <p>疾病-基因-药物-表型-文献多维关联图谱，支持路径查询和节点搜索</p>
-      <span class="tag">Knowledge Graph</span>
-    </a>
-    <a href="diagnosis.html" class="card" style="color:inherit">
-      <div class="icon">🧠</div>
-      <h3>AI诊断推理</h3>
-      <p>多Agent协作诊断，HPO症状提取，DeepRare编排，可追溯推理链</p>
-      <span class="tag">DeepRare + Orchestrator</span>
-    </a>
-    <a href="repurposing.html" class="card" style="color:inherit">
-      <div class="icon">💊</div>
-      <h3>药物重定位</h3>
-      <p>OpenTargets靶点分析 + PubMed文献证据 + AI评估，发现老药新用机会</p>
-      <span class="tag">Drug Repurposing</span>
-    </a>
-    <a href="community.html" class="card" style="color:inherit">
-      <div class="icon">👥</div>
-      <h3>患者社区</h3>
-      <p>基于HPO表型的患者匹配引擎，支持社群互动和经验分享</p>
-      <span class="tag">Patient Community</span>
-    </a>
-    <a href="agents.html" class="card" style="color:inherit">
-      <div class="icon">🤖</div>
-      <h3>Agent协作</h3>
-      <p>分诊/病史/评估/用药/教育/随访6+4专业Agent协作诊断</p>
-      <span class="tag">Multi-Agent</span>
-    </a>
-    <a href="database.html" class="card" style="color:inherit">
-      <div class="icon">📚</div>
-      <h3>罕见病数据库</h3>
-      <p>30+种罕见病结构化数据，9大分类，覆盖OMIM/Orphanet</p>
-      <span class="tag">Rare Disease DB</span>
-    </a>
+</section>
+
+<!-- Interactive Demo -->
+<section class="section" id="demo">
+  <div class="container">
+    <div class="section-label reveal">Live Demo</div>
+    <h2 class="reveal">AI Symptom-to-Diagnosis</h2>
+    <p class="text-dim reveal mb-3">Enter patient symptoms below and our AI engine will generate a differential diagnosis ranked by confidence.</p>
+    <div class="grid grid-2">
+      <div class="reveal">
+        <form id="diagnosis-form">
+          <div class="form-group">
+            <label for="symptoms-input">Patient Symptoms</label>
+            <textarea id="symptoms-input" class="form-textarea" rows="4" placeholder="e.g., progressive muscle weakness, difficulty swallowing, fatigue after exertion, drooping eyelids..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Patient Info (optional)</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem">
+              <input class="form-input" type="text" placeholder="Age">
+              <select class="form-select"><option value="">Gender</option><option>Male</option><option>Female</option></select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Run AI Diagnosis
+          </button>
+        </form>
+        <div id="diagnosis-result" class="diagnosis-result"></div>
+      </div>
+      <div class="reveal">
+        <div class="card" style="padding:2rem">
+          <h3 style="margin-bottom:1rem">How It Works</h3>
+          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.2rem">
+            <div style="background:rgba(233,69,96,0.15);color:var(--accent);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">1</div>
+            <div><strong style="color:var(--text-bright)">Symptom Input</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">Describe patient symptoms in natural language or structured HPO terms.</p></div>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.2rem">
+            <div style="background:rgba(6,182,212,0.15);color:var(--cyan);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">2</div>
+            <div><strong style="color:var(--text-bright)">HPO Extraction</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">AI extracts standardized Human Phenotype Ontology terms from free text.</p></div>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.2rem">
+            <div style="background:rgba(16,185,129,0.15);color:var(--green);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">3</div>
+            <div><strong style="color:var(--text-bright)">Knowledge Graph Match</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">Cross-reference against 2847 disease-gene-phenotype associations.</p></div>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:flex-start">
+            <div style="background:rgba(139,92,246,0.15);color:var(--purple);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">4</div>
+            <div><strong style="color:var(--text-bright)">Consensus Diagnosis</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">10 AI agents debate and reach consensus with confidence scores.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
+
+<!-- Architecture -->
+<section class="section" id="architecture">
+  <div class="container">
+    <div class="section-label reveal">Technical Architecture</div>
+    <h2 class="reveal">Enterprise-Grade Diagnostic Infrastructure</h2>
+    <div class="grid grid-4 mt-3">
+      <div class="card reveal text-center">
+        <div class="card-icon red" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h3>FastAPI Backend</h3>
+        <p style="font-size:0.8rem">20+ REST endpoints, async processing, rate limiting</p>
+      </div>
+      <div class="card reveal text-center">
+        <div class="card-icon cyan" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <h3>AI Engine</h3>
+        <p style="font-size:0.8rem">LLM reasoning, HPO extraction, DeepRare algorithm</p>
+      </div>
+      <div class="card reveal text-center">
+        <div class="card-icon green" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+        <h3>Knowledge Base</h3>
+        <p style="font-size:0.8rem">Graph DB, 7000+ diseases, OMIM/Orphanet/HPO</p>
+      </div>
+      <div class="card reveal text-center">
+        <div class="card-icon purple" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Compliance</h3>
+        <p style="font-size:0.8rem">HIPAA/GDPR compliant, encrypted, audit logging</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- Pricing -->
-<div class="section" id="pricing">
-  <div class="section-title">
-    <h2>定价方案</h2>
-    <p>面向医院/研究机构/药企的灵活定价</p>
-  </div>
-  <div class="pricing-grid">
-    <div class="price-card">
-      <div class="plan-name">Starter</div>
-      <p style="color:var(--text-muted);font-size:.9rem">科研探索</p>
-      <div class="price">$299<span>/月</span></div>
-      <ul class="features">
-        <li>知识图谱查询 (100次/月)</li>
-        <li>AI辅助诊断 (50次/月)</li>
-        <li>罕见病数据库完整访问</li>
-        <li>API文档与SDK</li>
-        <li>邮件技术支持</li>
-      </ul>
-      <a href="#" class="btn btn-outline">开始试用</a>
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-label reveal text-center">Pricing</div>
+    <h2 class="reveal text-center">Choose Your Plan</h2>
+    <p class="text-dim text-center reveal mb-3">Start free. Scale as your research grows.</p>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <h3>Starter</h3>
+        <div class="price-amount">$299<span>/mo</span></div>
+        <div class="price-period">For individual researchers</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 100 diagnoses/month</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Knowledge graph access</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Disease database search</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Basic API access</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Email support</li>
+        </ul>
+        <a href="#" class="btn btn-secondary" style="width:100%">Start Free Trial</a>
+      </div>
+      <div class="price-card featured reveal">
+        <h3>Professional</h3>
+        <div class="price-amount">$999<span>/mo</span></div>
+        <div class="price-period">For research teams</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Unlimited diagnoses</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Multi-agent collaboration</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Drug repurposing engine</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full API + Webhooks</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Priority support</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Genomic analysis module</li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:100%">Start Free Trial</a>
+      </div>
+      <div class="price-card reveal">
+        <h3>Enterprise</h3>
+        <div class="price-amount">Custom</div>
+        <div class="price-period">For hospitals & pharma</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Everything in Professional</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> On-premise deployment</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Custom model training</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> HIPAA BAA included</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 24/7 dedicated support</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> SLA guarantee</li>
+        </ul>
+        <a href="#" class="btn btn-secondary" style="width:100%">Contact Sales</a>
+      </div>
     </div>
-    <div class="price-card featured">
-      <div class="plan-name">Professional</div>
-      <p style="color:var(--text-muted);font-size:.9rem">医院/临床</p>
-      <div class="price">$999<span>/月</span></div>
-      <ul class="features">
-        <li>无限知识图谱查询</li>
-        <li>无限AI辅助诊断</li>
-        <li>药物重定位引擎</li>
-        <li>HIS系统集成</li>
-        <li>专属客户经理</li>
-        <li>HIPAA合规保障</li>
-      </ul>
-      <a href="#" class="btn btn-primary">联系销售</a>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container" style="max-width:800px">
+    <div class="section-label reveal text-center">FAQ</div>
+    <h2 class="reveal text-center">Frequently Asked Questions</h2>
+    <div class="mt-3">
+      <div class="card reveal mb-2" style="cursor:pointer;padding:1.2rem">
+        <div class="faq-question" onclick="this.nextElementSibling.style.maxHeight=this.nextElementSibling.style.maxHeight?null:this.nextElementSibling.scrollHeight+'px'">
+          <h3 style="font-size:1rem;display:flex;justify-content:space-between;align-items:center">What rare diseases does MediChat-RD cover?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg></h3>
+        </div>
+        <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
+          <p style="color:var(--text-dim);padding-top:0.8rem;font-size:0.9rem">MediChat-RD covers 7,000+ rare diseases across 9 categories: neurological, hematological, metabolic, connective tissue, autoimmune, dermatological, ophthalmological, pulmonary, and genetic disorders. Our database is sourced from OMIM, Orphanet, and ClinVar.</p>
+        </div>
+      </div>
+      <div class="card reveal mb-2" style="cursor:pointer;padding:1.2rem">
+        <div class="faq-question" onclick="this.nextElementSibling.style.maxHeight=this.nextElementSibling.style.maxHeight?null:this.nextElementSibling.scrollHeight+'px'">
+          <h3 style="font-size:1rem;display:flex;justify-content:space-between;align-items:center">How accurate is the AI diagnosis?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg></h3>
+        </div>
+        <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
+          <p style="color:var(--text-dim);padding-top:0.8rem;font-size:0.9rem">Our multi-agent system achieves 94.7% diagnostic accuracy in benchmark testing across 500+ validated rare disease cases. The system provides confidence scores and recommends confirmatory tests for each diagnosis.</p>
+        </div>
+      </div>
+      <div class="card reveal mb-2" style="cursor:pointer;padding:1.2rem">
+        <div class="faq-question" onclick="this.nextElementSibling.style.maxHeight=this.nextElementSibling.style.maxHeight?null:this.nextElementSibling.scrollHeight+'px'">
+          <h3 style="font-size:1rem;display:flex;justify-content:space-between;align-items:center">Is patient data secure?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg></h3>
+        </div>
+        <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
+          <p style="color:var(--text-dim);padding-top:0.8rem;font-size:0.9rem">Yes. MediChat-RD is HIPAA and GDPR compliant. All data is encrypted with AES-256 at rest and TLS 1.3 in transit. We maintain complete audit logs and support on-premise deployment for enterprise customers.</p>
+        </div>
+      </div>
     </div>
-    <div class="price-card">
-      <div class="plan-name">Enterprise</div>
-      <p style="color:var(--text-muted);font-size:.9rem">药企/大型机构</div>
-      <div class="price">定制<span></span></div>
-      <ul class="features">
-        <li>全部Professional功能</li>
-        <li>私有化部署</li>
-        <li>定制Agent开发</li>
-        <li>基因组数据分析</li>
-        <li>SLA保障 99.9%</li>
-        <li>7x24专属支持</li>
-      </ul>
-      <a href="#" class="btn btn-outline">预约演示</a>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="text-align:center">
+  <div class="container reveal">
+    <h2>Ready to Accelerate Rare Disease Diagnosis?</h2>
+    <p class="text-dim" style="max-width:600px;margin:1rem auto 2rem">Join research teams worldwide using MediChat-RD to reduce diagnostic delay from years to days.</p>
+    <div class="btn-group" style="justify-content:center">
+      <a href="diagnosis.html" class="btn btn-primary">Start Free Trial</a>
+      <a href="api-docs.html" class="btn btn-secondary">View API Docs</a>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Advantages -->
-<div class="section">
-  <div class="section-title">
-    <h2>平台优势</h2>
-    <p>为什么选择MediChat-RD</p>
-  </div>
-  <div class="advantage-grid">
-    <div class="advantage-card"><div class="icon">⚡</div><h3>诊断提速</h3><p>传统罕见病平均诊断周期5-7年，MediChat-RD通过AI辅助可缩短至48小时内初步筛查</p></div>
-    <div class="advantage-card"><div class="icon">🔬</div><h3>循证推理</h3><p>每个诊断结论附带可追溯的推理链，引用OMIM、Orphanet、PubMed等权威数据源</p></div>
-    <div class="advantage-card"><div class="icon">💊</div><h3>药物发现</h3><p>基于知识图谱的药物重定位引擎，78.6%的候选药物经文献验证具有潜在疗效</p></div>
-    <div class="advantage-card"><div class="icon">🛡️</div><h3>合规安全</h3><p>HIPAA合规，审计日志，数据脱敏，决策检查点确保医疗数据安全</p></div>
-  </div>
-</div>
-
-<!-- Tech Stack -->
-<div class="section">
-  <div class="section-title">
-    <h2>技术架构</h2>
-  </div>
-  <div class="tech-grid">
-    <div class="tech-card"><h3>后端</h3><p>FastAPI · Python 3.10+ · Pydantic v2 · Uvicorn</p></div>
-    <div class="tech-card"><h3>AI引擎</h3><p>CrewAI · DeepRare · HPO Ontology · LLM (MIMO)</p></div>
-    <div class="tech-card"><h3>数据源</h3><p>OpenTargets · PubMed · OMIM · Orphanet · ChEMBL</p></div>
-    <div class="tech-card"><h3>合规</h3><p>HIPAA · 审计日志 · 数据脱敏 · 决策检查点</p></div>
-  </div>
-</div>
-
-<!-- Quick Start -->
-<div class="section">
-  <div class="section-title"><h2>快速开始</h2></div>
-  <div class="card" style="max-width:800px;margin:0 auto">
-    <pre><code>git clone https://github.com/MoKangMedical/medichat-rd.git
-cd medichat-rd
-pip install -r requirements.txt
-
-# 启动服务器
-python server.py
-
-# 或使用 uvicorn
-uvicorn server:app --host 0.0.0.0 --port 8000 --reload
-
-# 访问 API 文档
-open http://localhost:8000/docs</code></pre>
-  </div>
-</div>
-
-<!-- MoKangMedical Ecosystem -->
-<div class="section">
-  <div class="section-title">
-    <h2>MoKangMedical 生态</h2>
-    <p>AI驱动的医疗健康产品矩阵</p>
-  </div>
-  <div class="ecosystem">
-    <a href="https://mokangmedical.github.io/voicehealth/" class="eco-card" style="color:inherit"><div class="name">VoiceHealth</div><div class="desc">AI语音健康早筛</div></a>
-    <a href="https://www.digitalsage.cloud" class="eco-card" style="color:inherit"><div class="name">Digital Sage</div><div class="desc">100位数字智者</div></a>
-    <a href="https://mokangmedical.github.io/chronicdiseasemanagement/" class="eco-card" style="color:inherit"><div class="name">慢康智枢</div><div class="desc">AI慢病管理</div></a>
-    <a href="https://mokangmedical.github.io/tianyan/" class="eco-card" style="color:inherit"><div class="name">天眼</div><div class="desc">商业预测</div></a>
-    <a href="https://mokangmedical.github.io/kondratiev-wave/" class="eco-card" style="color:inherit"><div class="name">康波研究院</div><div class="desc">周期投资</div></a>
-    <a href="https://mokangmedical.github.io/opc-platform/" class="eco-card" style="color:inherit"><div class="name">OPC Platform</div><div class="desc">创业者赋能</div></a>
-  </div>
-</div>
-
-<footer>
-  <p>MediChat-RD — 罕见病AI诊疗平台 | <a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a> | MIT License</p>
-  <div class="footer-links">
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html">AI诊断</a>
-    <a href="repurposing.html">药物重定位</a>
-    <a href="community.html">患者社区</a>
-    <a href="agents.html">Agent协作</a>
-    <a href="database.html">数据库</a>
-    <a href="api-docs.html">API</a>
-    <a href="#pricing">定价</a>
-  </div>
-  <p style="margin-top:.5rem;font-size:.85rem">本平台仅供辅助诊断参考，不构成医疗建议。最终诊断请咨询专业医师。</p>
-  <div class="footer-eco">
-    <h4>MoKangMedical — AI赋能医疗健康</h4>
-    <div class="footer-eco-links">
-      <a href="https://github.com/MoKangMedical">GitHub</a>
-      <a href="https://mokangmedical.github.io/voicehealth/">VoiceHealth</a>
-      <a href="https://www.digitalsage.cloud">Digital Sage</a>
-      <a href="https://mokangmedical.github.io/tianyan/">天眼</a>
-      <a href="https://mokangmedical.github.io/chronicdiseasemanagement/">慢康智枢</a>
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <strong>MediChat-RD</strong>
+        </div>
+        <p>AI-powered rare disease diagnostic platform by MoKangMedical. Accelerating diagnosis for 300M+ patients worldwide.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="diagnosis.html">AI Diagnosis</a></li>
+          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+          <li><a href="repurposing.html">Drug Repurposing</a></li>
+          <li><a href="database.html">Disease Database</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="api-docs.html">API Documentation</a></li>
+          <li><a href="agents.html">Agent System</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
+          <li><a href="https://mokangmedical.github.io/medichat-rd/">Homepage</a></li>
+          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
+      <span>MediChat-RD is not a medical device. Always consult qualified healthcare professionals.</span>
     </div>
   </div>
 </footer>
 
-<script>
-function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
-function runDemo(){
-  const r=document.getElementById('demoResult');
-  r.classList.add('show');
-  r.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>

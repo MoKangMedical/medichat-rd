@@ -3,157 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>药物重定位 — MediChat-RD</title>
-<meta name="description" content="罕见病药物重定位 - AI驱动的老药新用发现平台">
+<title>Drug Repurposing — MediChat-RD</title>
+<meta name="description" content="AI-driven drug repurposing for rare diseases. OpenTargets analysis, PubMed evidence, and comprehensive assessment.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="styles.css">
-<style>
-.container{max-width:1000px}
-input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;background:var(--bg-input);color:var(--text)}
-input:focus{border-color:var(--primary)}
-input::placeholder{color:var(--text-muted)}
-button:disabled{background:var(--text-muted);opacity:.5}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-.form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem;color:var(--text)}
-.result-box{background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;max-height:500px;overflow-y:auto;color:var(--text)}
-.loading{display:none;color:var(--text-muted);font-style:italic;margin:1rem 0}
-.loading.show{display:block}
-.score-bar{height:20px;background:var(--border);border-radius:10px;overflow:hidden;margin:.3rem 0}
-.score-fill{height:100%;border-radius:10px;transition:width .5s}
-.evidence{padding:.8rem;margin:.5rem 0;border-left:4px solid var(--accent);background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:0 8px 8px 0;color:var(--text-light)}
-</style>
 </head>
 <body>
-<div class="topnav">
-  <div class="logo">🧬 MediChat-RD</div>
-  <nav>
-    <a href="index.html">首页</a>
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html">AI诊断</a>
-    <a href="repurposing.html" class="active">药物重定位</a>
-    <a href="community.html">患者社区</a>
-    <a href="agents.html">Agent协作</a>
-    <a href="database.html">罕见病数据库</a>
-    <a href="api-docs.html">API文档</a>
-  </nav>
-</div>
 
-<div class="container">
-  <h1>💊 药物重定位</h1>
-  <p class="sub">OpenTargets靶点分析 + PubMed文献证据 + AI综合评估</p>
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      MediChat-RD
+    </a>
+    <button class="nav-toggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="diagnosis.html">AI Diagnosis</a></li>
+      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+      <li><a href="database.html">Disease DB</a></li>
+      <li><a href="repurposing.html" class="active">Drug Repurposing</a></li>
+      <li><a href="agents.html">Multi-Agent</a></li>
+      <li><a href="api-docs.html">API</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
+    </ul>
+  </div>
+</nav>
 
-  <div class="card">
-    <h3>🔬 重定位评估</h3>
-    <div class="form-row">
-      <div class="form-group">
-        <label>药物名称</label>
-        <input type="text" id="drugInput" placeholder="例如: Metformin">
+<!-- Header -->
+<section class="section" style="padding-top:120px">
+  <div class="container">
+    <div class="section-label reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      AI-Driven Discovery
+    </div>
+    <h1 class="reveal">Drug <span style="color:var(--accent)">Repurposing</span></h1>
+    <p class="text-dim reveal" style="max-width:700px;font-size:1.1rem">AI-driven identification of existing drugs that may treat rare diseases, reducing development time from 15 years to 3-5 years.</p>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">Assessment Dimensions</div>
+    <h2 class="reveal">How Drug Repurposing Works</h2>
+    <div class="grid grid-3 mt-3">
+      <div class="card reveal">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3>Target Overlap</h3>
+        <p>Analyze intersection between drug targets and disease-associated genes using OpenTargets data.</p>
       </div>
-      <div class="form-group">
-        <label>目标疾病</label>
-        <input type="text" id="diseaseInput" placeholder="例如: Gaucher Disease">
+      <div class="card reveal">
+        <div class="card-icon cyan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3>Literature Evidence</h3>
+        <p>PubMed literature retrieval with evidence polarity classification (supporting/opposing/neutral).</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Genomic Data</h3>
+        <p>OpenTargets association scoring with multi-dimensional evidence from GWAS, ClinVar, and pathway data.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Quality Gate</h3>
+        <p>Data completeness, evidence consistency, and reproducibility checks for each assessment.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <h3>AI Scoring</h3>
+        <p>Comprehensive scoring algorithm with recommendation levels and confidence assessment.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>Clinical Trials</h3>
+        <p>Cross-reference with active clinical trials to identify real-world repurposing opportunities.</p>
       </div>
     </div>
-    <button onclick="runAssessment()" id="assessBtn">🚀 开始评估</button>
-    <div class="loading" id="loading">⏳ 正在分析靶点和文献，请稍候...</div>
-    <div id="assessResult" style="display:none;margin-top:1.5rem"></div>
   </div>
+</section>
 
-  <div class="card">
-    <h3>🔍 实体搜索</h3>
-    <div class="form-row">
-      <div class="form-group">
-        <label>搜索药物</label>
-        <input type="text" id="drugSearch" placeholder="输入药物名称">
+<!-- API Info -->
+<section class="section">
+  <div class="container" style="max-width:700px">
+    <div class="card reveal text-center" style="padding:2.5rem">
+      <h3 style="margin-bottom:1rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24" style="vertical-align:-5px"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        API Access
+      </h3>
+      <p style="color:var(--text-dim);margin-bottom:1.5rem">Access the drug repurposing engine programmatically via our REST API.</p>
+      <div style="text-align:left;margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;margin-bottom:0.5rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm)">
+          <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">POST</span>
+          <code style="color:var(--text-bright);font-size:0.9rem">/api/v1/repurposing/assess</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;margin-bottom:0.5rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm)">
+          <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+          <code style="color:var(--text-bright);font-size:0.9rem">/api/v1/repurposing/search/drug/{name}</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm)">
+          <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+          <code style="color:var(--text-bright);font-size:0.9rem">/api/v1/repurposing/targets/drug/{id}</code>
+        </div>
       </div>
-      <div class="form-group">
-        <label>搜索疾病</label>
-        <input type="text" id="diseaseSearch" placeholder="输入疾病名称">
+      <a href="api-docs.html" class="btn btn-primary">View Full API Docs</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <strong>MediChat-RD</strong>
+        </div>
+        <p>AI-powered rare disease diagnostic platform by MoKangMedical.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="diagnosis.html">AI Diagnosis</a></li>
+          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+          <li><a href="repurposing.html">Drug Repurposing</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="api-docs.html">API Documentation</a></li>
+          <li><a href="agents.html">Agent System</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
+          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
+        </ul>
       </div>
     </div>
-    <div style="display:flex;gap:.5rem">
-      <button onclick="searchEntity('drug')">搜索药物</button>
-      <button onclick="searchEntity('disease')" style="background:var(--accent);color:#1a1a2e">搜索疾病</button>
+    <div class="footer-bottom">
+      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
+      <span>MediChat-RD is not a medical device.</span>
     </div>
-    <div id="searchResults" style="margin-top:1rem"></div>
   </div>
+</footer>
 
-  <div class="card">
-    <h3>📊 评估维度</h3>
-    <div class="evidence"><strong>🎯 靶点重叠</strong> — 药物靶点与疾病相关基因的交集分析</div>
-    <div class="evidence"><strong>📄 文献证据</strong> — PubMed文献检索和证据极性分类 (支持/反对/中性)</div>
-    <div class="evidence"><strong>🧬 基因组数据</strong> — OpenTargets关联评分和多维证据</div>
-    <div class="evidence"><strong>✅ 质量门控</strong> — 数据完整性、证据一致性、可复现性检查</div>
-    <div class="evidence"><strong>🤖 AI评估</strong> — 综合打分和推荐等级</div>
-  </div>
-
-  <div class="card">
-    <h3>🔌 API接口</h3>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/repurposing/assess</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/search/drug/{name}</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/search/disease/{name}</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/targets/drug/{id}</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/targets/disease/{id}</span></div>
-  </div>
-</div>
-
-<script>
-const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
-
-async function runAssessment() {
-  const drug = document.getElementById('drugInput').value.trim();
-  const disease = document.getElementById('diseaseInput').value.trim();
-  if(!drug||!disease) return alert('请输入药物和疾病名称');
-  document.getElementById('assessBtn').disabled = true;
-  document.getElementById('loading').classList.add('show');
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/repurposing/assess`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({drug_name:drug, disease_name:disease})
-    });
-    const data = await resp.json();
-    const div = document.getElementById('assessResult');
-    div.style.display = 'block';
-    let html = `<h3 style="margin-bottom:1rem">📋 ${drug} → ${disease} 评估报告</h3>`;
-    if(data.report) {
-      const r = data.report;
-      html += `<p><strong>综合评分:</strong> ${r.overall_score || 'N/A'}</p>`;
-      html += `<div class="score-bar"><div class="score-fill" style="width:${(r.overall_score||0)*100}%;background:${(r.overall_score||0)>0.5?'#27ae60':'#f39c12'}"></div></div>`;
-      html += `<p><strong>置信度:</strong> ${r.confidence_level || 'N/A'}</p>`;
-      html += `<p><strong>推荐:</strong> ${r.recommendation || 'N/A'}</p>`;
-      if(r.target_overlap) html += `<p><strong>靶点重叠:</strong> ${r.target_overlap.length}个</p>`;
-      if(r.total_papers) html += `<p><strong>相关文献:</strong> ${r.total_papers}篇</p>`;
-      html += `<div class="result-box" style="margin-top:1rem">${typeof r==='string'?r:JSON.stringify(r,null,2)}</div>`;
-    } else {
-      html += `<div class="result-box">${JSON.stringify(data,null,2)}</div>`;
-    }
-    div.innerHTML = html;
-  } catch(e) {
-    document.getElementById('assessResult').style.display = 'block';
-    document.getElementById('assessResult').innerHTML = `<p style="color:#e74c3c">评估失败: ${e.message}. 请确保 server.py 已启动。</p>`;
-  }
-  document.getElementById('assessBtn').disabled = false;
-  document.getElementById('loading').classList.remove('show');
-}
-
-async function searchEntity(type) {
-  const q = document.getElementById(type+'Search').value.trim();
-  if(!q) return;
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/repurposing/search/${type}/${encodeURIComponent(q)}`);
-    const data = await resp.json();
-    const div = document.getElementById('searchResults');
-    if(data.candidates && data.candidates.length) {
-      div.innerHTML = `<p><strong>搜索结果:</strong></p>` + data.candidates.map(c =>
-        `<div class="evidence">${c.name} (ID: ${c.id}, 评分: ${c.score.toFixed(3)})</div>`
-      ).join('');
-    } else {
-      div.innerHTML = '<p style="color:#666">未找到匹配结果</p>';
-    }
-  } catch(e) {
-    document.getElementById('searchResults').innerHTML = `<p style="color:#e74c3c">搜索失败: ${e.message}</p>`;
-  }
-}
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>

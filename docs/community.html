@@ -3,179 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>患者社区 — MediChat-RD</title>
-<meta name="description" content="罕见病患者社区 - 基于HPO表型的患者匹配与经验分享">
+<title>Patient Community — MediChat-RD</title>
+<meta name="description" content="Rare disease patient community with HPO-based matching, experience sharing, and clinical trial notifications.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="styles.css">
-<style>
-.container{max-width:1000px}
-input,textarea,select{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;background:var(--bg-input);color:var(--text)}
-input:focus,textarea:focus{border-color:var(--primary)}
-input::placeholder,textarea::placeholder{color:var(--text-muted)}
-textarea{resize:vertical;min-height:80px}
-select{cursor:pointer}
-select option{background:var(--bg-card);color:var(--text)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-.form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem;color:var(--text)}
-.post{background:var(--bg-card);border-radius:var(--radius);padding:1.2rem;margin-bottom:1rem;border:1px solid var(--border)}
-.post .meta{color:var(--text-light);font-size:.85rem;margin-bottom:.5rem}
-.post .author{font-weight:600;color:var(--primary)}
-.post .disease-tag{display:inline-block;background:rgba(245,158,11,.15);color:#f59e0b;padding:.1rem .5rem;border-radius:8px;font-size:.8rem}
-.post .content{margin:.8rem 0;color:var(--text)}
-.post .actions{display:flex;gap:1rem;font-size:.85rem;color:var(--text-muted)}
-.post .actions span{cursor:pointer;transition:color .2s}
-.post .actions span:hover{color:var(--primary)}
-.reply{margin:.5rem 0 .5rem 2rem;padding:.8rem;background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:8px;font-size:.9rem;color:var(--text-light)}
-.match-card{display:flex;gap:1rem;padding:1rem;background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:8px;margin:.5rem 0;align-items:center}
-.match-avatar{width:48px;height:48px;border-radius:50%;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem}
-.match-score{font-size:1.5rem;font-weight:700;color:var(--primary)}
-</style>
 </head>
 <body>
-<div class="topnav">
-  <div class="logo">🧬 MediChat-RD</div>
-  <nav>
-    <a href="index.html">首页</a>
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html">AI诊断</a>
-    <a href="repurposing.html">药物重定位</a>
-    <a href="community.html" class="active">患者社区</a>
-    <a href="agents.html">Agent协作</a>
-    <a href="database.html">罕见病数据库</a>
-    <a href="api-docs.html">API文档</a>
-  </nav>
-</div>
 
-<div class="container">
-  <h1>👥 患者社区</h1>
-  <p class="sub">基于HPO表型的患者匹配引擎 · 经验分享 · 互助支持</p>
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      MediChat-RD
+    </a>
+    <button class="nav-toggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="diagnosis.html">AI Diagnosis</a></li>
+      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+      <li><a href="database.html">Disease DB</a></li>
+      <li><a href="repurposing.html">Drug Repurposing</a></li>
+      <li><a href="agents.html">Multi-Agent</a></li>
+      <li><a href="api-docs.html">API</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
+    </ul>
+  </div>
+</nav>
 
-  <!-- Post Form -->
-  <div class="card">
-    <h3>✏️ 发帖</h3>
-    <div class="form-row">
-      <div class="form-group"><label>昵称</label><input type="text" id="nickInput" placeholder="您的昵称"></div>
-      <div class="form-group"><label>疾病类型</label>
-        <select id="diseaseType">
-          <option value="重症肌无力">重症肌无力</option>
-          <option value="戈谢病">戈谢病</option>
-          <option value="法布雷病">法布雷病</option>
-          <option value="脊髓性肌萎缩症">脊髓性肌萎缩症</option>
-          <option value="Duchenne肌营养不良">Duchenne肌营养不良</option>
-          <option value="苯丙酮尿症">苯丙酮尿症</option>
-          <option value="成骨不全症">成骨不全症</option>
-          <option value="其他">其他</option>
-        </select>
-      </div>
+<!-- Header -->
+<section class="section" style="padding-top:120px">
+  <div class="container">
+    <div class="section-label reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Patient Network
     </div>
-    <div class="form-group"><label>内容</label><textarea id="postContent" placeholder="分享您的经历或提出问题..."></textarea></div>
-    <button onclick="createPost()">发布</button>
+    <h1 class="reveal">Patient <span style="color:var(--accent)">Community</span></h1>
+    <p class="text-dim reveal" style="max-width:700px;font-size:1.1rem">Peer matching, experience sharing, and clinical trial notifications for rare disease patients and their families.</p>
   </div>
+</section>
 
-  <!-- Patient Matching -->
-  <div class="card">
-    <h3>🔗 患者匹配</h3>
-    <p style="color:var(--text-light);margin-bottom:1rem">基于HPO表型相似度匹配相似患者</p>
-    <div class="form-row">
-      <div class="form-group"><label>疾病</label><input type="text" id="matchDisease" placeholder="重症肌无力"></div>
-      <div class="form-group"><label>症状 (逗号分隔)</label><input type="text" id="matchPhenotypes" placeholder="肌无力,眼睑下垂,吞咽困难"></div>
-    </div>
-    <button onclick="findMatches()" style="background:var(--accent);color:#1a1a2e">🔍 查找相似患者</button>
-    <div id="matchResults" style="margin-top:1rem"></div>
-  </div>
-
-  <!-- Posts Feed -->
-  <div class="card">
-    <h3>💬 社区动态</h3>
-    <div id="postsFeed">
-      <div class="post">
-        <div class="meta"><span class="author">小橙子</span> · <span class="disease-tag">重症肌无力</span> · 2025-04-20</div>
-        <div class="content">确诊MG半年了，眼睑下垂的症状一直困扰着我。最近在服用吡啶斯的明，效果还不错。想问问其他病友，大家都怎么应对午后的症状加重？</div>
-        <div class="actions"><span>👍 12</span><span>💬 回复</span><span>🔗 分享</span></div>
-      </div>
-      <div class="post">
-        <div class="meta"><span class="author">阳光妈妈</span> · <span class="disease-tag">戈谢病</span> · 2025-04-19</div>
-        <div class="content">孩子刚确诊戈谢病，作为家长真的很焦虑。目前在北京协和医院做酶替代治疗，想了解其他家庭的治疗经验和注意事项。</div>
-        <div class="actions"><span>👍 28</span><span>💬 回复</span><span>🔗 分享</span></div>
-        <div class="reply"><strong>暖暖爸爸:</strong> 我家孩子治疗3年了，坚持酶替代治疗效果很好。定期复查肝脾大小和血红蛋白，加油！</div>
-        <div class="reply"><strong>医路同行:</strong> 建议关注中国罕见病联盟的患者支持项目，可以申请援助。</div>
-      </div>
-      <div class="post">
-        <div class="meta"><span class class="author">深圳小林</span> · <span class="disease-tag">法布雷病</span> · 2025-04-18</div>
-        <div class="content">肢端疼痛真的太折磨人了！最近开始用阿加糖酶α，希望能改善。有没有病友用过这个药的？想了解一下长期效果。</div>
-        <div class="actions"><span>👍 15</span><span>💬 回复</span><span>🔗 分享</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- API -->
-  <div class="card">
-    <h3>🔌 API接口</h3>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/community/posts</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/community/posts</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/community/posts/{id}</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/community/posts/{id}/reply</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/community/match</span></div>
-  </div>
-</div>
-
-<script>
-const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
-
-async function createPost() {
-  const nick = document.getElementById('nickInput').value.trim() || '匿名用户';
-  const disease = document.getElementById('diseaseType').value;
-  const content = document.getElementById('postContent').value.trim();
-  if(!content) return alert('请输入内容');
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/community/posts`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({nickname:nick, disease_type:disease, content})
-    });
-    const post = await resp.json();
-    const feed = document.getElementById('postsFeed');
-    feed.insertAdjacentHTML('afterbegin', `
-      <div class="post" style="border-left:4px solid var(--accent)">
-        <div class="meta"><span class="author">${post.nickname}</span> · <span class="disease-tag">${post.disease_type}</span> · 刚刚</div>
-        <div class="content">${post.content}</div>
-        <div class="actions"><span>👍 0</span><span>💬 回复</span></div>
-      </div>
-    `);
-    document.getElementById('postContent').value = '';
-  } catch(e) {
-    alert('发布失败: '+e.message);
-  }
-}
-
-async function findMatches() {
-  const disease = document.getElementById('matchDisease').value.trim() || '重症肌无力';
-  const phenoStr = document.getElementById('matchPhenotypes').value.trim() || '肌无力,眼睑下垂';
-  const phenotypes = phenoStr.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/community/match`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({disease, phenotypes})
-    });
-    const data = await resp.json();
-    const div = document.getElementById('matchResults');
-    if(data.matches && data.matches.length) {
-      div.innerHTML = data.matches.map(m => `
-        <div class="match-card">
-          <div class="match-avatar">👤</div>
-          <div style="flex:1">
-            <div style="font-weight:600">${m.patient_id || m.disease || '未知'}</div>
-            <div style="font-size:.85rem;color:var(--text-light)">表型: ${(m.phenotypes||m.hpo_phenotypes||[]).join(', ')}</div>
-          </div>
-          <div class="match-score">${(m.similarity||m.score||0).toFixed(2)}</div>
+<!-- Features -->
+<section class="section">
+  <div class="container">
+    <div class="grid grid-3 mt-3">
+      <div class="card reveal">
+        <div class="card-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-      `).join('');
-    } else {
-      div.innerHTML = '<p style="color:#666">暂无匹配结果。这可能是因为社区中还没有足够多的患者数据。</p>';
-    }
-  } catch(e) {
-    document.getElementById('matchResults').innerHTML = `<p style="color:#e74c3c">匹配失败: ${e.message}</p>`;
-  }
-}
-</script>
+        <h3>HPO-Based Matching</h3>
+        <p>Find patients with similar phenotypes using our Human Phenotype Ontology-based matching algorithm.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Experience Sharing</h3>
+        <p>Share treatment experiences, tips for daily living, and emotional support with fellow patients.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Clinical Trial Alerts</h3>
+        <p>Get notified about relevant clinical trials and research studies for your condition.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Community Posts -->
+<section class="section">
+  <div class="container" style="max-width:800px">
+    <div class="section-label reveal">Community Feed</div>
+    <h2 class="reveal">Patient Stories</h2>
+
+    <div class="card reveal mt-3" style="padding:1.5rem">
+      <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">X</div>
+        <div>
+          <strong style="color:var(--text-bright)">XiaoChenZi</strong>
+          <span style="color:var(--text-dim);font-size:0.8rem;margin-left:0.5rem">Myasthenia Gravis</span>
+        </div>
+        <span style="color:var(--text-dim);font-size:0.8rem;margin-left:auto">2 days ago</span>
+      </div>
+      <p style="color:var(--text-dim);font-size:0.9rem;line-height:1.7">Diagnosed with MG 6 months ago. The ptosis has been really affecting my daily life. Started pyridostigmine and the effect is pretty good. Would love to hear from other patients about how they manage afternoon symptom worsening.</p>
+      <div style="display:flex;gap:1.5rem;margin-top:1rem;padding-top:0.8rem;border-top:1px solid var(--border)">
+        <span style="color:var(--text-dim);font-size:0.85rem;cursor:pointer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
+          12
+        </span>
+        <span style="color:var(--text-dim);font-size:0.85rem;cursor:pointer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          5 replies
+        </span>
+        <span style="color:var(--text-dim);font-size:0.85rem;cursor:pointer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </span>
+      </div>
+    </div>
+
+    <div class="card reveal mt-2" style="padding:1.5rem">
+      <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--cyan));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">S</div>
+        <div>
+          <strong style="color:var(--text-bright)">SunshineMom</strong>
+          <span style="color:var(--text-dim);font-size:0.8rem;margin-left:0.5rem">Gaucher Disease</span>
+        </div>
+        <span style="color:var(--text-dim);font-size:0.8rem;margin-left:auto">3 days ago</span>
+      </div>
+      <p style="color:var(--text-dim);font-size:0.9rem;line-height:1.7">My child was just diagnosed with Gaucher Disease. As a parent, I'm really anxious. Currently doing enzyme replacement therapy at Peking Union Medical College Hospital. Would love to learn about other families' treatment experiences.</p>
+      <div style="padding:0.8rem;margin-top:0.8rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border-left:3px solid var(--cyan)">
+        <strong style="color:var(--text-bright);font-size:0.85rem">WarmDad:</strong>
+        <span style="color:var(--text-dim);font-size:0.85rem"> My child has been on ERT for 3 years. The effect is very good with consistent treatment. Keep monitoring liver/spleen size and hemoglobin. Stay strong!</span>
+      </div>
+      <div style="display:flex;gap:1.5rem;margin-top:1rem;padding-top:0.8rem;border-top:1px solid var(--border)">
+        <span style="color:var(--text-dim);font-size:0.85rem">28 likes</span>
+        <span style="color:var(--text-dim);font-size:0.85rem">8 replies</span>
+      </div>
+    </div>
+
+    <div class="card reveal mt-2" style="padding:1.5rem">
+      <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">L</div>
+        <div>
+          <strong style="color:var(--text-bright)">ShenzhenLin</strong>
+          <span style="color:var(--text-dim);font-size:0.8rem;margin-left:0.5rem">Fabry Disease</span>
+        </div>
+        <span style="color:var(--text-dim);font-size:0.8rem;margin-left:auto">5 days ago</span>
+      </div>
+      <p style="color:var(--text-dim);font-size:0.9rem;line-height:1.7">The acral pain is really tormenting! Recently started agalsidase alfa. Hoping for improvement. Has anyone used this medication long-term? Would like to know about long-term efficacy.</p>
+      <div style="display:flex;gap:1.5rem;margin-top:1rem;padding-top:0.8rem;border-top:1px solid var(--border)">
+        <span style="color:var(--text-dim);font-size:0.85rem">15 likes</span>
+        <span style="color:var(--text-dim);font-size:0.85rem">3 replies</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API -->
+<section class="section">
+  <div class="container" style="max-width:700px">
+    <div class="card reveal text-center" style="padding:2rem">
+      <h3 style="margin-bottom:1rem">Community API</h3>
+      <p style="color:var(--text-dim);margin-bottom:1.5rem">Integrate patient community features into your application.</p>
+      <div style="text-align:left">
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);margin-bottom:0.4rem">
+          <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.15rem 0.5rem;border-radius:6px;font-size:0.75rem;font-weight:700">GET</span>
+          <code style="font-size:0.85rem;color:var(--text-bright)">/api/v1/community/posts</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);margin-bottom:0.4rem">
+          <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.15rem 0.5rem;border-radius:6px;font-size:0.75rem;font-weight:700">POST</span>
+          <code style="font-size:0.85rem;color:var(--text-bright)">/api/v1/community/posts</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm)">
+          <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.15rem 0.5rem;border-radius:6px;font-size:0.75rem;font-weight:700">POST</span>
+          <code style="font-size:0.85rem;color:var(--text-bright)">/api/v1/community/match</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <strong>MediChat-RD</strong>
+        </div>
+        <p>AI-powered rare disease diagnostic platform by MoKangMedical.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="diagnosis.html">AI Diagnosis</a></li>
+          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+          <li><a href="community.html">Community</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="api-docs.html">API Documentation</a></li>
+          <li><a href="agents.html">Agent System</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
+          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
+      <span>MediChat-RD is not a medical device.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
 </body>
 </html>

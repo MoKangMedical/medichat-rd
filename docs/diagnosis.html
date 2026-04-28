@@ -3,186 +3,279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI诊断 — MediChat-RD</title>
-<meta name="description" content="AI辅助罕见病诊断 - 多Agent协作诊断推理">
+<title>AI Diagnosis — MediChat-RD</title>
+<meta name="description" content="Interactive AI-powered rare disease diagnosis. Multi-agent collaboration with HPO symptom extraction.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="styles.css">
-<style>
-.container{max-width:1000px}
-textarea,input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;background:var(--bg-input);color:var(--text)}
-textarea:focus,input:focus{border-color:var(--primary)}
-textarea{resize:vertical;min-height:120px}
-textarea::placeholder,input::placeholder{color:var(--text-muted)}
-button:disabled{background:var(--text-muted);cursor:not-allowed;opacity:.5}
-.btn-row{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
-.result-box{background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;line-height:1.7;max-height:500px;overflow-y:auto;color:var(--text)}
-.disease-match{background:rgba(245,158,11,.1);border-left:4px solid var(--warn);padding:1rem;border-radius:0 8px 8px 0;margin:.5rem 0}
-.step{display:flex;gap:1rem;margin:1rem 0;padding:1rem;background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:8px;align-items:flex-start}
-.step .num{width:32px;height:32px;background:var(--gradient-primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
-.loading{display:none;color:var(--text-muted);font-style:italic;margin:1rem 0}
-.loading.show{display:block}
-</style>
 </head>
 <body>
-<div class="topnav">
-  <div class="logo">🧬 MediChat-RD</div>
-  <nav>
-    <a href="index.html">首页</a>
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html" class="active">AI诊断</a>
-    <a href="repurposing.html">药物重定位</a>
-    <a href="community.html">患者社区</a>
-    <a href="agents.html">Agent协作</a>
-    <a href="database.html">罕见病数据库</a>
-    <a href="api-docs.html">API文档</a>
-  </nav>
-</div>
 
-<div class="container">
-  <h1>🧠 AI诊断推理</h1>
-  <p class="sub">多Agent协作 · DeepRare编排 · HPO症状提取 · 可追溯推理链</p>
-
-  <!-- Diagnosis Flow -->
-  <div class="card">
-    <h3>📋 诊断流程</h3>
-    <div class="step"><div class="num">1</div><div><strong>症状描述</strong><br>患者输入症状和病史信息</div></div>
-    <div class="step"><div class="num">2</div><div><strong>HPO提取</strong><br>自动提取标准HPO表型术语</div></div>
-    <div class="step"><div class="num">3</div><div><strong>知识检索</strong><br>检索罕见病知识库和OMIM/Orphanet</div></div>
-    <div class="step"><div class="num">4</div><div><strong>鉴别诊断</strong><br>多Agent协作生成鉴别诊断列表</div></div>
-    <div class="step"><div class="num">5</div><div><strong>文献验证</strong><br>PubMed文献证据支持</div></div>
-    <div class="step"><div class="num">6</div><div><strong>诊断报告</strong><br>生成结构化诊断报告和建议</div></div>
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      MediChat-RD
+    </a>
+    <button class="nav-toggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="diagnosis.html" class="active">AI Diagnosis</a></li>
+      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+      <li><a href="database.html">Disease DB</a></li>
+      <li><a href="repurposing.html">Drug Repurposing</a></li>
+      <li><a href="agents.html">Multi-Agent</a></li>
+      <li><a href="api-docs.html">API</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
+    </ul>
   </div>
+</nav>
 
-  <!-- Symptom Input -->
-  <div class="card">
-    <h3>🩺 症状描述</h3>
-    <textarea id="symptomInput" placeholder="请描述患者症状，例如：&#10;患者女性，28岁，主诉双侧眼睑下垂3个月，伴咀嚼无力和吞咽困难。午后症状加重，晨起较轻。有轻度呼吸困难。家族史无特殊。"></textarea>
-    <div class="btn-row">
-      <button onclick="runDiagnosis()" id="diagnoseBtn">🔬 开始诊断</button>
-      <button onclick="extractSymptoms()" id="extractBtn" style="background:var(--accent);color:#1a1a2e">🏷️ 提取HPO症状</button>
-      <button onclick="clearAll()" style="background:#6c757d">清空</button>
+<!-- Hero -->
+<section class="section" style="padding-top:120px">
+  <div class="container">
+    <div class="section-label reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      AI Diagnosis Engine
     </div>
-    <div class="loading" id="loading">⏳ 正在分析，请稍候...</div>
+    <h1 class="reveal">Interactive <span style="color:var(--accent)">Rare Disease</span> Diagnosis</h1>
+    <p class="text-dim reveal" style="max-width:700px;font-size:1.1rem">Enter patient symptoms in natural language. Our AI engine extracts HPO terms, cross-references the knowledge graph, and generates differential diagnoses with confidence scores.</p>
   </div>
+</section>
 
-  <!-- Extracted Symptoms -->
-  <div class="card" id="symptomsCard" style="display:none">
-    <h3>🏷️ 提取的HPO症状</h3>
-    <div id="symptomsList"></div>
-  </div>
-
-  <!-- Diagnosis Result -->
-  <div class="card" id="resultCard" style="display:none">
-    <h3>📊 诊断结果</h3>
-    <div class="result-box" id="diagnosisResult"></div>
-  </div>
-
-  <!-- Chat -->
-  <div class="card">
-    <h3>💬 智能对话</h3>
-    <div id="chatHistory" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;padding:1rem;background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px"></div>
-    <div style="display:flex;gap:.5rem">
-      <input type="text" id="chatInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button onclick="sendChat()">发送</button>
+<!-- Workflow -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">Workflow</div>
+    <h2 class="reveal">4-Step Diagnostic Process</h2>
+    <div class="grid grid-4 mt-3">
+      <div class="card reveal text-center">
+        <div class="card-icon red" style="margin:0 auto 1rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <h3>1. Symptom Input</h3>
+        <p style="font-size:0.85rem">Describe symptoms in natural language or structured HPO terms</p>
+      </div>
+      <div class="card reveal text-center">
+        <div class="card-icon cyan" style="margin:0 auto 1rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <h3>2. HPO Extraction</h3>
+        <p style="font-size:0.85rem">AI extracts standardized Human Phenotype Ontology terms</p>
+      </div>
+      <div class="card reveal text-center">
+        <div class="card-icon green" style="margin:0 auto 1rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M2 12h20"/></svg>
+        </div>
+        <h3>3. Knowledge Match</h3>
+        <p style="font-size:0.85rem">Cross-reference against 2847 disease-gene-phenotype associations</p>
+      </div>
+      <div class="card reveal text-center">
+        <div class="card-icon purple" style="margin:0 auto 1rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>4. Consensus Dx</h3>
+        <p style="font-size:0.85rem">10 AI agents debate and reach consensus with confidence scores</p>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- API -->
-  <div class="card">
-    <h3>🔌 API接口</h3>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/diagnosis</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/diagnosis/symptoms</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/diagnosis/hpo/{term_id}</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/deeprare/diagnose</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/chat</span></div>
+<!-- Diagnosis Form -->
+<section class="section">
+  <div class="container">
+    <div class="grid grid-2">
+      <!-- Left: Input Form -->
+      <div class="reveal">
+        <div class="card" style="padding:2rem">
+          <h3 style="margin-bottom:1.2rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" style="vertical-align:-4px;color:var(--accent)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Patient Symptom Input
+          </h3>
+          <form id="diagnosis-form">
+            <div class="form-group">
+              <label for="symptoms-input">Symptoms (natural language)</label>
+              <textarea id="symptoms-input" class="form-textarea" rows="5" placeholder="e.g., progressive muscle weakness, difficulty swallowing, fatigue after exertion, drooping eyelids, double vision in the evening..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Patient Information (optional)</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem">
+                <input class="form-input" type="text" placeholder="Age" id="patient-age">
+                <select class="form-select" id="patient-gender">
+                  <option value="">Gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+                <select class="form-select" id="patient-ethnicity">
+                  <option value="">Ethnicity</option>
+                  <option>East Asian</option>
+                  <option>European</option>
+                  <option>African</option>
+                  <option>South Asian</option>
+                  <option>Hispanic</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="patient-history">Family History (optional)</label>
+              <input class="form-input" type="text" id="patient-history" placeholder="e.g., mother diagnosed with MG, no other family history">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              Run AI Diagnosis
+            </button>
+          </form>
+          <div id="diagnosis-result" class="diagnosis-result"></div>
+        </div>
+      </div>
+
+      <!-- Right: Patient Info & HPO -->
+      <div class="reveal">
+        <!-- Patient Info Panel -->
+        <div class="card" style="padding:2rem;margin-bottom:1.5rem">
+          <h3 style="margin-bottom:1rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="vertical-align:-3px;color:var(--cyan)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Patient Info Panel
+          </h3>
+          <div id="patient-info-panel" style="color:var(--text-dim);font-size:0.9rem">
+            <p>Enter patient information in the form to see a summary here.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.8rem">
+              <div style="padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid var(--border)">
+                <span style="font-size:0.75rem;color:var(--text-dim)">Age</span>
+                <div style="font-weight:600;color:var(--text-bright)" id="panel-age">--</div>
+              </div>
+              <div style="padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid var(--border)">
+                <span style="font-size:0.75rem;color:var(--text-dim)">Gender</span>
+                <div style="font-weight:600;color:var(--text-bright)" id="panel-gender">--</div>
+              </div>
+              <div style="padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid var(--border)">
+                <span style="font-size:0.75rem;color:var(--text-dim)">Ethnicity</span>
+                <div style="font-weight:600;color:var(--text-bright)" id="panel-ethnicity">--</div>
+              </div>
+              <div style="padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid var(--border)">
+                <span style="font-size:0.75rem;color:var(--text-dim)">History</span>
+                <div style="font-weight:600;color:var(--text-bright)" id="panel-history">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HPO Extraction Visualization -->
+        <div class="card" style="padding:2rem">
+          <h3 style="margin-bottom:1rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="vertical-align:-3px;color:var(--green)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            HPO Term Extraction
+          </h3>
+          <div id="hpo-extraction" style="color:var(--text-dim);font-size:0.9rem">
+            <p style="margin-bottom:0.8rem">After running the diagnosis, extracted HPO terms will appear here:</p>
+            <div id="hpo-tags" style="display:flex;flex-wrap:wrap;gap:0.5rem">
+              <span style="padding:0.3rem 0.7rem;background:rgba(255,255,255,0.04);border:1px dashed var(--border);border-radius:20px;font-size:0.8rem;color:var(--text-dim)">HP:0001252 &mdash; Muscular hypotonia</span>
+              <span style="padding:0.3rem 0.7rem;background:rgba(255,255,255,0.04);border:1px dashed var(--border);border-radius:20px;font-size:0.8rem;color:var(--text-dim)">HP:0000510 &mdash; Ptosis</span>
+              <span style="padding:0.3rem 0.7rem;background:rgba(255,255,255,0.04);border:1px dashed var(--border);border-radius:20px;font-size:0.8rem;color:var(--text-dim)">HP:0002015 &mdash; Dysphagia</span>
+              <span style="padding:0.3rem 0.7rem;background:rgba(255,255,255,0.04);border:1px dashed var(--border);border-radius:20px;font-size:0.8rem;color:var(--text-dim)">HP:0003473 &mdash; Fatigue</span>
+            </div>
+            <p style="margin-top:1rem;font-size:0.8rem;color:var(--text-dim)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              These are sample HPO terms. Run a diagnosis to extract real terms from symptom text.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
+<!-- Example Cases -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">Quick Start</div>
+    <h2 class="reveal">Try Example Cases</h2>
+    <div class="grid grid-3 mt-3">
+      <div class="card reveal" style="cursor:pointer" onclick="document.getElementById('symptoms-input').value='progressive muscle weakness, drooping eyelids, difficulty swallowing, fatigue after exertion, double vision in the evening'">
+        <h3 style="font-size:1rem;color:var(--accent)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="vertical-align:-3px"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          Case 1: Myasthenia Gravis
+        </h3>
+        <p style="font-size:0.85rem">28yo female with progressive ptosis, dysphagia, and fatigable weakness</p>
+      </div>
+      <div class="card reveal" style="cursor:pointer" onclick="document.getElementById('symptoms-input').value='progressive joint hypermobility, skin hyperextensibility, easy bruising, chronic joint pain, atrophic scarring'">
+        <h3 style="font-size:1rem;color:var(--cyan)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="vertical-align:-3px"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          Case 2: Ehlers-Danlos
+        </h3>
+        <p style="font-size:0.85rem">22yo female with joint hypermobility, skin hyperextensibility, easy bruising</p>
+      </div>
+      <div class="card reveal" style="cursor:pointer" onclick="document.getElementById('symptoms-input').value='recurrent nosebleeds, easy bruising, heavy menstrual bleeding, prolonged bleeding after dental extraction'">
+        <h3 style="font-size:1rem;color:var(--green)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="vertical-align:-3px"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          Case 3: von Willebrand
+        </h3>
+        <p style="font-size:0.85rem">35yo female with recurrent epistaxis, menorrhagia, and prolonged bleeding</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <strong>MediChat-RD</strong>
+        </div>
+        <p>AI-powered rare disease diagnostic platform by MoKangMedical.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="diagnosis.html">AI Diagnosis</a></li>
+          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+          <li><a href="database.html">Disease Database</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="api-docs.html">API Documentation</a></li>
+          <li><a href="agents.html">Agent System</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
+          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
+      <span>MediChat-RD is not a medical device. Always consult qualified healthcare professionals.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
 <script>
-const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
-let sessionId = null;
-
-async function extractSymptoms() {
-  const text = document.getElementById('symptomInput').value.trim();
-  if(!text) return;
-  document.getElementById('loading').classList.add('show');
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/diagnosis/symptoms?text=${encodeURIComponent(text)}`);
-    const data = await resp.json();
-    const card = document.getElementById('symptomsCard');
-    card.style.display = 'block';
-    const list = document.getElementById('symptomsList');
-    if(data.extracted_phenotypes && data.extracted_phenotypes.length > 0) {
-      list.innerHTML = data.extracted_phenotypes.map(p => `<span class="symptom-tag">${typeof p === 'string' ? p : JSON.stringify(p)}</span>`).join('');
-    } else {
-      list.innerHTML = '<p style="color:#666">未能提取到标准HPO术语，请尝试描述更具体的症状。</p>';
-    }
-  } catch(e) {
-    document.getElementById('symptomsCard').style.display = 'block';
-    document.getElementById('symptomsList').innerHTML = `<p style="color:#e74c3c">API连接失败: ${e.message}. 请确保 server.py 已启动。</p>`;
-  }
-  document.getElementById('loading').classList.remove('show');
-}
-
-async function runDiagnosis() {
-  const text = document.getElementById('symptomInput').value.trim();
-  if(!text) return;
-  document.getElementById('diagnoseBtn').disabled = true;
-  document.getElementById('loading').classList.add('show');
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/diagnosis`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({patient_input: text, session_id: sessionId})
-    });
-    const data = await resp.json();
-    sessionId = data.session_id;
-    const card = document.getElementById('resultCard');
-    card.style.display = 'block';
-    const result = document.getElementById('diagnosisResult');
-    let html = `<strong>会话ID:</strong> ${data.session_id}\n`;
-    html += `<strong>处理时间:</strong> ${data.processing_time_s}秒\n\n`;
-    if(typeof data.result === 'string') {
-      html += data.result;
-    } else {
-      html += JSON.stringify(data.result, null, 2);
-    }
-    result.innerHTML = html;
-  } catch(e) {
-    document.getElementById('resultCard').style.display = 'block';
-    document.getElementById('diagnosisResult').innerHTML = `API连接失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
-  }
-  document.getElementById('diagnoseBtn').disabled = false;
-  document.getElementById('loading').classList.remove('show');
-}
-
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if(!msg) return;
-  input.value = '';
-  const hist = document.getElementById('chatHistory');
-      hist.innerHTML += `<div style="text-align:right;margin:.5rem 0"><span style="background:var(--primary);color:#fff;padding:.5rem 1rem;border-radius:12px 12px 0 12px;display:inline-block;max-width:80%">${msg}</span></div>`;
-  hist.scrollTop = hist.scrollHeight;
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/chat`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:msg, session_id:sessionId})
-    });
-    const data = await resp.json();
-    sessionId = data.session_id;
-    hist.innerHTML += `<div style="margin:.5rem 0"><span style="background:rgba(51,65,85,.5);padding:.5rem 1rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%;color:var(--text)">${data.message}</span></div>`;
-    hist.scrollTop = hist.scrollHeight;
-  } catch(e) {
-    hist.innerHTML += `<div style="margin:.5rem 0;color:#e74c3c">⚠️ API连接失败: ${e.message}</div>`;
-  }
-}
-
-function clearAll() {
-  document.getElementById('symptomInput').value = '';
-  document.getElementById('symptomsCard').style.display = 'none';
-  document.getElementById('resultCard').style.display = 'none';
-}
+// Patient info panel live update
+(function() {
+  var ageEl = document.getElementById('patient-age');
+  var genderEl = document.getElementById('patient-gender');
+  var ethEl = document.getElementById('patient-ethnicity');
+  var histEl = document.getElementById('patient-history');
+  if (ageEl) ageEl.addEventListener('input', function() { document.getElementById('panel-age').textContent = this.value || '--'; });
+  if (genderEl) genderEl.addEventListener('change', function() { document.getElementById('panel-gender').textContent = this.value || '--'; });
+  if (ethEl) ethEl.addEventListener('change', function() { document.getElementById('panel-ethnicity').textContent = this.value || '--'; });
+  if (histEl) histEl.addEventListener('input', function() { document.getElementById('panel-history').textContent = this.value || '--'; });
+})();
 </script>
 </body>
 </html>
