@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>罕见病数据库 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60;--danger:#e74c3c;--warn:#f39c12}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1200px;margin:2rem auto;padding:0 2rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
+h3{margin-bottom:.8rem}
+.search-box{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.search-box input{flex:1;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none}
+.search-box input:focus{border-color:var(--primary)}
+.search-box button{padding:.8rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.filter-btn{padding:.4rem 1rem;border:2px solid var(--border);border-radius:20px;background:#fff;cursor:pointer;font-size:.85rem;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--primary);background:#e8f0fe;color:var(--primary)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.7rem;text-align:left;border-bottom:1px solid var(--border);font-size:.9rem}
+th{background:#f8f9fa;font-weight:600;position:sticky;top:0}
+tr:hover{background:#f8f9fa}
+.symptom-tag{display:inline-block;background:#e8f0fe;color:var(--primary);padding:.1rem .5rem;border-radius:10px;font-size:.75rem;margin:.1rem}
+.gene-tag{display:inline-block;background:#d4edda;color:#155724;padding:.1rem .5rem;border-radius:10px;font-size:.75rem;margin:.1rem}
+.detail-panel{display:none;background:var(--card);border:2px solid var(--primary);border-radius:var(--radius);padding:1.5rem;margin:1rem 0}
+.detail-panel.show{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat{background:#f8f9fa;border-radius:8px;padding:1rem;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:700;color:var(--primary)}
+.stat .label{color:var(--text-light);font-size:.8rem}
+.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
+.method.get{background:var(--primary)}
+.method.post{background:var(--success)}
+.path{font-family:monospace;font-weight:600}
+.cat-metabolic{background:#ffeaa7;color:#d35400}.cat-neuro{background:#dfe6e9;color:#2d3436}
+.cat-muscular{background:#a8e6cf;color:#00b894}.cat-heme{background:#fed9b7;color:#e17055}
+.cat-immune{background:#c3aed6;color:#6c5ce7}.cat-genetic{background:#b2dfdb;color:#00695c}
+.cat-derm{background:#f8bbd0;color:#c2185b}.cat-ophth{background:#b3e5fc;color:#01579b}
+.cat-gi{background:#dcedc8;color:#33691e}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html">知识图谱</a>
+    <a href="diagnosis.html">AI诊断</a>
+    <a href="repurposing.html">药物重定位</a>
+    <a href="community.html">患者社区</a>
+    <a href="agents.html">Agent协作</a>
+    <a href="database.html" class="active">罕见病数据库</a>
+    <a href="api-docs.html">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>📚 罕见病数据库</h1>
+  <p class="sub">30+种罕见病 · 9大分类 · OMIM/Orphanet数据源</p>
+
+  <div class="stats-row">
+    <div class="stat"><div class="num" id="totalCount">30+</div><div class="label">覆盖病种</div></div>
+    <div class="stat"><div class="num">9</div><div class="label">疾病分类</div></div>
+    <div class="stat"><div class="num">50+</div><div class="label">关联基因</div></div>
+    <div class="stat"><div class="num">100+</div><div class="label">关键症状</div></div>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="dbSearch" placeholder="搜索疾病名称、基因、症状..." onkeydown="if(event.key==='Enter')searchDB()">
+    <button onclick="searchDB()">搜索</button>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterByCat('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterByCat('代谢性疾病',this)">代谢性疾病</button>
+    <button class="filter-btn" onclick="filterByCat('神经系统疾病',this)">神经系统疾病</button>
+    <button class="filter-btn" onclick="filterByCat('肌肉疾病',this)">肌肉疾病</button>
+    <button class="filter-btn" onclick="filterByCat('血液系统疾病',this)">血液系统疾病</button>
+    <button class="filter-btn" onclick="filterByCat('免疫系统疾病',this)">免疫系统疾病</button>
+    <button class="filter-btn" onclick="filterByCat('遗传综合征',this)">遗传综合征</button>
+    <button class="filter-btn" onclick="filterByCat('皮肤疾病',this)">皮肤疾病</button>
+    <button class="filter-btn" onclick="filterByCat('眼科疾病',this)">眼科疾病</button>
+    <button class="filter-btn" onclick="filterByCat('消化系统疾病',this)">消化系统疾病</button>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detailPanel">
+    <h3 id="detailTitle"></h3>
+    <div id="detailContent"></div>
+    <button onclick="document.getElementById('detailPanel').classList.remove('show')" style="margin-top:1rem;background:#6c757d">关闭</button>
+  </div>
+
+  <!-- Disease Table -->
+  <div class="card">
+    <h3>📋 疾病列表</h3>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>疾病名称</th><th>英文名</th><th>分类</th><th>遗传方式</th><th>患病率</th><th>关键基因</th><th>操作</th></tr></thead>
+        <tbody id="diseaseTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Symptom Search -->
+  <div class="card">
+    <h3>🔍 症状检索</h3>
+    <p style="color:var(--text-light);margin-bottom:1rem">输入多个症状（逗号分隔），系统将匹配可能的罕见病</p>
+    <div class="search-box">
+      <input type="text" id="symptomSearch" placeholder="例如: 肌无力, 眼睑下垂, 吞咽困难">
+      <button onclick="searchBySymptoms()" style="background:var(--accent);color:#1a1a2e">检索</button>
+    </div>
+    <div id="symptomResults"></div>
+  </div>
+
+  <!-- API -->
+  <div class="card">
+    <h3>🔌 API接口</h3>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/{name}</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/categories</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/rare-diseases/search-by-symptoms</span></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+
+// Demo data (will be replaced by API data)
+const DEMO_DISEASES = [
+  {name_cn:'戈谢病',name_en:'Gaucher Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/40000-60000',gene:'GBA',symptoms:['肝脾肿大','贫血','骨痛','血小板减少']},
+  {name_cn:'法布雷病',name_en:'Fabry Disease',category:'代谢性疾病',inheritance:'X连锁隐性遗传',prevalence:'1/40000',gene:'GLA',symptoms:['肢端疼痛','血管角质瘤','肾功能不全']},
+  {name_cn:'苯丙酮尿症',name_en:'PKU',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/10000-15000',gene:'PAH',symptoms:['智力障碍','癫痫','湿疹','鼠臭味']},
+  {name_cn:'重症肌无力',name_en:'Myasthenia Gravis',category:'免疫系统疾病',inheritance:'自身免疫',prevalence:'1/5000-10000',gene:'CHRNA1',symptoms:['肌无力','眼睑下垂','吞咽困难','呼吸困难']},
+  {name_cn:'脊髓性肌萎缩症',name_en:'SMA',category:'神经系统疾病',inheritance:'常染色体隐性遗传',prevalence:'1/6000-10000',gene:'SMN1',symptoms:['肌无力','肌萎缩','发育迟缓','呼吸困难']},
+  {name_cn:'Duchenne肌营养不良',name_en:'DMD',category:'肌肉疾病',inheritance:'X连锁隐性遗传',prevalence:'1/3500-5000',gene:'DMD',symptoms:['进行性肌无力','假肥大','Gowers征阳性']},
+  {name_cn:'成骨不全症',name_en:'Osteogenesis Imperfecta',category:'遗传综合征',inheritance:'常染色体显性遗传',prevalence:'1/15000-20000',gene:'COL1A1',symptoms:['反复骨折','蓝色巩膜','听力下降']},
+  {name_cn:'白化病',name_en:'Albinism',category:'皮肤疾病',inheritance:'常染色体隐性遗传',prevalence:'1/17000',gene:'TYR',symptoms:['皮肤白皙','头发浅色','视力问题','畏光']},
+  {name_cn:'血友病A',name_en:'Hemophilia A',category:'血液系统疾病',inheritance:'X连锁隐性遗传',prevalence:'1/5000-10000',gene:'F8',symptoms:['关节出血','肌肉出血','术后出血不止']},
+  {name_cn:'Wilson病',name_en:'Wilson Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/30000',gene:'ATP7B',symptoms:['肝硬化','震颤','精神症状','角膜K-F环']},
+];
+
+let currentData = [...DEMO_DISEASES];
+
+function renderTable(diseases) {
+  const tbody = document.getElementById('diseaseTable');
+  tbody.innerHTML = diseases.map((d,i) => `
+    <tr>
+      <td><strong>${d.name_cn}</strong></td>
+      <td>${d.name_en}</td>
+      <td><span class="symptom-tag">${d.category}</span></td>
+      <td>${d.inheritance}</td>
+      <td>${d.prevalence}</td>
+      <td><span class="gene-tag">${d.gene}</span></td>
+      <td><button onclick="showDetail(${i})" style="padding:.3rem .8rem;font-size:.8rem">详情</button></td>
+    </tr>
+  `).join('');
+}
+
+function showDetail(idx) {
+  const d = currentData[idx];
+  document.getElementById('detailTitle').textContent = `${d.name_cn} (${d.name_en})`;
+  document.getElementById('detailContent').innerHTML = `
+    <p><strong>分类:</strong> ${d.category}</p>
+    <p><strong>遗传方式:</strong> ${d.inheritance}</p>
+    <p><strong>患病率:</strong> ${d.prevalence}</p>
+    <p><strong>关键基因:</strong> ${d.gene}</p>
+    <p><strong>关键症状:</strong> ${(d.symptoms||[]).map(s=>`<span class="symptom-tag">${s}</span>`).join(' ')}</p>
+  `;
+  document.getElementById('detailPanel').classList.add('show');
+}
+
+function filterByCat(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if(cat === 'all') {
+    currentData = [...DEMO_DISEASES];
+  } else {
+    currentData = DEMO_DISEASES.filter(d => d.category === cat);
+  }
+  renderTable(currentData);
+}
+
+function searchDB() {
+  const q = document.getElementById('dbSearch').value.trim().toLowerCase();
+  if(!q) { currentData = [...DEMO_DISEASES]; renderTable(currentData); return; }
+  currentData = DEMO_DISEASES.filter(d =>
+    d.name_cn.toLowerCase().includes(q) || d.name_en.toLowerCase().includes(q) ||
+    d.gene.toLowerCase().includes(q) || (d.symptoms||[]).some(s => s.includes(q))
+  );
+  renderTable(currentData);
+}
+
+async function searchBySymptoms() {
+  const q = document.getElementById('symptomSearch').value.trim();
+  if(!q) return;
+  const symptoms = q.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
+  const div = document.getElementById('symptomResults');
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/rare-diseases/search-by-symptoms`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({symptoms})
+    });
+    const data = await resp.json();
+    if(data.results && data.results.length) {
+      div.innerHTML = '<h4 style="margin:1rem 0">匹配结果:</h4>' + data.results.map(r => `
+        <div style="padding:.8rem;margin:.5rem 0;background:#fff3cd;border-radius:8px;border-left:4px solid #f39c12">
+          <strong>${r.name_cn || r.disease || JSON.stringify(r)}</strong>
+          ${r.prevalence ? ` · 患病率: ${r.prevalence}` : ''}
+        </div>
+      `).join('');
+    } else {
+      div.innerHTML = '<p style="color:#666;margin-top:1rem">未找到匹配的罕见病。请尝试更常见的症状描述。</p>';
+    }
+  } catch(e) {
+    // Fallback: local search
+    const matched = DEMO_DISEASES.filter(d =>
+      symptoms.some(s => (d.symptoms||[]).some(ds => ds.includes(s) || s.includes(ds)))
+    );
+    if(matched.length) {
+      div.innerHTML = '<h4 style="margin:1rem 0">本地匹配结果:</h4>' + matched.map(d => `
+        <div style="padding:.8rem;margin:.5rem 0;background:#fff3cd;border-radius:8px;border-left:4px solid #f39c12">
+          <strong>${d.name_cn} (${d.name_en})</strong> · ${d.category}
+        </div>
+      `).join('');
+    } else {
+      div.innerHTML = '<p style="color:#666;margin-top:1rem">未找到匹配结果</p>';
+    }
+  }
+}
+
+// Init
+renderTable(DEMO_DISEASES);
+
+// Try to load from API
+async function loadFromAPI() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/rare-diseases`);
+    const data = await resp.json();
+    if(data.diseases && data.diseases.length > 0) {
+      currentData = data.diseases.map(d => ({
+        name_cn: d.name_cn, name_en: d.name_en, category: d.category,
+        inheritance: d.inheritance, prevalence: d.prevalence,
+        gene: d.gene || '', symptoms: d.key_symptoms || []
+      }));
+      renderTable(currentData);
+      document.getElementById('totalCount').textContent = data.total;
+    }
+  } catch(e) { console.log('Using demo data'); }
+}
+loadFromAPI();
+</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI诊断 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--danger:#e74c3c;--success:#27ae60}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+textarea,input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit}
+textarea:focus,input:focus{border-color:var(--primary)}
+textarea{resize:vertical;min-height:120px}
+button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600;transition:background .2s}
+button:hover{background:#1557b0}
+button:disabled{background:#ccc;cursor:not-allowed}
+.btn-row{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
+.result-box{background:#f8f9fa;border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;line-height:1.7;max-height:500px;overflow-y:auto}
+.symptom-tag{display:inline-block;background:#e8f0fe;color:var(--primary);padding:.2rem .7rem;border-radius:15px;font-size:.85rem;margin:.2rem}
+.disease-match{background:#fff3cd;border-left:4px solid #f39c12;padding:1rem;border-radius:0 8px 8px 0;margin:.5rem 0}
+.step{display:flex;gap:1rem;margin:1rem 0;padding:1rem;background:#f8f9fa;border-radius:8px;align-items:flex-start}
+.step .num{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.loading{display:none;color:var(--text-light);font-style:italic;margin:1rem 0}
+.loading.show{display:block}
+.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
+.method.get{background:var(--primary)}
+.method.post{background:var(--success)}
+.path{font-family:monospace;font-weight:600}
+h1{font-size:2rem;margin-bottom:.5rem}
+.sub{color:var(--text-light);margin-bottom:2rem}
+h3{margin-bottom:.8rem}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html">知识图谱</a>
+    <a href="diagnosis.html" class="active">AI诊断</a>
+    <a href="repurposing.html">药物重定位</a>
+    <a href="community.html">患者社区</a>
+    <a href="agents.html">Agent协作</a>
+    <a href="database.html">罕见病数据库</a>
+    <a href="api-docs.html">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>🧠 AI诊断推理</h1>
+  <p class="sub">多Agent协作 · DeepRare编排 · HPO症状提取 · 可追溯推理链</p>
+
+  <!-- Diagnosis Flow -->
+  <div class="card">
+    <h3>📋 诊断流程</h3>
+    <div class="step"><div class="num">1</div><div><strong>症状描述</strong><br>患者输入症状和病史信息</div></div>
+    <div class="step"><div class="num">2</div><div><strong>HPO提取</strong><br>自动提取标准HPO表型术语</div></div>
+    <div class="step"><div class="num">3</div><div><strong>知识检索</strong><br>检索罕见病知识库和OMIM/Orphanet</div></div>
+    <div class="step"><div class="num">4</div><div><strong>鉴别诊断</strong><br>多Agent协作生成鉴别诊断列表</div></div>
+    <div class="step"><div class="num">5</div><div><strong>文献验证</strong><br>PubMed文献证据支持</div></div>
+    <div class="step"><div class="num">6</div><div><strong>诊断报告</strong><br>生成结构化诊断报告和建议</div></div>
+  </div>
+
+  <!-- Symptom Input -->
+  <div class="card">
+    <h3>🩺 症状描述</h3>
+    <textarea id="symptomInput" placeholder="请描述患者症状，例如：&#10;患者女性，28岁，主诉双侧眼睑下垂3个月，伴咀嚼无力和吞咽困难。午后症状加重，晨起较轻。有轻度呼吸困难。家族史无特殊。"></textarea>
+    <div class="btn-row">
+      <button onclick="runDiagnosis()" id="diagnoseBtn">🔬 开始诊断</button>
+      <button onclick="extractSymptoms()" id="extractBtn" style="background:var(--accent);color:#1a1a2e">🏷️ 提取HPO症状</button>
+      <button onclick="clearAll()" style="background:#6c757d">清空</button>
+    </div>
+    <div class="loading" id="loading">⏳ 正在分析，请稍候...</div>
+  </div>
+
+  <!-- Extracted Symptoms -->
+  <div class="card" id="symptomsCard" style="display:none">
+    <h3>🏷️ 提取的HPO症状</h3>
+    <div id="symptomsList"></div>
+  </div>
+
+  <!-- Diagnosis Result -->
+  <div class="card" id="resultCard" style="display:none">
+    <h3>📊 诊断结果</h3>
+    <div class="result-box" id="diagnosisResult"></div>
+  </div>
+
+  <!-- Chat -->
+  <div class="card">
+    <h3>💬 智能对话</h3>
+    <div id="chatHistory" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;padding:1rem;background:#f8f9fa;border-radius:8px"></div>
+    <div style="display:flex;gap:.5rem">
+      <input type="text" id="chatInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()">发送</button>
+    </div>
+  </div>
+
+  <!-- API -->
+  <div class="card">
+    <h3>🔌 API接口</h3>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/diagnosis</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/diagnosis/symptoms</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/diagnosis/hpo/{term_id}</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/deeprare/diagnose</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/chat</span></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+let sessionId = null;
+
+async function extractSymptoms() {
+  const text = document.getElementById('symptomInput').value.trim();
+  if(!text) return;
+  document.getElementById('loading').classList.add('show');
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/diagnosis/symptoms?text=${encodeURIComponent(text)}`);
+    const data = await resp.json();
+    const card = document.getElementById('symptomsCard');
+    card.style.display = 'block';
+    const list = document.getElementById('symptomsList');
+    if(data.extracted_phenotypes && data.extracted_phenotypes.length > 0) {
+      list.innerHTML = data.extracted_phenotypes.map(p => `<span class="symptom-tag">${typeof p === 'string' ? p : JSON.stringify(p)}</span>`).join('');
+    } else {
+      list.innerHTML = '<p style="color:#666">未能提取到标准HPO术语，请尝试描述更具体的症状。</p>';
+    }
+  } catch(e) {
+    document.getElementById('symptomsCard').style.display = 'block';
+    document.getElementById('symptomsList').innerHTML = `<p style="color:#e74c3c">API连接失败: ${e.message}. 请确保 server.py 已启动。</p>`;
+  }
+  document.getElementById('loading').classList.remove('show');
+}
+
+async function runDiagnosis() {
+  const text = document.getElementById('symptomInput').value.trim();
+  if(!text) return;
+  document.getElementById('diagnoseBtn').disabled = true;
+  document.getElementById('loading').classList.add('show');
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/diagnosis`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({patient_input: text, session_id: sessionId})
+    });
+    const data = await resp.json();
+    sessionId = data.session_id;
+    const card = document.getElementById('resultCard');
+    card.style.display = 'block';
+    const result = document.getElementById('diagnosisResult');
+    let html = `<strong>会话ID:</strong> ${data.session_id}\n`;
+    html += `<strong>处理时间:</strong> ${data.processing_time_s}秒\n\n`;
+    if(typeof data.result === 'string') {
+      html += data.result;
+    } else {
+      html += JSON.stringify(data.result, null, 2);
+    }
+    result.innerHTML = html;
+  } catch(e) {
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('diagnosisResult').innerHTML = `API连接失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
+  }
+  document.getElementById('diagnoseBtn').disabled = false;
+  document.getElementById('loading').classList.remove('show');
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  const hist = document.getElementById('chatHistory');
+  hist.innerHTML += `<div style="text-align:right;margin:.5rem 0"><span style="background:#1a73e8;color:#fff;padding:.5rem 1rem;border-radius:12px 12px 0 12px;display:inline-block;max-width:80%">${msg}</span></div>`;
+  hist.scrollTop = hist.scrollHeight;
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/chat`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:msg, session_id:sessionId})
+    });
+    const data = await resp.json();
+    sessionId = data.session_id;
+    hist.innerHTML += `<div style="margin:.5rem 0"><span style="background:#f1f3f4;padding:.5rem 1rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%">${data.message}</span></div>`;
+    hist.scrollTop = hist.scrollHeight;
+  } catch(e) {
+    hist.innerHTML += `<div style="margin:.5rem 0;color:#e74c3c">⚠️ API连接失败: ${e.message}</div>`;
+  }
+}
+
+function clearAll() {
+  document.getElementById('symptomInput').value = '';
+  document.getElementById('symptomsCard').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'none';
+}
+</script>
+</body>
+</html>

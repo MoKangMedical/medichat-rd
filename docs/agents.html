@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent协作 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
+h3{margin-bottom:.8rem}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.agent-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:1.2rem;transition:border-color .2s,transform .2s}
+.agent-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.agent-icon{font-size:2rem;margin-bottom:.5rem}
+.agent-name{font-weight:700;font-size:1.1rem;margin-bottom:.3rem}
+.agent-role{color:var(--primary);font-size:.85rem;margin-bottom:.5rem}
+.agent-desc{color:var(--text-light);font-size:.9rem}
+.status{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:.3rem}
+.flow-diagram{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:center;margin:2rem 0}
+.flow-node{background:var(--primary);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:600}
+.flow-arrow{font-size:1.5rem;color:var(--text-light)}
+.collab-demo{background:#f8f9fa;border-radius:8px;padding:1.5rem;margin:1rem 0}
+textarea{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;resize:vertical;min-height:100px}
+textarea:focus{border-color:var(--primary)}
+button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600;margin-top:.5rem}
+button:hover{background:#1557b0}
+.result-box{background:#1a1a2e;color:#a8b2d1;border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.9rem;font-family:monospace;max-height:400px;overflow-y:auto}
+.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
+.method.get{background:var(--primary)}
+.method.post{background:var(--success)}
+.path{font-family:monospace;font-weight:600}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html">知识图谱</a>
+    <a href="diagnosis.html">AI诊断</a>
+    <a href="repurposing.html">药物重定位</a>
+    <a href="community.html">患者社区</a>
+    <a href="agents.html" class="active">Agent协作</a>
+    <a href="database.html">罕见病数据库</a>
+    <a href="api-docs.html">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>🤖 Agent协作</h1>
+  <p class="sub">10个专业Agent协同工作 · 分诊→病史→评估→用药→教育→随访</p>
+
+  <!-- Agent Flow -->
+  <div class="card">
+    <h3>🔄 协作流程</h3>
+    <div class="flow-diagram">
+      <div class="flow-node">分诊Agent</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">病史Agent</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">评估Agent</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">用药Agent</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">教育Agent</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">随访Agent</div>
+    </div>
+    <div class="flow-diagram" style="margin-top:1rem">
+      <div class="flow-node" style="background:#9b59b6">知识Agent</div>
+      <div class="flow-node" style="background:#e74c3c">文献Agent</div>
+      <div class="flow-node" style="background:#f39c12">基因组Agent</div>
+      <div class="flow-node" style="background:#27ae60">药物Agent</div>
+    </div>
+  </div>
+
+  <!-- Agent Cards -->
+  <div class="card">
+    <h3>📋 全部Agent</h3>
+    <div class="agent-grid" id="agentGrid">
+      <div class="agent-card"><div class="agent-icon">🏥</div><div class="agent-name"><span class="status"></span>分诊分流Agent</div><div class="agent-role">智能分诊员</div><div class="agent-desc">根据患者症状进行初步分诊，推荐就诊科室</div></div>
+      <div class="agent-card"><div class="agent-icon">📝</div><div class="agent-name"><span class="status"></span>病史采集Agent</div><div class="agent-role">病史采集专家</div><div class="agent-desc">系统性采集患者病史信息</div></div>
+      <div class="agent-card"><div class="agent-icon">🔬</div><div class="agent-name"><span class="status"></span>症状评估Agent</div><div class="agent-role">症状分析专家</div><div class="agent-desc">深度分析症状特征，生成鉴别诊断</div></div>
+      <div class="agent-card"><div class="agent-icon">💊</div><div class="agent-name"><span class="status"></span>用药指导Agent</div><div class="agent-role">临床药师</div><div class="agent-desc">提供用药建议和药物相互作用检查</div></div>
+      <div class="agent-card"><div class="agent-icon">📖</div><div class="agent-name"><span class="status"></span>健康教育Agent</div><div class="agent-role">健康教育专家</div><div class="agent-desc">提供疾病知识和健康管理建议</div></div>
+      <div class="agent-card"><div class="agent-icon">📋</div><div class="agent-name"><span class="status"></span>随访管理Agent</div><div class="agent-role">随访管理专员</div><div class="agent-desc">制定随访计划和康复指导</div></div>
+      <div class="agent-card"><div class="agent-icon">📚</div><div class="agent-name"><span class="status"></span>知识检索Agent</div><div class="agent-role">知识工程师</div><div class="agent-desc">检索罕见病知识库、OMIM、Orphanet</div></div>
+      <div class="agent-card"><div class="agent-icon">📄</div><div class="agent-name"><span class="status"></span>文献检索Agent</div><div class="agent-role">循证医学专家</div><div class="agent-desc">检索PubMed文献，提供循证依据</div></div>
+      <div class="agent-card"><div class="agent-icon">🧬</div><div class="agent-name"><span class="status"></span>基因组分析Agent</div><div class="agent-role">遗传分析师</div><div class="agent-desc">分析基因变异，评估致病性</div></div>
+      <div class="agent-card"><div class="agent-icon">💊</div><div class="agent-name"><span class="status"></span>药物重定位Agent</div><div class="agent-role">药物研发顾问</div><div class="agent-desc">评估老药新用可能性</div></div>
+    </div>
+  </div>
+
+  <!-- Collaborative Demo -->
+  <div class="card">
+    <h3>🎯 协作诊断演示</h3>
+    <div class="collab-demo">
+      <textarea id="collabInput" placeholder="输入患者信息进行多Agent协作诊断...&#10;&#10;例如: 8岁男孩，进行性肌无力2年，步态异常，Gowers征阳性，腓肠肌假性肥大"></textarea>
+      <button onclick="runCollab()">🚀 启动多Agent协作</button>
+      <div class="result-box" id="collabResult" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- API -->
+  <div class="card">
+    <h3>🔌 API接口</h3>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/agents</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/agents/{id}</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/agents/collaborate</span></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+
+async function loadAgents() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/agents`);
+    const data = await resp.json();
+    if(data.agents) {
+      // Update status from API
+    }
+  } catch(e) { console.log('Using demo agent data'); }
+}
+
+async function runCollab() {
+  const text = document.getElementById('collabInput').value.trim();
+  if(!text) return;
+  const result = document.getElementById('collabResult');
+  result.style.display = 'block';
+  result.textContent = '⏳ 正在协调多个Agent...\n';
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/agents/collaborate`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({patient_input:text})
+    });
+    const data = await resp.json();
+    result.textContent = JSON.stringify(data, null, 2);
+  } catch(e) {
+    result.textContent = `❌ 协作失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
+  }
+}
+
+loadAgents();
+</script>
+</body>
+</html>

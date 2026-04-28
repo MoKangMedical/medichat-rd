@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>患者社区 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
+input,textarea,select{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit}
+input:focus,textarea:focus{border-color:var(--primary)}
+textarea{resize:vertical;min-height:80px}
+button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600}
+button:hover{background:#1557b0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem}
+.post{background:var(--card);border-radius:var(--radius);padding:1.2rem;margin-bottom:1rem;border:1px solid var(--border)}
+.post .meta{color:var(--text-light);font-size:.85rem;margin-bottom:.5rem}
+.post .author{font-weight:600;color:var(--primary)}
+.post .disease-tag{display:inline-block;background:#ffeaa7;color:#d35400;padding:.1rem .5rem;border-radius:8px;font-size:.8rem}
+.post .content{margin:.8rem 0}
+.post .actions{display:flex;gap:1rem;font-size:.85rem;color:var(--text-light)}
+.post .actions span{cursor:pointer}
+.post .actions span:hover{color:var(--primary)}
+.reply{margin:.5rem 0 .5rem 2rem;padding:.8rem;background:#f8f9fa;border-radius:8px;font-size:.9rem}
+.match-card{display:flex;gap:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;margin:.5rem 0;align-items:center}
+.match-avatar{width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem}
+.match-score{font-size:1.5rem;font-weight:700;color:var(--primary)}
+.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
+.method.get{background:var(--primary)}
+.method.post{background:var(--success)}
+.path{font-family:monospace;font-weight:600}
+h3{margin-bottom:.8rem}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html">知识图谱</a>
+    <a href="diagnosis.html">AI诊断</a>
+    <a href="repurposing.html">药物重定位</a>
+    <a href="community.html" class="active">患者社区</a>
+    <a href="agents.html">Agent协作</a>
+    <a href="database.html">罕见病数据库</a>
+    <a href="api-docs.html">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>👥 患者社区</h1>
+  <p class="sub">基于HPO表型的患者匹配引擎 · 经验分享 · 互助支持</p>
+
+  <!-- Post Form -->
+  <div class="card">
+    <h3>✏️ 发帖</h3>
+    <div class="form-row">
+      <div class="form-group"><label>昵称</label><input type="text" id="nickInput" placeholder="您的昵称"></div>
+      <div class="form-group"><label>疾病类型</label>
+        <select id="diseaseType">
+          <option value="重症肌无力">重症肌无力</option>
+          <option value="戈谢病">戈谢病</option>
+          <option value="法布雷病">法布雷病</option>
+          <option value="脊髓性肌萎缩症">脊髓性肌萎缩症</option>
+          <option value="Duchenne肌营养不良">Duchenne肌营养不良</option>
+          <option value="苯丙酮尿症">苯丙酮尿症</option>
+          <option value="成骨不全症">成骨不全症</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>内容</label><textarea id="postContent" placeholder="分享您的经历或提出问题..."></textarea></div>
+    <button onclick="createPost()">发布</button>
+  </div>
+
+  <!-- Patient Matching -->
+  <div class="card">
+    <h3>🔗 患者匹配</h3>
+    <p style="color:var(--text-light);margin-bottom:1rem">基于HPO表型相似度匹配相似患者</p>
+    <div class="form-row">
+      <div class="form-group"><label>疾病</label><input type="text" id="matchDisease" placeholder="重症肌无力"></div>
+      <div class="form-group"><label>症状 (逗号分隔)</label><input type="text" id="matchPhenotypes" placeholder="肌无力,眼睑下垂,吞咽困难"></div>
+    </div>
+    <button onclick="findMatches()" style="background:var(--accent);color:#1a1a2e">🔍 查找相似患者</button>
+    <div id="matchResults" style="margin-top:1rem"></div>
+  </div>
+
+  <!-- Posts Feed -->
+  <div class="card">
+    <h3>💬 社区动态</h3>
+    <div id="postsFeed">
+      <div class="post">
+        <div class="meta"><span class="author">小橙子</span> · <span class="disease-tag">重症肌无力</span> · 2025-04-20</div>
+        <div class="content">确诊MG半年了，眼睑下垂的症状一直困扰着我。最近在服用吡啶斯的明，效果还不错。想问问其他病友，大家都怎么应对午后的症状加重？</div>
+        <div class="actions"><span>👍 12</span><span>💬 回复</span><span>🔗 分享</span></div>
+      </div>
+      <div class="post">
+        <div class="meta"><span class="author">阳光妈妈</span> · <span class="disease-tag">戈谢病</span> · 2025-04-19</div>
+        <div class="content">孩子刚确诊戈谢病，作为家长真的很焦虑。目前在北京协和医院做酶替代治疗，想了解其他家庭的治疗经验和注意事项。</div>
+        <div class="actions"><span>👍 28</span><span>💬 回复</span><span>🔗 分享</span></div>
+        <div class="reply"><strong>暖暖爸爸:</strong> 我家孩子治疗3年了，坚持酶替代治疗效果很好。定期复查肝脾大小和血红蛋白，加油！</div>
+        <div class="reply"><strong>医路同行:</strong> 建议关注中国罕见病联盟的患者支持项目，可以申请援助。</div>
+      </div>
+      <div class="post">
+        <div class="meta"><span class class="author">深圳小林</span> · <span class="disease-tag">法布雷病</span> · 2025-04-18</div>
+        <div class="content">肢端疼痛真的太折磨人了！最近开始用阿加糖酶α，希望能改善。有没有病友用过这个药的？想了解一下长期效果。</div>
+        <div class="actions"><span>👍 15</span><span>💬 回复</span><span>🔗 分享</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API -->
+  <div class="card">
+    <h3>🔌 API接口</h3>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/community/posts</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/community/posts</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/community/posts/{id}</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/community/posts/{id}/reply</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/community/match</span></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+
+async function createPost() {
+  const nick = document.getElementById('nickInput').value.trim() || '匿名用户';
+  const disease = document.getElementById('diseaseType').value;
+  const content = document.getElementById('postContent').value.trim();
+  if(!content) return alert('请输入内容');
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/community/posts`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nickname:nick, disease_type:disease, content})
+    });
+    const post = await resp.json();
+    const feed = document.getElementById('postsFeed');
+    feed.insertAdjacentHTML('afterbegin', `
+      <div class="post" style="border-left:4px solid var(--accent)">
+        <div class="meta"><span class="author">${post.nickname}</span> · <span class="disease-tag">${post.disease_type}</span> · 刚刚</div>
+        <div class="content">${post.content}</div>
+        <div class="actions"><span>👍 0</span><span>💬 回复</span></div>
+      </div>
+    `);
+    document.getElementById('postContent').value = '';
+  } catch(e) {
+    alert('发布失败: '+e.message);
+  }
+}
+
+async function findMatches() {
+  const disease = document.getElementById('matchDisease').value.trim() || '重症肌无力';
+  const phenoStr = document.getElementById('matchPhenotypes').value.trim() || '肌无力,眼睑下垂';
+  const phenotypes = phenoStr.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/community/match`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({disease, phenotypes})
+    });
+    const data = await resp.json();
+    const div = document.getElementById('matchResults');
+    if(data.matches && data.matches.length) {
+      div.innerHTML = data.matches.map(m => `
+        <div class="match-card">
+          <div class="match-avatar">👤</div>
+          <div style="flex:1">
+            <div style="font-weight:600">${m.patient_id || m.disease || '未知'}</div>
+            <div style="font-size:.85rem;color:var(--text-light)">表型: ${(m.phenotypes||m.hpo_phenotypes||[]).join(', ')}</div>
+          </div>
+          <div class="match-score">${(m.similarity||m.score||0).toFixed(2)}</div>
+        </div>
+      `).join('');
+    } else {
+      div.innerHTML = '<p style="color:#666">暂无匹配结果。这可能是因为社区中还没有足够多的患者数据。</p>';
+    }
+  } catch(e) {
+    document.getElementById('matchResults').innerHTML = `<p style="color:#e74c3c">匹配失败: ${e.message}</p>`;
+  }
+}
+</script>
+</body>
+</html>

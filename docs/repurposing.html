@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>药物重定位 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none}
+input:focus{border-color:var(--primary)}
+button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600}
+button:hover{background:#1557b0}
+button:disabled{background:#ccc}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem}
+.result-box{background:#f8f9fa;border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;max-height:500px;overflow-y:auto}
+.loading{display:none;color:var(--text-light);font-style:italic;margin:1rem 0}
+.loading.show{display:block}
+.score-bar{height:20px;background:#e8ecf1;border-radius:10px;overflow:hidden;margin:.3rem 0}
+.score-fill{height:100%;border-radius:10px;transition:width .5s}
+.evidence{padding:.8rem;margin:.5rem 0;border-left:4px solid var(--accent);background:#f8f9fa;border-radius:0 8px 8px 0}
+.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
+.method.get{background:var(--primary)}
+.method.post{background:var(--success)}
+.path{font-family:monospace;font-weight:600}
+h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
+h3{margin-bottom:.8rem}
+.tag{display:inline-block;background:#e8f0fe;color:var(--primary);padding:.15rem .6rem;border-radius:10px;font-size:.8rem;margin:.2rem}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html">知识图谱</a>
+    <a href="diagnosis.html">AI诊断</a>
+    <a href="repurposing.html" class="active">药物重定位</a>
+    <a href="community.html">患者社区</a>
+    <a href="agents.html">Agent协作</a>
+    <a href="database.html">罕见病数据库</a>
+    <a href="api-docs.html">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>💊 药物重定位</h1>
+  <p class="sub">OpenTargets靶点分析 + PubMed文献证据 + AI综合评估</p>
+
+  <div class="card">
+    <h3>🔬 重定位评估</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>药物名称</label>
+        <input type="text" id="drugInput" placeholder="例如: Metformin">
+      </div>
+      <div class="form-group">
+        <label>目标疾病</label>
+        <input type="text" id="diseaseInput" placeholder="例如: Gaucher Disease">
+      </div>
+    </div>
+    <button onclick="runAssessment()" id="assessBtn">🚀 开始评估</button>
+    <div class="loading" id="loading">⏳ 正在分析靶点和文献，请稍候...</div>
+    <div id="assessResult" style="display:none;margin-top:1.5rem"></div>
+  </div>
+
+  <div class="card">
+    <h3>🔍 实体搜索</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>搜索药物</label>
+        <input type="text" id="drugSearch" placeholder="输入药物名称">
+      </div>
+      <div class="form-group">
+        <label>搜索疾病</label>
+        <input type="text" id="diseaseSearch" placeholder="输入疾病名称">
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <button onclick="searchEntity('drug')">搜索药物</button>
+      <button onclick="searchEntity('disease')" style="background:var(--accent);color:#1a1a2e">搜索疾病</button>
+    </div>
+    <div id="searchResults" style="margin-top:1rem"></div>
+  </div>
+
+  <div class="card">
+    <h3>📊 评估维度</h3>
+    <div class="evidence"><strong>🎯 靶点重叠</strong> — 药物靶点与疾病相关基因的交集分析</div>
+    <div class="evidence"><strong>📄 文献证据</strong> — PubMed文献检索和证据极性分类 (支持/反对/中性)</div>
+    <div class="evidence"><strong>🧬 基因组数据</strong> — OpenTargets关联评分和多维证据</div>
+    <div class="evidence"><strong>✅ 质量门控</strong> — 数据完整性、证据一致性、可复现性检查</div>
+    <div class="evidence"><strong>🤖 AI评估</strong> — 综合打分和推荐等级</div>
+  </div>
+
+  <div class="card">
+    <h3>🔌 API接口</h3>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/repurposing/assess</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/search/drug/{name}</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/search/disease/{name}</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/targets/drug/{id}</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/repurposing/targets/disease/{id}</span></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+
+async function runAssessment() {
+  const drug = document.getElementById('drugInput').value.trim();
+  const disease = document.getElementById('diseaseInput').value.trim();
+  if(!drug||!disease) return alert('请输入药物和疾病名称');
+  document.getElementById('assessBtn').disabled = true;
+  document.getElementById('loading').classList.add('show');
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/repurposing/assess`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({drug_name:drug, disease_name:disease})
+    });
+    const data = await resp.json();
+    const div = document.getElementById('assessResult');
+    div.style.display = 'block';
+    let html = `<h3 style="margin-bottom:1rem">📋 ${drug} → ${disease} 评估报告</h3>`;
+    if(data.report) {
+      const r = data.report;
+      html += `<p><strong>综合评分:</strong> ${r.overall_score || 'N/A'}</p>`;
+      html += `<div class="score-bar"><div class="score-fill" style="width:${(r.overall_score||0)*100}%;background:${(r.overall_score||0)>0.5?'#27ae60':'#f39c12'}"></div></div>`;
+      html += `<p><strong>置信度:</strong> ${r.confidence_level || 'N/A'}</p>`;
+      html += `<p><strong>推荐:</strong> ${r.recommendation || 'N/A'}</p>`;
+      if(r.target_overlap) html += `<p><strong>靶点重叠:</strong> ${r.target_overlap.length}个</p>`;
+      if(r.total_papers) html += `<p><strong>相关文献:</strong> ${r.total_papers}篇</p>`;
+      html += `<div class="result-box" style="margin-top:1rem">${typeof r==='string'?r:JSON.stringify(r,null,2)}</div>`;
+    } else {
+      html += `<div class="result-box">${JSON.stringify(data,null,2)}</div>`;
+    }
+    div.innerHTML = html;
+  } catch(e) {
+    document.getElementById('assessResult').style.display = 'block';
+    document.getElementById('assessResult').innerHTML = `<p style="color:#e74c3c">评估失败: ${e.message}. 请确保 server.py 已启动。</p>`;
+  }
+  document.getElementById('assessBtn').disabled = false;
+  document.getElementById('loading').classList.remove('show');
+}
+
+async function searchEntity(type) {
+  const q = document.getElementById(type+'Search').value.trim();
+  if(!q) return;
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/repurposing/search/${type}/${encodeURIComponent(q)}`);
+    const data = await resp.json();
+    const div = document.getElementById('searchResults');
+    if(data.candidates && data.candidates.length) {
+      div.innerHTML = `<p><strong>搜索结果:</strong></p>` + data.candidates.map(c =>
+        `<div class="evidence">${c.name} (ID: ${c.id}, 评分: ${c.score.toFixed(3)})</div>`
+      ).join('');
+    } else {
+      div.innerHTML = '<p style="color:#666">未找到匹配结果</p>';
+    }
+  } catch(e) {
+    document.getElementById('searchResults').innerHTML = `<p style="color:#e74c3c">搜索失败: ${e.message}</p>`;
+  }
+}
+</script>
+</body>
+</html>

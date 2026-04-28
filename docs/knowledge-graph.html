@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识图谱 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1200px;margin:2rem auto;padding:0 2rem}
+h1{font-size:2rem;margin-bottom:.5rem}
+.sub{color:var(--text-light);margin-bottom:2rem}
+.search-box{display:flex;gap:.5rem;margin-bottom:2rem}
+.search-box input{flex:1;padding:.8rem 1rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none}
+.search-box input:focus{border-color:var(--primary)}
+.search-box button{padding:.8rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+.card h3{margin-bottom:.5rem}
+.node-list{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.node{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .8rem;border-radius:20px;font-size:.85rem}
+.node.disease{background:#ffeaa7;color:#d35400}
+.node.gene{background:#dfe6e9;color:#2d3436}
+.node.drug{background:#a8e6cf;color:#00b894}
+.node.phenotype{background:#c3aed6;color:#6c5ce7}
+.node.literature{background:#fed9b7;color:#e17055}
+.graph-canvas{width:100%;height:500px;background:#1a1a2e;border-radius:var(--radius);position:relative;overflow:hidden;margin:1.5rem 0}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0}
+.legend-item{display:flex;align-items:center;gap:.3rem;font-size:.85rem}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+table{width:100%;border-collapse:collapse;margin-top:1rem}
+th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(--border);font-size:.9rem}
+th{background:#f8f9fa;font-weight:600}
+.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
+.method.get{background:var(--primary)}
+.path{font-family:monospace;font-weight:600}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html" class="active">知识图谱</a>
+    <a href="diagnosis.html">AI诊断</a>
+    <a href="repurposing.html">药物重定位</a>
+    <a href="community.html">患者社区</a>
+    <a href="agents.html">Agent协作</a>
+    <a href="database.html">罕见病数据库</a>
+    <a href="api-docs.html">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>🕸️ 知识图谱</h1>
+  <p class="sub">疾病-基因-药物-表型-文献 多维关联图谱</p>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索疾病、基因、药物、表型..." onkeydown="if(event.key==='Enter')doSearch()">
+    <button onclick="doSearch()">搜索</button>
+  </div>
+
+  <!-- Graph Visualization -->
+  <div class="card">
+    <h3>📊 图谱可视化</h3>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#f39c12"></div>疾病</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3498db"></div>基因</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div>药物</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>表型</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>文献</div>
+    </div>
+    <div class="graph-canvas" id="graphCanvas">
+      <svg width="100%" height="100%" id="graphSvg"></svg>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="card" id="resultsCard" style="display:none">
+    <h3>🔍 搜索结果</h3>
+    <div id="searchResults"></div>
+  </div>
+
+  <!-- Graph Stats -->
+  <div class="card">
+    <h3>📈 图谱统计</h3>
+    <div id="graphStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:1rem">
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--primary)" id="nodeCount">-</div>
+        <div style="color:var(--text-light);font-size:.85rem">节点总数</div>
+      </div>
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--accent)" id="edgeCount">-</div>
+        <div style="color:var(--text-light);font-size:.85rem">关系总数</div>
+      </div>
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
+        <div style="font-size:1.8rem;font-weight:700;color:#e74c3c" id="diseaseCount">-</div>
+        <div style="color:var(--text-light);font-size:.85rem">疾病节点</div>
+      </div>
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
+        <div style="font-size:1.8rem;font-weight:700;color:#27ae60" id="geneCount">-</div>
+        <div style="color:var(--text-light);font-size:.85rem">基因节点</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sample Nodes -->
+  <div class="card">
+    <h3>🏷️ 节点类型示例</h3>
+    <div class="node-list">
+      <span class="node disease">🟡 重症肌无力 (MG)</span>
+      <span class="node disease">🟡 戈谢病 (GD)</span>
+      <span class="node disease">🟡 法布雷病 (FD)</span>
+      <span class="node gene">🔵 CHRNA1</span>
+      <span class="node gene">🔵 GBA</span>
+      <span class="node gene">🔵 GLA</span>
+      <span class="node drug">🟢 吡啶斯的明</span>
+      <span class="node drug">🟢 伊米苷酶</span>
+      <span class="node phenotype">🟣 肌无力</span>
+      <span class="node phenotype">🟣 肝脾肿大</span>
+      <span class="node literature">🟠 PMID:12345678</span>
+    </div>
+  </div>
+
+  <!-- API -->
+  <div class="card">
+    <h3>🔌 API接口</h3>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph?q=MG&depth=2</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph/search?q=重症肌无力&node_type=disease</span></div>
+  </div>
+
+  <!-- Node Detail Table -->
+  <div class="card">
+    <h3>📋 关联数据示例</h3>
+    <table>
+      <thead><tr><th>疾病</th><th>相关基因</th><th>治疗药物</th><th>关键表型</th><th>OMIM</th></tr></thead>
+      <tbody>
+        <tr><td>重症肌无力</td><td>CHRNA1, CHRNB1, CHRND</td><td>吡啶斯的明, 泼尼松</td><td>肌无力, 眼睑下垂</td><td>OMIM:254200</td></tr>
+        <tr><td>戈谢病</td><td>GBA</td><td>伊米苷酶, 维拉苷酶α</td><td>肝脾肿大, 骨痛</td><td>OMIM:230800</td></tr>
+        <tr><td>法布雷病</td><td>GLA</td><td>阿加糖酶α, 阿加糖酶β</td><td>肢端疼痛, 血管角质瘤</td><td>OMIM:301500</td></tr>
+        <tr><td>脊髓性肌萎缩症</td><td>SMN1, SMN2</td><td>诺西那生钠, 利司扑兰</td><td>肌无力, 肌萎缩</td><td>OMIM:253300</td></tr>
+        <tr><td>Duchenne肌营养不良</td><td>DMD</td><td>激素治疗, 基因治疗</td><td>进行性肌无力, 假肥大</td><td>OMIM:310200</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+
+// Draw sample graph
+function drawGraph() {
+  const svg = document.getElementById('graphSvg');
+  const w = svg.clientWidth || 900, h = 500;
+  svg.innerHTML = '';
+  const nodes = [
+    {id:'MG',label:'重症肌无力',type:'disease',x:w/2,y:h/2},
+    {id:'CHRNA1',label:'CHRNA1',type:'gene',x:w/2-200,y:h/2-120},
+    {id:'PYR',label:'吡啶斯的明',type:'drug',x:w/2+200,y:h/2-120},
+    {id:'HP:0001252',label:'肌无力',type:'phenotype',x:w/2-200,y:h/2+120},
+    {id:'HP:0000486',label:'眼睑下垂',type:'phenotype',x:w/2+200,y:h/2+120},
+    {id:'GD',label:'戈谢病',type:'disease',x:w/2+300,y:h/2},
+    {id:'GBA',label:'GBA',type:'gene',x:w/2+350,y:h/2-150},
+    {id:'FD',label:'法布雷病',type:'disease',x:w/2-300,y:h/2},
+    {id:'GLA',label:'GLA',type:'gene',x:w/2-350,y:h/2-150},
+  ];
+  const edges = [
+    {s:'MG',t:'CHRNA1',r:'causes'},
+    {s:'MG',t:'PYR',r:'treats'},
+    {s:'MG',t:'HP:0001252',r:'has_phenotype'},
+    {s:'MG',t:'HP:0000486',r:'has_phenotype'},
+    {s:'GD',t:'GBA',r:'causes'},
+    {s:'FD',t:'GLA',r:'causes'},
+  ];
+  const colors = {disease:'#f39c12',gene:'#3498db',drug:'#27ae60',phenotype:'#9b59b6',literature:'#e74c3c'};
+  edges.forEach(e => {
+    const sn = nodes.find(n=>n.id===e.s), tn = nodes.find(n=>n.id===e.t);
+    if(sn&&tn) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',sn.x);line.setAttribute('y1',sn.y);
+      line.setAttribute('x2',tn.x);line.setAttribute('y2',tn.y);
+      line.setAttribute('stroke','#555');line.setAttribute('stroke-width','2');
+      svg.appendChild(line);
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',(sn.x+tn.x)/2);txt.setAttribute('y',(sn.y+tn.y)/2-5);
+      txt.setAttribute('fill','#888');txt.setAttribute('font-size','11');txt.setAttribute('text-anchor','middle');
+      txt.textContent = e.r;
+      svg.appendChild(txt);
+    }
+  });
+  nodes.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r','24');
+    c.setAttribute('fill',colors[n.type]);c.setAttribute('opacity','0.9');
+    g.appendChild(c);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',n.x);t.setAttribute('y',n.y+35);
+    t.setAttribute('fill','#333');t.setAttribute('font-size','12');t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-weight','600');
+    t.textContent = n.label;
+    g.appendChild(t);
+    svg.appendChild(g);
+  });
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/knowledge-graph/search?q=${encodeURIComponent(q)}`);
+    const data = await resp.json();
+    const card = document.getElementById('resultsCard');
+    card.style.display = 'block';
+    const div = document.getElementById('searchResults');
+    if(data.results && data.results.length > 0) {
+      div.innerHTML = data.results.map(r => `<div class="node ${r.type}" style="margin:.3rem">${r.type}: ${r.label} (${r.id})</div>`).join('');
+    } else {
+      div.innerHTML = '<p style="color:#666">未找到匹配节点</p>';
+    }
+  } catch(e) {
+    document.getElementById('resultsCard').style.display = 'block';
+    document.getElementById('searchResults').innerHTML = `<p style="color:#e74c3c">API连接失败: ${e.message}. 请确保 server.py 已启动。</p>`;
+  }
+}
+
+async function loadStats() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/knowledge-graph`);
+    const data = await resp.json();
+    document.getElementById('nodeCount').textContent = data.total_nodes || '-';
+    document.getElementById('edgeCount').textContent = data.total_edges || '-';
+    if(data.nodes) {
+      document.getElementById('diseaseCount').textContent = data.nodes.filter(n=>n.type==='disease').length;
+      document.getElementById('geneCount').textContent = data.nodes.filter(n=>n.type==='gene').length;
+    }
+  } catch(e) {
+    console.log('API not available, using demo data');
+    document.getElementById('nodeCount').textContent = '8+';
+    document.getElementById('edgeCount').textContent = '20+';
+    document.getElementById('diseaseCount').textContent = '8';
+    document.getElementById('geneCount').textContent = '10+';
+  }
+}
+
+window.addEventListener('load', () => { drawGraph(); loadStats(); });
+window.addEventListener('resize', drawGraph);
+</script>
+</body>
+</html>

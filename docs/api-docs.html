@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API文档 — MediChat-RD</title>
+<style>
+:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60;--danger:#e74c3c;--warn:#f39c12}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
+.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
+.topnav nav a:hover,.topnav nav a.active{color:#fff}
+.container{max-width:1100px;margin:2rem auto;padding:0 2rem}
+h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
+h3{margin-bottom:.8rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+.sidebar{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar a{display:block;padding:.4rem .8rem;color:var(--text-light);font-size:.9rem;border-left:3px solid transparent;margin:.1rem 0}
+.sidebar a:hover,.sidebar a.active{color:var(--primary);background:#e8f0fe;border-left-color:var(--primary);text-decoration:none}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:2rem}
+.endpoint-block{margin:2rem 0;padding:1.5rem;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.endpoint-header{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
+.method{padding:.2rem .6rem;border-radius:4px;font-size:.85rem;font-weight:700;color:#fff;min-width:55px;text-align:center}
+.method.get{background:var(--primary)}
+.method.post{background:var(--success)}
+.method.put{background:var(--warn)}
+.method.delete{background:var(--danger)}
+.path{font-family:monospace;font-size:1.05rem;font-weight:600}
+.desc{color:var(--text-light);margin-bottom:1rem}
+.params{margin:1rem 0}
+.params table{width:100%;border-collapse:collapse;font-size:.9rem}
+.params th,.params td{padding:.5rem .8rem;text-align:left;border-bottom:1px solid var(--border)}
+.params th{background:#f8f9fa;font-weight:600;font-size:.85rem}
+.params .required{color:var(--danger);font-weight:600}
+.params .optional{color:var(--text-light)}
+.code-block{background:#1a1a2e;color:#a8b2d1;padding:1rem;border-radius:8px;font-family:monospace;font-size:.85rem;overflow-x:auto;white-space:pre}
+.try-btn{padding:.5rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.9rem;margin:.5rem 0}
+.try-btn:hover{opacity:.9}
+.try-result{background:#f8f9fa;border-radius:8px;padding:1rem;margin-top:.5rem;font-family:monospace;font-size:.85rem;max-height:300px;overflow-y:auto;white-space:pre-wrap;display:none}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:10px;font-size:.75rem;font-weight:600}
+.badge-get{background:#e8f0fe;color:var(--primary)}
+.badge-post{background:#d4edda;color:#155724}
+.badge-new{background:#fff3cd;color:#856404}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">🧬 MediChat-RD</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="knowledge-graph.html">知识图谱</a>
+    <a href="diagnosis.html">AI诊断</a>
+    <a href="repurposing.html">药物重定位</a>
+    <a href="community.html">患者社区</a>
+    <a href="agents.html">Agent协作</a>
+    <a href="database.html">罕见病数据库</a>
+    <a href="api-docs.html" class="active">API文档</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>📖 API文档</h1>
+  <p class="sub">MediChat-RD RESTful API · FastAPI · 自动交互式文档</p>
+
+  <div class="card">
+    <p>📖 <strong>Swagger UI:</strong> <a href="http://localhost:8000/docs" target="_blank">localhost:8000/docs</a></p>
+    <p>📘 <strong>ReDoc:</strong> <a href="http://localhost:8000/redoc" target="_blank">localhost:8000/redoc</a></p>
+    <p style="margin-top:.5rem;color:var(--text-light)">启动服务: <code>python server.py</code> 或 <code>uvicorn server:app --port 8000</code></p>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">系统</strong>
+      <a href="#health">健康检查</a>
+      <a href="#status">系统状态</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">知识图谱</a>
+      <a href="#kg-get">获取图谱</a>
+      <a href="#kg-search">搜索节点</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">罕见病数据库</strong>
+      <a href="#rd-list">疾病列表</a>
+      <a href="#rd-detail">疾病详情</a>
+      <a href="#rd-symptoms">症状搜索</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">AI诊断</strong>
+      <a href="#diag-run">诊断推理</a>
+      <a href="#diag-hpo">HPO提取</a>
+      <a href="#diag-deeprare">DeepRare</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">药物重定位</strong>
+      <a href="#rep-assess">重定位评估</a>
+      <a href="#rep-drug">药物搜索</a>
+      <a href="#rep-targets">靶点查询</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">患者社区</strong>
+      <a href="#comm-list">帖子列表</a>
+      <a href="#comm-create">创建帖子</a>
+      <a href="#comm-match">患者匹配</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">Agent协作</strong>
+      <a href="#agent-list">Agent列表</a>
+      <a href="#agent-collab">协作诊断</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">AI对话</strong>
+      <a href="#chat-send">发送消息</a>
+      <a href="#chat-history">对话历史</a>
+      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">基因组 & 实验室</strong>
+      <a href="#genomic-analyze">变异分析</a>
+      <a href="#lab-analyze">化验分析</a>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+      <!-- System -->
+      <h2 id="health">系统</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/health</span></div>
+        <p class="desc">健康检查端点</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/health')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="status">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/system/status</span></div>
+        <p class="desc">获取所有模块加载状态</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/system/status')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Knowledge Graph -->
+      <h2 id="kg-get" style="margin-top:3rem">知识图谱</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph</span></div>
+        <p class="desc">获取罕见病知识图谱</p>
+        <div class="params">
+          <table>
+            <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
+            <tr><td>disease</td><td>string</td><td class="optional">可选</td><td>疾病名称/缩写</td></tr>
+            <tr><td>depth</td><td>integer</td><td class="optional">可选 (默认2)</td><td>图深度 1-4</td></tr>
+          </table>
+        </div>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/knowledge-graph')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="kg-search">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph/search</span></div>
+        <p class="desc">搜索知识图谱节点</p>
+        <div class="params">
+          <table>
+            <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
+            <tr><td>q</td><td>string</td><td class="required">必需</td><td>搜索关键词</td></tr>
+            <tr><td>node_type</td><td>string</td><td class="optional">可选</td><td>节点类型: disease/gene/drug/phenotype</td></tr>
+          </table>
+        </div>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/knowledge-graph/search?q=MG')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Rare Disease DB -->
+      <h2 id="rd-list" style="margin-top:3rem">罕见病数据库</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases</span></div>
+        <p class="desc">列出所有罕见病</p>
+        <div class="params">
+          <table>
+            <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
+            <tr><td>category</td><td>string</td><td class="optional">可选</td><td>分类筛选</td></tr>
+            <tr><td>limit</td><td>integer</td><td class="optional">可选 (默认50)</td><td>返回数量</td></tr>
+            <tr><td>offset</td><td>integer</td><td class="optional">可选</td><td>偏移量</td></tr>
+          </table>
+        </div>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/rare-diseases?limit=5')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="rd-detail">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/{name}</span></div>
+        <p class="desc">获取单个罕见病详情</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/rare-diseases/Gaucher Disease')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="rd-symptoms">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/rare-diseases/search-by-symptoms</span></div>
+        <p class="desc">根据症状搜索罕见病</p>
+        <div class="code-block">{
+  "symptoms": ["肌无力", "眼睑下垂", "吞咽困难"],
+  "age": 28,
+  "gender": "女"
+}</div>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/rare-diseases/search-by-symptoms',{symptoms:['肌无力','眼睑下垂']})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Diagnosis -->
+      <h2 id="diag-run" style="margin-top:3rem">AI诊断</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/diagnosis</span></div>
+        <p class="desc">AI诊断推理 — 多Agent协作</p>
+        <div class="code-block">{
+  "patient_input": "8岁男孩，进行性肌无力2年，Gowers征阳性",
+  "session_id": null
+}</div>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/diagnosis',{patient_input:'8岁男孩，进行性肌无力2年，Gowers征阳性'})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="diag-hpo">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/diagnosis/symptoms?text=...</span></div>
+        <p class="desc">从自由文本中提取HPO症状</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/diagnosis/symptoms?text=患者出现眼睑下垂和吞咽困难')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Drug Repurposing -->
+      <h2 id="rep-assess" style="margin-top:3rem">药物重定位</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/repurposing/assess</span></div>
+        <p class="desc">药物重定位评估</p>
+        <div class="code-block">{
+  "drug_name": "Metformin",
+  "disease_name": "Gaucher Disease"
+}</div>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/repurposing/assess',{drug_name:'Metformin',disease_name:'Gaucher Disease'})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Community -->
+      <h2 id="comm-list" style="margin-top:3rem">患者社区</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/community/posts</span></div>
+        <p class="desc">获取社区帖子</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/community/posts')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="comm-create">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/community/posts</span></div>
+        <p class="desc">创建社区帖子</p>
+        <div class="code-block">{
+  "nickname": "测试用户",
+  "disease_type": "重症肌无力",
+  "content": "想了解其他病友的治疗经验"
+}</div>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/community/posts',{nickname:'测试用户',disease_type:'重症肌无力',content:'想了解治疗经验'})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Agents -->
+      <h2 id="agent-list" style="margin-top:3rem">Agent协作</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/agents</span></div>
+        <p class="desc">列出所有可用Agent</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/agents')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="agent-collab">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/agents/collaborate</span></div>
+        <p class="desc">多Agent协作诊断</p>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/agents/collaborate',{patient_input:'患者女性28岁，眼睑下垂3个月'})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Chat -->
+      <h2 id="chat-send" style="margin-top:3rem">AI对话</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/chat</span></div>
+        <p class="desc">患者咨询对话</p>
+        <div class="code-block">{
+  "message": "我最近总是感觉四肢无力，眼睑下垂",
+  "session_id": null
+}</div>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/chat',{message:'我最近总是感觉四肢无力，眼睑下垂'})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <!-- Genomic -->
+      <h2 id="genomic-analyze" style="margin-top:3rem">基因组 & 实验室</h2>
+      <div class="endpoint-block">
+        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/genomic/gene-disease?gene=CHRNA1</span></div>
+        <p class="desc">查询基因-疾病关联</p>
+        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/genomic/gene-disease?gene=CHRNA1')">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+      <div class="endpoint-block" id="lab-analyze">
+        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/lab/analyze</span></div>
+        <p class="desc">分析实验室检查结果</p>
+        <div class="code-block">{
+  "results": {
+    "WBC": 5.2,
+    "Hb": 98,
+    "PLT": 80,
+    "ALT": 45
+  }
+}</div>
+        <button class="try-btn" onclick="tryPost(this,'/api/v1/lab/analyze',{results:{WBC:5.2,Hb:98,PLT:80,ALT:45}})">试一试</button>
+        <div class="try-result"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+
+async function tryEndpoint(btn, path) {
+  const result = btn.nextElementSibling;
+  result.style.display = 'block';
+  result.textContent = '⏳ 请求中...';
+  try {
+    const resp = await fetch(`${API_BASE}${path}`);
+    const data = await resp.json();
+    result.textContent = `HTTP ${resp.status}\n\n${JSON.stringify(data, null, 2)}`;
+  } catch(e) {
+    result.textContent = `❌ 请求失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
+  }
+}
+
+async function tryPost(btn, path, body) {
+  const result = btn.nextElementSibling;
+  result.style.display = 'block';
+  result.textContent = '⏳ 请求中...';
+  try {
+    const resp = await fetch(`${API_BASE}${path}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const data = await resp.json();
+    result.textContent = `HTTP ${resp.status}\n\n${JSON.stringify(data, null, 2)}`;
+  } catch(e) {
+    result.textContent = `❌ 请求失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
+  }
+}
+</script>
+</body>
+</html>
