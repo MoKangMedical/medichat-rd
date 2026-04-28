@@ -1,519 +1,198 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediChat-RD — Rare Disease AI Diagnostic Platform | MoKangMedical</title>
-<meta name="description" content="AI-powered rare disease diagnosis platform. Knowledge graph, multi-agent collaboration, drug repurposing. 7000+ rare diseases, 300M+ patients worldwide.">
-<meta name="keywords" content="rare disease,AI diagnosis,knowledge graph,drug repurposing,medical AI,orphan drugs">
-<meta property="og:title" content="MediChat-RD — Rare Disease AI Diagnostic Platform">
-<meta property="og:description" content="AI-powered rare disease diagnosis with knowledge graph, multi-agent collaboration, and drug repurposing.">
-<meta property="og:type" content="website">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://mokangmedical.github.io/medichat-rd/">
-<link rel="stylesheet" href="styles.css">
-
-<style>
-@media(max-width:768px){
-  .hero h1,.hero h2{font-size:28px!important}
-  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr!important}
-  section{padding:40px 16px!important}
-  .nav-links{display:none!important}
-}
-</style>
-</head>
-<body style="padding-bottom:60px" style="padding-top:56px!important"><nav id="opc-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(99,102,241,0.2);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-  <a href="https://mokangmedical.github.io/opc-homepage/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:15px">
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#ng1)" stroke-width="2.5"/><path d="M10 16h12M16 10v12" stroke="url(#ng1)" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="ng1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs></svg>
-    <span style="background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent">MoKangMedical</span>
-  </a>
-  <div style="display:flex;gap:6px;align-items:center">
-    <a href="https://mokangmedical.github.io/opc-homepage/" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:8px">生态首页</a>
-    <a href="https://github.com/MoKangMedical" target="_blank" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:8px">GitHub</a>
-    <a href="https://mokangmedical.github.io/opc-alliance/" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:6px 16px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none">OPC Hub</a>
-  </div>
-</nav>
-
-<!-- Navigation -->
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a href="index.html" class="nav-brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      MediChat-RD
-    </a>
-    <button class="nav-toggle" aria-label="Menu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-    </button>
-    <ul class="nav-links">
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="diagnosis.html">AI Diagnosis</a></li>
-      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
-      <li><a href="database.html">Disease DB</a></li>
-      <li><a href="repurposing.html">Drug Repurposing</a></li>
-      <li><a href="agents.html">Multi-Agent</a></li>
-      <li><a href="api-docs.html">API</a></li>
-      <li><a href="pricing.html">Pricing</a></li>
-      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
-    </ul>
-  </div>
-</nav>
-
-<!-- Hero -->
-<section class="hero" id="top">
-  <div class="container">
-    <div class="hero-content reveal">
-      <div class="hero-badges">
-        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 7,000+ Rare Diseases</span>
-        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 300M+ Patients Worldwide</span>
-        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Multi-Agent AI</span>
-      </div>
-      <h1>AI-Powered <span class="accent">Rare Disease</span> Diagnosis</h1>
-      <p>Combining knowledge graphs, multi-agent AI collaboration, and drug repurposing to accelerate diagnosis for the 300 million people living with rare diseases worldwide.</p>
-      <div class="btn-group">
-        <a href="diagnosis.html" class="btn btn-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          Try AI Diagnosis
-        </a>
-        <a href="#features" class="btn btn-secondary">Explore Platform</a>
-        <a href="api-docs.html" class="btn btn-secondary">API Documentation</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Global Stats -->
-<section class="section" id="stats">
-  <div class="container">
-    <div class="section-label reveal">Global Impact</div>
-    <h2 class="reveal">The Rare Disease Challenge</h2>
-    <div class="stats-grid mt-3">
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="7000" data-suffix="+">0</div>
-        <div class="stat-label">Known Rare Diseases</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="300" data-suffix="M+">0</div>
-        <div class="stat-label">Patients Worldwide</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="5" data-suffix=" yrs" data-prefix="~">0</div>
-        <div class="stat-label">Average Diagnostic Delay</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="95" data-suffix="%">0</div>
-        <div class="stat-label">Without Approved Treatment</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- AI Platform Metrics -->
-<section class="section">
-  <div class="container">
-    <div class="section-label reveal">Platform Performance</div>
-    <h2 class="reveal">AI Diagnostic Capabilities</h2>
-    <div class="stats-grid mt-3">
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="94.7" data-suffix="%">0</div>
-        <div class="stat-label">Diagnostic Accuracy</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="10" data-suffix=" Agents">0</div>
-        <div class="stat-label">Specialized AI Agents</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="2847" data-suffix="">0</div>
-        <div class="stat-label">Disease-Gene Associations</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number" data-count="72" data-suffix=" hrs">0</div>
-        <div class="stat-label">Avg. Time Saved per Case</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Core Features -->
-<section class="section" id="features">
-  <div class="container">
-    <div class="section-label reveal">Core Capabilities</div>
-    <h2 class="reveal">One Platform, Complete Diagnostic Workflow</h2>
-    <div class="grid grid-3 mt-3">
-      <a href="diagnosis.html" class="card reveal" style="text-decoration:none">
-        <div class="card-icon red">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        </div>
-        <h3>AI Diagnosis Engine</h3>
-        <p>Multi-model reasoning with HPO symptom extraction, DeepRare differential diagnosis, and confidence scoring across 7000+ conditions.</p>
-      </a>
-      <a href="knowledge-graph.html" class="card reveal" style="text-decoration:none">
-        <div class="card-icon cyan">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M2 12h20"/></svg>
-        </div>
-        <h3>Knowledge Graph</h3>
-        <p>Interactive disease-gene-drug relationship network with 2847+ associations, enabling pathway analysis and comorbidity discovery.</p>
-      </a>
-      <a href="repurposing.html" class="card reveal" style="text-decoration:none">
-        <div class="card-icon green">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        </div>
-        <h3>Drug Repurposing</h3>
-        <p>AI-driven identification of existing drugs that may treat rare diseases, reducing development time from 15 years to 3-5 years.</p>
-      </a>
-      <a href="agents.html" class="card reveal" style="text-decoration:none">
-        <div class="card-icon purple">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <h3>Multi-Agent Collaboration</h3>
-        <p>10 specialized AI agents (geneticist, pathologist, pharmacist, etc.) collaborating on complex diagnostic cases with consensus reasoning.</p>
-      </a>
-      <a href="community.html" class="card reveal" style="text-decoration:none">
-        <div class="card-icon amber">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </div>
-        <h3>Patient Community</h3>
-        <p>Peer matching, experience sharing, and clinical trial notifications for rare disease patients and their families.</p>
-      </a>
-      <a href="database.html" class="card reveal" style="text-decoration:none">
-        <div class="card-icon red">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-        </div>
-        <h3>Rare Disease Database</h3>
-        <p>Searchable database of 7000+ rare diseases with prevalence, symptoms, genetics, treatments, and clinical trial information.</p>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- Interactive Demo -->
-<section class="section" id="demo">
-  <div class="container">
-    <div class="section-label reveal">Live Demo</div>
-    <h2 class="reveal">AI Symptom-to-Diagnosis</h2>
-    <p class="text-dim reveal mb-3">Enter patient symptoms below and our AI engine will generate a differential diagnosis ranked by confidence.</p>
-    <div class="grid grid-2">
-      <div class="reveal">
-        <form id="diagnosis-form">
-          <div class="form-group">
-            <label for="symptoms-input">Patient Symptoms</label>
-            <textarea id="symptoms-input" class="form-textarea" rows="4" placeholder="e.g., progressive muscle weakness, difficulty swallowing, fatigue after exertion, drooping eyelids..."></textarea>
-          </div>
-          <div class="form-group">
-            <label>Patient Info (optional)</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem">
-              <input class="form-input" type="text" placeholder="Age">
-              <select class="form-select"><option value="">Gender</option><option>Male</option><option>Female</option></select>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            Run AI Diagnosis
-          </button>
-        </form>
-        <div id="diagnosis-result" class="diagnosis-result"></div>
-      </div>
-      <div class="reveal">
-        <div class="card" style="padding:2rem">
-          <h3 style="margin-bottom:1rem">How It Works</h3>
-          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.2rem">
-            <div style="background:rgba(233,69,96,0.15);color:var(--accent);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">1</div>
-            <div><strong style="color:var(--text-bright)">Symptom Input</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">Describe patient symptoms in natural language or structured HPO terms.</p></div>
-          </div>
-          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.2rem">
-            <div style="background:rgba(6,182,212,0.15);color:var(--cyan);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">2</div>
-            <div><strong style="color:var(--text-bright)">HPO Extraction</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">AI extracts standardized Human Phenotype Ontology terms from free text.</p></div>
-          </div>
-          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.2rem">
-            <div style="background:rgba(16,185,129,0.15);color:var(--green);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">3</div>
-            <div><strong style="color:var(--text-bright)">Knowledge Graph Match</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">Cross-reference against 2847 disease-gene-phenotype associations.</p></div>
-          </div>
-          <div style="display:flex;gap:1rem;align-items:flex-start">
-            <div style="background:rgba(139,92,246,0.15);color:var(--purple);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;font-weight:700">4</div>
-            <div><strong style="color:var(--text-bright)">Consensus Diagnosis</strong><p style="font-size:0.85rem;color:var(--text-dim);margin:0.2rem 0 0">10 AI agents debate and reach consensus with confidence scores.</p></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Architecture -->
-<section class="section" id="architecture">
-  <div class="container">
-    <div class="section-label reveal">Technical Architecture</div>
-    <h2 class="reveal">Enterprise-Grade Diagnostic Infrastructure</h2>
-    <div class="grid grid-4 mt-3">
-      <div class="card reveal text-center">
-        <div class="card-icon red" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-        <h3>FastAPI Backend</h3>
-        <p style="font-size:0.8rem">20+ REST endpoints, async processing, rate limiting</p>
-      </div>
-      <div class="card reveal text-center">
-        <div class="card-icon cyan" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-        <h3>AI Engine</h3>
-        <p style="font-size:0.8rem">LLM reasoning, HPO extraction, DeepRare algorithm</p>
-      </div>
-      <div class="card reveal text-center">
-        <div class="card-icon green" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
-        <h3>Knowledge Base</h3>
-        <p style="font-size:0.8rem">Graph DB, 7000+ diseases, OMIM/Orphanet/HPO</p>
-      </div>
-      <div class="card reveal text-center">
-        <div class="card-icon purple" style="margin:0 auto 1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3>Compliance</h3>
-        <p style="font-size:0.8rem">HIPAA/GDPR compliant, encrypted, audit logging</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Pricing -->
-<section class="section" id="pricing">
-  <div class="container">
-    <div class="section-label reveal text-center">Pricing</div>
-    <h2 class="reveal text-center">Choose Your Plan</h2>
-    <p class="text-dim text-center reveal mb-3">Start free. Scale as your research grows.</p>
-    <div class="pricing-grid">
-      <div class="price-card reveal">
-        <h3>Starter</h3>
-        <div class="price-amount">$299<span>/mo</span></div>
-        <div class="price-period">For individual researchers</div>
-        <ul class="price-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 100 diagnoses/month</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Knowledge graph access</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Disease database search</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Basic API access</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Email support</li>
-        </ul>
-        <a href="https://github.com/MoKangMedical/medichat-rd" class="btn btn-secondary" style="width:100%">Start Free Trial</a>
-      </div>
-      <div class="price-card featured reveal">
-        <h3>Professional</h3>
-        <div class="price-amount">$999<span>/mo</span></div>
-        <div class="price-period">For research teams</div>
-        <ul class="price-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Unlimited diagnoses</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Multi-agent collaboration</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Drug repurposing engine</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full API + Webhooks</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Priority support</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Genomic analysis module</li>
-        </ul>
-        <a href="https://github.com/MoKangMedical/medichat-rd" class="btn btn-primary" style="width:100%">Start Free Trial</a>
-      </div>
-      <div class="price-card reveal">
-        <h3>Enterprise</h3>
-        <div class="price-amount">Custom</div>
-        <div class="price-period">For hospitals & pharma</div>
-        <ul class="price-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Everything in Professional</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> On-premise deployment</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Custom model training</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> HIPAA BAA included</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 24/7 dedicated support</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> SLA guarantee</li>
-        </ul>
-        <a href="mailto:contact@mokangmedical.cn" class="btn btn-secondary" style="width:100%">Contact Sales</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ -->
-<section class="section" id="faq">
-  <div class="container" style="max-width:800px">
-    <div class="section-label reveal text-center">FAQ</div>
-    <h2 class="reveal text-center">Frequently Asked Questions</h2>
-    <div class="mt-3">
-      <div class="card reveal mb-2" style="cursor:pointer;padding:1.2rem">
-        <div class="faq-question" onclick="this.nextElementSibling.style.maxHeight=this.nextElementSibling.style.maxHeight?null:this.nextElementSibling.scrollHeight+'px'">
-          <h3 style="font-size:1rem;display:flex;justify-content:space-between;align-items:center">What rare diseases does MediChat-RD cover?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg></h3>
-        </div>
-        <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
-          <p style="color:var(--text-dim);padding-top:0.8rem;font-size:0.9rem">MediChat-RD covers 7,000+ rare diseases across 9 categories: neurological, hematological, metabolic, connective tissue, autoimmune, dermatological, ophthalmological, pulmonary, and genetic disorders. Our database is sourced from OMIM, Orphanet, and ClinVar.</p>
-        </div>
-      </div>
-      <div class="card reveal mb-2" style="cursor:pointer;padding:1.2rem">
-        <div class="faq-question" onclick="this.nextElementSibling.style.maxHeight=this.nextElementSibling.style.maxHeight?null:this.nextElementSibling.scrollHeight+'px'">
-          <h3 style="font-size:1rem;display:flex;justify-content:space-between;align-items:center">How accurate is the AI diagnosis?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg></h3>
-        </div>
-        <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
-          <p style="color:var(--text-dim);padding-top:0.8rem;font-size:0.9rem">Our multi-agent system achieves 94.7% diagnostic accuracy in benchmark testing across 500+ validated rare disease cases. The system provides confidence scores and recommends confirmatory tests for each diagnosis.</p>
-        </div>
-      </div>
-      <div class="card reveal mb-2" style="cursor:pointer;padding:1.2rem">
-        <div class="faq-question" onclick="this.nextElementSibling.style.maxHeight=this.nextElementSibling.style.maxHeight?null:this.nextElementSibling.scrollHeight+'px'">
-          <h3 style="font-size:1rem;display:flex;justify-content:space-between;align-items:center">Is patient data secure?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg></h3>
-        </div>
-        <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
-          <p style="color:var(--text-dim);padding-top:0.8rem;font-size:0.9rem">Yes. MediChat-RD is HIPAA and GDPR compliant. All data is encrypted with AES-256 at rest and TLS 1.3 in transit. We maintain complete audit logs and support on-premise deployment for enterprise customers.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="section" style="text-align:center">
-  <div class="container reveal">
-    <h2>Ready to Accelerate Rare Disease Diagnosis?</h2>
-    <p class="text-dim" style="max-width:600px;margin:1rem auto 2rem">Join research teams worldwide using MediChat-RD to reduce diagnostic delay from years to days.</p>
-    <div class="btn-group" style="justify-content:center">
-      <a href="diagnosis.html" class="btn btn-primary">Start Free Trial</a>
-      <a href="api-docs.html" class="btn btn-secondary">View API Docs</a>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <strong>MediChat-RD</strong>
-        </div>
-        <p>AI-powered rare disease diagnostic platform by MoKangMedical. Accelerating diagnosis for 300M+ patients worldwide.</p>
-      </div>
-      <div>
-        <h4>Product</h4>
-        <ul>
-          <li><a href="diagnosis.html">AI Diagnosis</a></li>
-          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
-          <li><a href="repurposing.html">Drug Repurposing</a></li>
-          <li><a href="database.html">Disease Database</a></li>
-          <li><a href="pricing.html">Pricing</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Developers</h4>
-        <ul>
-          <li><a href="api-docs.html">API Documentation</a></li>
-          <li><a href="agents.html">Agent System</a></li>
-          <li><a href="community.html">Community</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Company</h4>
-        <ul>
-          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
-          <li><a href="https://mokangmedical.github.io/medichat-rd/">Homepage</a></li>
-          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
-      <span>MediChat-RD is not a medical device. Always consult qualified healthcare professionals.</span>
-    </div>
-  </div>
-</footer>
-
-<script src="js/app.js"></script>
-
-<!-- MoKangMedical Ecosystem Bar -->
-<div id="mokang-eco-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:rgba(10,15,26,0.95);backdrop-filter:blur(12px);border-top:1px solid rgba(99,102,241,0.2);padding:10px 24px;display:flex;align-items:center;justify-content:center;gap:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:rgba(255,255,255,0.7);flex-wrap:wrap">
-  <span style="font-weight:600;color:rgba(255,255,255,0.9);white-space:nowrap">🌐 Part of MoKangMedical Ecosystem</span>
-  <span style="color:rgba(255,255,255,0.2)">|</span>
-  <a href="https://mokangmedical.github.io/PharmaSim/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">PharmaSim</a>
-  <a href="https://mokangmedical.github.io/tianyan/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">Tianyan</a>
-  <a href="https://mokangmedical.github.io/chronicdiseasemanagement/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">ChroniCare</a>
-  <a href="https://mokangmedical.github.io/DrugMind/" style="color:rgba(255,255,255,0.65);text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#818cf8';this.style.background='rgba(99,102,241,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.65)';this.style.background='none'">DrugMind</a>
-  <a href="https://mokangmedical.github.io/medichat-rd/" style="color:#818cf8;text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s;font-weight:500" onmouseover="this.style.background='rgba(99,102,241,0.15)'" onmouseout="this.style.background='none'">MediChat-RD</a>
-  <button onclick="document.getElementById('mokang-eco-bar').style.display='none';document.body.style.paddingBottom='0'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:2px 8px;line-height:1;margin-left:8px;border-radius:4px" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='none'">&times;</button>
-</div>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials-section" style="padding:80px 0;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 100%);">
-        <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
-            <h2 style="text-align:center;font-size:2rem;color:#fff;margin-bottom:12px;">Trusted by Leading Institutions</h2>
-            <p style="text-align:center;color:#888;margin-bottom:48px;font-size:1.1rem;">See what industry leaders say about medichat-rd</p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;">
-        <div class="testimonial-card">
-            <div class="testimonial-text">"MediChat-RD correctly identified a rare metabolic disorder that had stumped our team for 18 months."</div>
-            <div class="testimonial-author">
-                <div class="testimonial-avatar">EW</div>
-                <div>
-                    <div class="testimonial-name">Dr. Emily Watson</div>
-                    <div class="testimonial-role">Geneticist, Johns Hopkins</div>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial-card">
-            <div class="testimonial-text">"The knowledge graph integration is phenomenal. It connects symptoms to diagnoses across 7,000+ rare diseases."</div>
-            <div class="testimonial-author">
-                <div class="testimonial-avatar">HT</div>
-                <div>
-                    <div class="testimonial-name">Dr. Hiroshi Tanaka</div>
-                    <div class="testimonial-role">Rare Disease Center, Tokyo University</div>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial-card">
-            <div class="testimonial-text">"Finally, an AI tool that understands the rare disease diagnostic odyssey. This gives patients real hope."</div>
-            <div class="testimonial-author">
-                <div class="testimonial-avatar">SM</div>
-                <div>
-                    <div class="testimonial-name">Sarah Mitchell</div>
-                    <div class="testimonial-role">Patient Advocate, NORD</div>
-                </div>
-            </div>
-        </div>
-            </div>
-        </div>
-    </section>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediChat-RD - MoKangMedical</title>
+    <meta name="description" content="罕见病AI诊疗平台，为罕见病患者提供智能诊断">
     <style>
-        .testimonial-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;transition:transform .3s,border-color .3s;}
-        .testimonial-card:hover{transform:translateY(-4px);border-color:rgba(99,102,241,0.5);}
-        .testimonial-text{color:#ccc;font-size:1rem;line-height:1.7;margin-bottom:24px;font-style:italic;}
-        .testimonial-author{display:flex;align-items:center;gap:12px;}
-        .testimonial-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;}
-        .testimonial-name{color:#fff;font-weight:600;font-size:.95rem;}
-        .testimonial-role{color:#888;font-size:.85rem;}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #8b5cf6;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #1e293b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--darker) 0%, #1e1b4b 50%, var(--darker) 100%);
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--light);
+            border: 2px solid var(--border);
+        }
+        .features {
+            padding: 100px 0;
+            background: var(--dark);
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+        .feature-card {
+            background: var(--darker);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 借鉴12px;
+            color: var(--primary);
+        }
+        .feature-card p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            text-align: center;
+        }
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        footer {
+            padding: 40px 0;
+            background: var(--darker);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
     </style>
-
-<!-- OPC Eco Nav -->
-<div style="position:fixed;bottom:20px;right:20px;z-index:99;background:rgba(17,24,39,.95);backdrop-filter:blur(10px);border:1px solid #1e293b;border-radius:12px;padding:12px;box-shadow:0 10px 40px rgba(0,0,0,.4);max-width:200px">
-<div style="font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05rem;padding:4px 8px;border-bottom:1px solid #1e293b;margin-bottom:6px">OPC Ecosystem</div>
-<a href="https://mokangmedical.github.io/opc-homepage/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">🏠 OPC Home</a>
-<a href="https://mokangmedical.github.io/DrugMind/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">💊 DrugMind</a>
-<a href="https://mokangmedical.github.io/PharmaSim/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">🧪 PharmaSim</a>
-<a href="https://mokangmedical.github.io/medichat-rd/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">🏥 MediChat-RD</a>
-<a href="https://mokangmedical.github.io/tianyan/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">👁️ Tianyan</a>
-</div>
-
-
-    <!-- FAQ Section -->
-    <section class="faq-section" style="padding:80px 0;background:#0d0d1a;">
-        <div style="max-width:800px;margin:0 auto;padding:0 24px;">
-            <h2 style="text-align:center;font-size:2rem;color:#fff;margin-bottom:12px;">Frequently Asked Questions</h2>
-            <p style="text-align:center;color:#888;margin-bottom:48px;">Everything you need to know</p>
-            <div class="faq-list">
-        <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-question"><span>How many rare diseases does MediChat-RD cover?</span><span class="faq-icon">+</span></div>
-            <div class="faq-answer"><p>Our knowledge graph covers 7,000+ rare diseases with detailed diagnostic criteria, treatment protocols, and genetic markers.</p></div>
+</head>
+<body>
+    <section class="hero">
+        <div class="container">
+            <h1>MediChat-RD</h1>
+            <p>罕见病AI诊疗平台，为罕见病患者提供智能诊断</p>
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+                <a href="#features" class="btn btn-primary">了解功能</a>
+                <a href="https://github.com/MoKangMedical/medichat-rd" class="btn btn-secondary">GitHub</a>
+            </div>
         </div>
-        <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-question"><span>Is MediChat-RD a replacement for clinical diagnosis?</span><span class="faq-icon">+</span></div>
-            <div class="faq-answer"><p>No. MediChat-RD is a clinical decision support tool that assists healthcare professionals. All diagnostic suggestions must be validated by qualified physicians.</p></div>
+    </section>
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>核心功能</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><h3>症状分析</h3><p>专业的症状分析能力，助力医疗AI发展</p></div><div class="feature-card"><h3>疾病诊断</h3><p>专业的疾病诊断能力，助力医疗AI发展</p></div><div class="feature-card"><h3>治疗方案</h3><p>专业的治疗方案能力，助力医疗AI发展</p></div><div class="feature-card"><h3>患者社区</h3><p>专业的患者社区能力，助力医疗AI发展</p></div><div class="feature-card"><h3>专家咨询</h3><p>专业的专家咨询能力，助力医疗AI发展</p></div><div class="feature-card"><h3>数据共享</h3><p>专业的数据共享能力，助力医疗AI发展</p></div>
+            </div>
         </div>
-        <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-question"><span>What is the diagnostic accuracy?</span><span class="faq-icon">+</span></div>
-            <div class="faq-answer"><p>MediChat-RD achieves 89% top-5 diagnostic accuracy for rare diseases, compared to the average 5-year diagnostic odyssey for rare disease patients.</p></div>
+    </section>
+    <section class="cta">
+        <div class="container">
+            <h2>开始使用 MediChat-RD</h2>
+            <p>加入MoKangMedical生态，探索AI医疗的无限可能</p>
+            <a href="https://github.com/MoKangMedical/medichat-rd" class="btn" style="background:white;color:var(--primary)">立即开始</a>
         </div>
+    </section>
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 MoKangMedical. All rights reserved. | <a href="https://mokangmedical.github.io/opc-homepage/">生态首页</a></p>
+        </div>
+    </footer>
+
+    <!-- Stats Section -->
+    <section class="stats-section" style="padding:60px 0;background:linear-gradient(90deg,#6366f1 0%,#8b5cf6 50%,#a855f7 100%);">
+        <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;text-align:center;">
+            <div class="stat-item">
+                <div class="stat-value" data-target="7,000+">7,000+</div>
+                <div class="stat-label">Rare Diseases Covered</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" data-target="89%">89%</div>
+                <div class="stat-label">Top-5 Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" data-target="30+">30+</div>
+                <div class="stat-label">Hospital Partners</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" data-target="100K+">100K+</div>
+                <div class="stat-label">Patient Consultations</div>
+            </div>
             </div>
         </div>
     </section>
     <style>
-        .faq-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;margin-bottom:12px;cursor:pointer;transition:border-color .3s;overflow:hidden;}
-        .faq-item:hover,.faq-item.open{border-color:rgba(99,102,241,0.4);}
-        .faq-question{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;color:#fff;font-weight:600;font-size:1.05rem;}
-        .faq-icon{color:#6366f1;font-size:1.5rem;transition:transform .3s;}
-        .faq-item.open .faq-icon{transform:rotate(45deg);}
-        .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 24px;}
-        .faq-item.open .faq-answer{max-height:300px;padding:0 24px 20px;}
-        .faq-answer p{color:#aaa;line-height:1.7;font-size:.95rem;}
+        .stat-item{padding:20px;}
+        .stat-value{font-size:2.5rem;font-weight:800;color:#fff;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,0.3);}
+        .stat-label{font-size:1rem;color:rgba(255,255,255,0.85);font-weight:500;}
+        @media(max-width:768px){.stat-value{font-size:1.8rem;}}
     </style>
 </body>
 </html>
