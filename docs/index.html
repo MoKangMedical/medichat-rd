@@ -463,5 +463,48 @@
         .testimonial-name{color:#fff;font-weight:600;font-size:.95rem;}
         .testimonial-role{color:#888;font-size:.85rem;}
     </style>
+
+<!-- OPC Eco Nav -->
+<div style="position:fixed;bottom:20px;right:20px;z-index:99;background:rgba(17,24,39,.95);backdrop-filter:blur(10px);border:1px solid #1e293b;border-radius:12px;padding:12px;box-shadow:0 10px 40px rgba(0,0,0,.4);max-width:200px">
+<div style="font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05rem;padding:4px 8px;border-bottom:1px solid #1e293b;margin-bottom:6px">OPC Ecosystem</div>
+<a href="https://mokangmedical.github.io/opc-homepage/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">🏠 OPC Home</a>
+<a href="https://mokangmedical.github.io/DrugMind/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">💊 DrugMind</a>
+<a href="https://mokangmedical.github.io/PharmaSim/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">🧪 PharmaSim</a>
+<a href="https://mokangmedical.github.io/medichat-rd/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">🏥 MediChat-RD</a>
+<a href="https://mokangmedical.github.io/tianyan/" style="display:block;padding:3px 8px;color:#94a3b8;font-size:.78rem;text-decoration:none;border-radius:4px;transition:all .2s">👁️ Tianyan</a>
+</div>
+
+
+    <!-- FAQ Section -->
+    <section class="faq-section" style="padding:80px 0;background:#0d0d1a;">
+        <div style="max-width:800px;margin:0 auto;padding:0 24px;">
+            <h2 style="text-align:center;font-size:2rem;color:#fff;margin-bottom:12px;">Frequently Asked Questions</h2>
+            <p style="text-align:center;color:#888;margin-bottom:48px;">Everything you need to know</p>
+            <div class="faq-list">
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-question"><span>How many rare diseases does MediChat-RD cover?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Our knowledge graph covers 7,000+ rare diseases with detailed diagnostic criteria, treatment protocols, and genetic markers.</p></div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-question"><span>Is MediChat-RD a replacement for clinical diagnosis?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>No. MediChat-RD is a clinical decision support tool that assists healthcare professionals. All diagnostic suggestions must be validated by qualified physicians.</p></div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-question"><span>What is the diagnostic accuracy?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>MediChat-RD achieves 89% top-5 diagnostic accuracy for rare diseases, compared to the average 5-year diagnostic odyssey for rare disease patients.</p></div>
+        </div>
+            </div>
+        </div>
+    </section>
+    <style>
+        .faq-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;margin-bottom:12px;cursor:pointer;transition:border-color .3s;overflow:hidden;}
+        .faq-item:hover,.faq-item.open{border-color:rgba(99,102,241,0.4);}
+        .faq-question{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;color:#fff;font-weight:600;font-size:1.05rem;}
+        .faq-icon{color:#6366f1;font-size:1.5rem;transition:transform .3s;}
+        .faq-item.open .faq-icon{transform:rotate(45deg);}
+        .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 24px;}
+        .faq-item.open .faq-answer{max-height:300px;padding:0 24px 20px;}
+        .faq-answer p{color:#aaa;line-height:1.7;font-size:.95rem;}
+    </style>
 </body>
 </html>
