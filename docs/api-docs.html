@@ -3,322 +3,389 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>API文档 — MediChat-RD</title>
-<meta name="description" content="MediChat-RD API文档 - 50+个RESTful API端点">
+<title>API Documentation — MediChat-RD</title>
+<meta name="description" content="MediChat-RD RESTful API documentation. 20+ endpoints for rare disease diagnosis, knowledge graph, and drug repurposing.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="styles.css">
-<style>
-.container{max-width:1100px}
-.sidebar{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto}
-.sidebar a{display:block;padding:.4rem .8rem;color:var(--text-muted);font-size:.9rem;border-left:3px solid transparent;margin:.1rem 0;transition:all .2s}
-.sidebar a:hover,.sidebar a.active{color:var(--primary);background:rgba(16,185,129,.1);border-left-color:var(--primary);text-decoration:none}
-.layout{display:grid;grid-template-columns:250px 1fr;gap:2rem}
-.endpoint-block{margin:2rem 0;padding:1.5rem;background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border)}
-.endpoint-header{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
-.desc{color:var(--text-light);margin-bottom:1rem}
-.params{margin:1rem 0}
-.params table{width:100%;border-collapse:collapse;font-size:.9rem}
-.params th,.params td{padding:.5rem .8rem;text-align:left;border-bottom:1px solid var(--border)}
-.params th{background:rgba(51,65,85,.5);font-weight:600;font-size:.85rem;color:var(--text)}
-.params .required{color:var(--danger);font-weight:600}
-.params .optional{color:var(--text-muted)}
-.code-block{background:#0f172a;color:var(--text-light);padding:1rem;border-radius:8px;font-family:monospace;font-size:.85rem;overflow-x:auto;white-space:pre;border:1px solid var(--border)}
-.try-btn{padding:.5rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.9rem;margin:.5rem 0;font-weight:600}
-.try-btn:hover{opacity:.9}
-.try-result{background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:.5rem;font-family:monospace;font-size:.85rem;max-height:300px;overflow-y:auto;white-space:pre-wrap;display:none;color:var(--text-light)}
-.badge{display:inline-block;padding:.15rem .5rem;border-radius:10px;font-size:.75rem;font-weight:600}
-.badge-get{background:rgba(16,185,129,.15);color:var(--primary)}
-.badge-post{background:rgba(99,102,241,.15);color:var(--accent-light)}
-.badge-new{background:rgba(245,158,11,.15);color:var(--warn)}
-@media(max-width:768px){.layout{grid-template-columns:1fr}}
-</style>
 </head>
 <body>
-<div class="topnav">
-  <div class="logo">🧬 MediChat-RD</div>
-  <nav>
-    <a href="index.html">首页</a>
-    <a href="knowledge-graph.html">知识图谱</a>
-    <a href="diagnosis.html">AI诊断</a>
-    <a href="repurposing.html">药物重定位</a>
-    <a href="community.html">患者社区</a>
-    <a href="agents.html">Agent协作</a>
-    <a href="database.html">罕见病数据库</a>
-    <a href="api-docs.html" class="active">API文档</a>
-  </nav>
-</div>
 
-<div class="container">
-  <h1>📖 API文档</h1>
-  <p class="sub">MediChat-RD RESTful API · FastAPI · 自动交互式文档</p>
-
-  <div class="card">
-    <p>📖 <strong>Swagger UI:</strong> <a href="http://localhost:8000/docs" target="_blank">localhost:8000/docs</a></p>
-    <p>📘 <strong>ReDoc:</strong> <a href="http://localhost:8000/redoc" target="_blank">localhost:8000/redoc</a></p>
-    <p style="margin-top:.5rem;color:var(--text-light)">启动服务: <code>python server.py</code> 或 <code>uvicorn server:app --port 8000</code></p>
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      MediChat-RD
+    </a>
+    <button class="nav-toggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="diagnosis.html">AI Diagnosis</a></li>
+      <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+      <li><a href="database.html">Disease DB</a></li>
+      <li><a href="repurposing.html">Drug Repurposing</a></li>
+      <li><a href="agents.html">Multi-Agent</a></li>
+      <li><a href="api-docs.html" class="active">API</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="diagnosis.html" class="nav-cta">Try Demo</a></li>
+    </ul>
   </div>
+</nav>
 
-  <div class="layout">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">系统</strong>
-      <a href="#health">健康检查</a>
-      <a href="#status">系统状态</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">知识图谱</a>
-      <a href="#kg-get">获取图谱</a>
-      <a href="#kg-search">搜索节点</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">罕见病数据库</strong>
-      <a href="#rd-list">疾病列表</a>
-      <a href="#rd-detail">疾病详情</a>
-      <a href="#rd-symptoms">症状搜索</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">AI诊断</strong>
-      <a href="#diag-run">诊断推理</a>
-      <a href="#diag-hpo">HPO提取</a>
-      <a href="#diag-deeprare">DeepRare</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">药物重定位</strong>
-      <a href="#rep-assess">重定位评估</a>
-      <a href="#rep-drug">药物搜索</a>
-      <a href="#rep-targets">靶点查询</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">患者社区</strong>
-      <a href="#comm-list">帖子列表</a>
-      <a href="#comm-create">创建帖子</a>
-      <a href="#comm-match">患者匹配</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">Agent协作</strong>
-      <a href="#agent-list">Agent列表</a>
-      <a href="#agent-collab">协作诊断</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">AI对话</strong>
-      <a href="#chat-send">发送消息</a>
-      <a href="#chat-history">对话历史</a>
-      <strong style="padding:.5rem .8rem;display:block;color:var(--text);font-size:.85rem">基因组 & 实验室</strong>
-      <a href="#genomic-analyze">变异分析</a>
-      <a href="#lab-analyze">化验分析</a>
+<!-- Header -->
+<section class="section" style="padding-top:120px">
+  <div class="container">
+    <div class="section-label reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      RESTful API
+    </div>
+    <h1 class="reveal">API <span style="color:var(--accent)">Documentation</span></h1>
+    <p class="text-dim reveal" style="max-width:700px;font-size:1.1rem">MediChat-RD provides 20+ RESTful API endpoints built on FastAPI. Access diagnosis, knowledge graph, disease database, and drug repurposing programmatically.</p>
+    <div class="reveal mt-3">
+      <span class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+        Base URL: <code style="color:var(--cyan);margin-left:0.3rem">https://api.medichat-rd.com/v1</code>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- API Endpoints -->
+<section class="section">
+  <div class="container" style="max-width:900px">
+
+    <!-- Health -->
+    <div class="section-label reveal">System</div>
+    <h2 class="reveal">Health & Status</h2>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/health</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Health check endpoint</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Returns the health status of the MediChat-RD service.</p>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Parameters</h4>
+        <p style="color:var(--text-dim);font-size:0.85rem">None</p>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin:1rem 0 0.5rem">Example Response</h4>
+        <div class="code-block"><code>{
+  "status": "healthy",
+  "version": "2.0.0",
+  "uptime": "48h 23m"
+}</code></div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'GET','/health')">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div>
-      <!-- System -->
-      <h2 id="health">系统</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/health</span></div>
-        <p class="desc">健康检查端点</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/health')">试一试</button>
-        <div class="try-result"></div>
-      </div>
+    <!-- Diagnosis -->
+    <div class="section-label reveal mt-4">AI Diagnosis</div>
+    <h2 class="reveal">Diagnosis Endpoints</h2>
 
-      <div class="endpoint-block" id="status">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/system/status</span></div>
-        <p class="desc">获取所有模块加载状态</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/system/status')">试一试</button>
-        <div class="try-result"></div>
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">POST</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/diagnosis</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Run AI diagnosis</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-
-      <!-- Knowledge Graph -->
-      <h2 id="kg-get" style="margin-top:3rem">知识图谱</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph</span></div>
-        <p class="desc">获取罕见病知识图谱</p>
-        <div class="params">
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Multi-agent collaborative diagnosis. Returns differential diagnosis ranked by confidence.</p>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Request Body</h4>
+        <div class="table-wrap" style="margin-bottom:1rem">
           <table>
-            <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
-            <tr><td>disease</td><td>string</td><td class="optional">可选</td><td>疾病名称/缩写</td></tr>
-            <tr><td>depth</td><td>integer</td><td class="optional">可选 (默认2)</td><td>图深度 1-4</td></tr>
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>patient_input</td><td>string</td><td style="color:var(--accent)">Required</td><td>Patient symptoms in natural language</td></tr>
+              <tr><td>session_id</td><td>string</td><td style="color:var(--text-dim)">Optional</td><td>Session ID for follow-up queries</td></tr>
+            </tbody>
           </table>
         </div>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/knowledge-graph')">试一试</button>
-        <div class="try-result"></div>
-      </div>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Example Request</h4>
+        <div class="code-block"><code>POST /api/v1/diagnosis
+Content-Type: application/json
 
-      <div class="endpoint-block" id="kg-search">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph/search</span></div>
-        <p class="desc">搜索知识图谱节点</p>
-        <div class="params">
-          <table>
-            <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
-            <tr><td>q</td><td>string</td><td class="required">必需</td><td>搜索关键词</td></tr>
-            <tr><td>node_type</td><td>string</td><td class="optional">可选</td><td>节点类型: disease/gene/drug/phenotype</td></tr>
-          </table>
-        </div>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/knowledge-graph/search?q=MG')">试一试</button>
-        <div class="try-result"></div>
-      </div>
-
-      <!-- Rare Disease DB -->
-      <h2 id="rd-list" style="margin-top:3rem">罕见病数据库</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases</span></div>
-        <p class="desc">列出所有罕见病</p>
-        <div class="params">
-          <table>
-            <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
-            <tr><td>category</td><td>string</td><td class="optional">可选</td><td>分类筛选</td></tr>
-            <tr><td>limit</td><td>integer</td><td class="optional">可选 (默认50)</td><td>返回数量</td></tr>
-            <tr><td>offset</td><td>integer</td><td class="optional">可选</td><td>偏移量</td></tr>
-          </table>
-        </div>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/rare-diseases?limit=5')">试一试</button>
-        <div class="try-result"></div>
-      </div>
-
-      <div class="endpoint-block" id="rd-detail">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/{name}</span></div>
-        <p class="desc">获取单个罕见病详情</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/rare-diseases/Gaucher Disease')">试一试</button>
-        <div class="try-result"></div>
-      </div>
-
-      <div class="endpoint-block" id="rd-symptoms">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/rare-diseases/search-by-symptoms</span></div>
-        <p class="desc">根据症状搜索罕见病</p>
-        <div class="code-block">{
-  "symptoms": ["肌无力", "眼睑下垂", "吞咽困难"],
-  "age": 28,
-  "gender": "女"
-}</div>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/rare-diseases/search-by-symptoms',{symptoms:['肌无力','眼睑下垂']})">试一试</button>
-        <div class="try-result"></div>
-      </div>
-
-      <!-- Diagnosis -->
-      <h2 id="diag-run" style="margin-top:3rem">AI诊断</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/diagnosis</span></div>
-        <p class="desc">AI诊断推理 — 多Agent协作</p>
-        <div class="code-block">{
-  "patient_input": "8岁男孩，进行性肌无力2年，Gowers征阳性",
+{
+  "patient_input": "8yo boy, progressive muscle weakness 2 years, Gowers sign positive",
   "session_id": null
-}</div>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/diagnosis',{patient_input:'8岁男孩，进行性肌无力2年，Gowers征阳性'})">试一试</button>
-        <div class="try-result"></div>
+}</code></div>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin:1rem 0 0.5rem">Example Response</h4>
+        <div class="code-block"><code>{
+  "session_id": "sess_abc123",
+  "processing_time_s": 3.2,
+  "result": {
+    "diagnoses": [
+      {"name": "Duchenne Muscular Dystrophy", "confidence": 0.89},
+      {"name": "Spinal Muscular Atrophy", "confidence": 0.45}
+    ]
+  }
+}</code></div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'POST','/api/v1/diagnosis',{patient_input:'progressive muscle weakness, Gowers sign'})">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
       </div>
+    </div>
 
-      <div class="endpoint-block" id="diag-hpo">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/diagnosis/symptoms?text=...</span></div>
-        <p class="desc">从自由文本中提取HPO症状</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/diagnosis/symptoms?text=患者出现眼睑下垂和吞咽困难')">试一试</button>
-        <div class="try-result"></div>
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">POST</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/diagnosis/symptoms</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Extract HPO terms</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Extract standardized Human Phenotype Ontology terms from free-text symptom descriptions.</p>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Query Parameters</h4>
+        <div class="table-wrap" style="margin-bottom:1rem">
+          <table>
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>text</td><td>string</td><td style="color:var(--accent)">Required</td><td>Free-text symptom description</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Example Response</h4>
+        <div class="code-block"><code>{
+  "extracted_phenotypes": [
+    {"hpo_id": "HP:0001252", "name": "Muscular hypotonia", "confidence": 0.95},
+    {"hpo_id": "HP:0000510", "name": "Ptosis", "confidence": 0.92}
+  ]
+}</code></div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'GET','/api/v1/diagnosis/symptoms?text=ptosis+and+dysphagia')">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
+      </div>
+    </div>
 
-      <!-- Drug Repurposing -->
-      <h2 id="rep-assess" style="margin-top:3rem">药物重定位</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/repurposing/assess</span></div>
-        <p class="desc">药物重定位评估</p>
-        <div class="code-block">{
+    <!-- Knowledge Graph -->
+    <div class="section-label reveal mt-4">Knowledge Graph</div>
+    <h2 class="reveal">Knowledge Graph Endpoints</h2>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/knowledge-graph</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Get full graph</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Retrieve the complete rare disease knowledge graph data.</p>
+        <div class="table-wrap" style="margin-bottom:1rem">
+          <table>
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>disease</td><td>string</td><td style="color:var(--text-dim)">Optional</td><td>Filter by disease name</td></tr>
+              <tr><td>depth</td><td>integer</td><td style="color:var(--text-dim)">Optional (default 2)</td><td>Graph traversal depth (1-4)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'GET','/api/v1/knowledge-graph')">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
+      </div>
+    </div>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/knowledge-graph/search</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Search nodes</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Search knowledge graph nodes by keyword.</p>
+        <div class="table-wrap" style="margin-bottom:1rem">
+          <table>
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>q</td><td>string</td><td style="color:var(--accent)">Required</td><td>Search query</td></tr>
+              <tr><td>node_type</td><td>string</td><td style="color:var(--text-dim)">Optional</td><td>Filter: disease/gene/drug/phenotype</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'GET','/api/v1/knowledge-graph/search?q=MG')">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
+      </div>
+    </div>
+
+    <!-- Disease Database -->
+    <div class="section-label reveal mt-4">Disease Database</div>
+    <h2 class="reveal">Rare Disease Endpoints</h2>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/rare-diseases</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">List all diseases</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">List all rare diseases in the database with optional filtering.</p>
+        <div class="table-wrap" style="margin-bottom:1rem">
+          <table>
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>category</td><td>string</td><td style="color:var(--text-dim)">Optional</td><td>Filter by disease category</td></tr>
+              <tr><td>limit</td><td>integer</td><td style="color:var(--text-dim)">Optional (50)</td><td>Max results to return</td></tr>
+              <tr><td>offset</td><td>integer</td><td style="color:var(--text-dim)">Optional</td><td>Pagination offset</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'GET','/api/v1/rare-diseases?limit=5')">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
+      </div>
+    </div>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">POST</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/rare-diseases/search-by-symptoms</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Search by symptoms</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Search for rare diseases matching a set of symptoms.</p>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Example Request</h4>
+        <div class="code-block"><code>{
+  "symptoms": ["muscle weakness", "ptosis", "dysphagia"],
+  "age": 28,
+  "gender": "female"
+}</code></div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'POST','/api/v1/rare-diseases/search-by-symptoms',{symptoms:['muscle weakness','ptosis']})">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
+      </div>
+    </div>
+
+    <!-- Drug Repurposing -->
+    <div class="section-label reveal mt-4">Drug Repurposing</div>
+    <h2 class="reveal">Drug Repurposing Endpoints</h2>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">POST</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/repurposing/assess</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Assess drug repurposing</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">AI-driven drug repurposing assessment with target overlap analysis and literature evidence.</p>
+        <h4 style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">Example Request</h4>
+        <div class="code-block"><code>{
   "drug_name": "Metformin",
   "disease_name": "Gaucher Disease"
-}</div>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/repurposing/assess',{drug_name:'Metformin',disease_name:'Gaucher Disease'})">试一试</button>
-        <div class="try-result"></div>
+}</code></div>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'POST','/api/v1/repurposing/assess',{drug_name:'Metformin',disease_name:'Gaucher Disease'})">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
       </div>
+    </div>
 
-      <!-- Community -->
-      <h2 id="comm-list" style="margin-top:3rem">患者社区</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/community/posts</span></div>
-        <p class="desc">获取社区帖子</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/community/posts')">试一试</button>
-        <div class="try-result"></div>
+    <!-- Multi-Agent -->
+    <div class="section-label reveal mt-4">Multi-Agent</div>
+    <h2 class="reveal">Agent Collaboration Endpoints</h2>
+
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(16,185,129,0.15);color:var(--green);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">GET</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/agents</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">List all agents</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-
-      <div class="endpoint-block" id="comm-create">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/community/posts</span></div>
-        <p class="desc">创建社区帖子</p>
-        <div class="code-block">{
-  "nickname": "测试用户",
-  "disease_type": "重症肌无力",
-  "content": "想了解其他病友的治疗经验"
-}</div>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/community/posts',{nickname:'测试用户',disease_type:'重症肌无力',content:'想了解治疗经验'})">试一试</button>
-        <div class="try-result"></div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">List all available AI agents and their current status.</p>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'GET','/api/v1/agents')">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
       </div>
+    </div>
 
-      <!-- Agents -->
-      <h2 id="agent-list" style="margin-top:3rem">Agent协作</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/agents</span></div>
-        <p class="desc">列出所有可用Agent</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/agents')">试一试</button>
-        <div class="try-result"></div>
+    <div class="card reveal mb-2" style="padding:0;overflow:hidden">
+      <div class="api-endpoint-header" style="padding:1.2rem;cursor:pointer;display:flex;align-items:center;gap:0.8rem">
+        <span style="background:rgba(233,69,96,0.15);color:var(--accent);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:700">POST</span>
+        <code style="color:var(--text-bright);font-size:0.95rem">/api/v1/agents/collaborate</code>
+        <span style="color:var(--text-dim);font-size:0.85rem;margin-left:auto">Multi-agent diagnosis</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-
-      <div class="endpoint-block" id="agent-collab">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/agents/collaborate</span></div>
-        <p class="desc">多Agent协作诊断</p>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/agents/collaborate',{patient_input:'患者女性28岁，眼睑下垂3个月'})">试一试</button>
-        <div class="try-result"></div>
+      <div class="api-endpoint-body" style="display:none;padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-dim);margin:1rem 0;font-size:0.9rem">Trigger multi-agent collaborative diagnosis with 10 specialized AI agents.</p>
+        <button class="btn btn-secondary mt-2" style="font-size:0.85rem" onclick="tryAPI(this,'POST','/api/v1/agents/collaborate',{patient_input:'progressive muscle weakness and ptosis'})">Try it</button>
+        <div class="try-result" style="display:none;margin-top:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;color:var(--text-dim)"></div>
       </div>
+    </div>
 
-      <!-- Chat -->
-      <h2 id="chat-send" style="margin-top:3rem">AI对话</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/chat</span></div>
-        <p class="desc">患者咨询对话</p>
-        <div class="code-block">{
-  "message": "我最近总是感觉四肢无力，眼睑下垂",
-  "session_id": null
-}</div>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/chat',{message:'我最近总是感觉四肢无力，眼睑下垂'})">试一试</button>
-        <div class="try-result"></div>
-      </div>
+  </div>
+</section>
 
-      <!-- Genomic -->
-      <h2 id="genomic-analyze" style="margin-top:3rem">基因组 & 实验室</h2>
-      <div class="endpoint-block">
-        <div class="endpoint-header"><span class="method get">GET</span><span class="path">/api/v1/genomic/gene-disease?gene=CHRNA1</span></div>
-        <p class="desc">查询基因-疾病关联</p>
-        <button class="try-btn" onclick="tryEndpoint(this,'/api/v1/genomic/gene-disease?gene=CHRNA1')">试一试</button>
-        <div class="try-result"></div>
-      </div>
-
-      <div class="endpoint-block" id="lab-analyze">
-        <div class="endpoint-header"><span class="method post">POST</span><span class="path">/api/v1/lab/analyze</span></div>
-        <p class="desc">分析实验室检查结果</p>
-        <div class="code-block">{
-  "results": {
-    "WBC": 5.2,
-    "Hb": 98,
-    "PLT": 80,
-    "ALT": 45
-  }
-}</div>
-        <button class="try-btn" onclick="tryPost(this,'/api/v1/lab/analyze',{results:{WBC:5.2,Hb:98,PLT:80,ALT:45}})">试一试</button>
-        <div class="try-result"></div>
-      </div>
-
+<!-- CTA -->
+<section class="section" style="text-align:center">
+  <div class="container reveal">
+    <h2>Ready to Integrate?</h2>
+    <p class="text-dim" style="max-width:600px;margin:1rem auto 2rem">Get your API key and start building with MediChat-RD today.</p>
+    <div class="btn-group" style="justify-content:center">
+      <a href="pricing.html" class="btn btn-primary">Get API Key</a>
+      <a href="diagnosis.html" class="btn btn-secondary">Try Live Demo</a>
     </div>
   </div>
-</div>
+</section>
 
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="24" height="24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <strong>MediChat-RD</strong>
+        </div>
+        <p>AI-powered rare disease diagnostic platform by MoKangMedical.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="diagnosis.html">AI Diagnosis</a></li>
+          <li><a href="knowledge-graph.html">Knowledge Graph</a></li>
+          <li><a href="database.html">Disease Database</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="api-docs.html">API Documentation</a></li>
+          <li><a href="agents.html">Agent System</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a></li>
+          <li><a href="mailto:contact@mokangmedical.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 MoKangMedical. All rights reserved.</span>
+      <span>MediChat-RD is not a medical device.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
 <script>
-const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
+// API Try it functionality
+var API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
 
-async function tryEndpoint(btn, path) {
-  const result = btn.nextElementSibling;
+async function tryAPI(btn, method, path, body) {
+  var result = btn.nextElementSibling;
   result.style.display = 'block';
-  result.textContent = '⏳ 请求中...';
+  result.textContent = 'Loading...';
   try {
-    const resp = await fetch(`${API_BASE}${path}`);
-    const data = await resp.json();
-    result.textContent = `HTTP ${resp.status}\n\n${JSON.stringify(data, null, 2)}`;
+    var opts = { method: method, headers: {'Content-Type': 'application/json'} };
+    if (body) opts.body = JSON.stringify(body);
+    var resp = await fetch(API_BASE + path, opts);
+    var data = await resp.json();
+    result.textContent = 'HTTP ' + resp.status + '\n\n' + JSON.stringify(data, null, 2);
   } catch(e) {
-    result.textContent = `❌ 请求失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
-  }
-}
-
-async function tryPost(btn, path, body) {
-  const result = btn.nextElementSibling;
-  result.style.display = 'block';
-  result.textContent = '⏳ 请求中...';
-  try {
-    const resp = await fetch(`${API_BASE}${path}`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-    const data = await resp.json();
-    result.textContent = `HTTP ${resp.status}\n\n${JSON.stringify(data, null, 2)}`;
-  } catch(e) {
-    result.textContent = `❌ 请求失败: ${e.message}\n\n请确保 server.py 已启动:\n  python server.py`;
+    result.textContent = 'Request failed: ' + e.message + '\n\nEnsure the API server is running.';
   }
 }
 </script>
