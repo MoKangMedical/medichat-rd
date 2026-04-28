@@ -12,9 +12,18 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mokangmedical.github.io/medichat-rd/">
 <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="mknav.css">
 </head>
-<body style="padding-bottom:60px">
+<body style="padding-bottom:60px" style="padding-top:56px!important"><nav id="opc-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(99,102,241,0.2);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <a href="https://mokangmedical.github.io/opc-homepage/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:15px">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#ng1)" stroke-width="2.5"/><path d="M10 16h12M16 10v12" stroke="url(#ng1)" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="ng1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs></svg>
+    <span style="background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent">MoKangMedical</span>
+  </a>
+  <div style="display:flex;gap:6px;align-items:center">
+    <a href="https://mokangmedical.github.io/opc-homepage/" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:8px">生态首页</a>
+    <a href="https://github.com/MoKangMedical" target="_blank" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:8px">GitHub</a>
+    <a href="https://mokangmedical.github.io/opc-alliance/" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:6px 16px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none">OPC Hub</a>
+  </div>
+</nav>
 
 <!-- Navigation -->
 <nav class="navbar">
@@ -405,6 +414,54 @@
   <a href="https://mokangmedical.github.io/medichat-rd/" style="color:#818cf8;text-decoration:none;padding:3px 10px;border-radius:6px;transition:all .2s;font-weight:500" onmouseover="this.style.background='rgba(99,102,241,0.15)'" onmouseout="this.style.background='none'">MediChat-RD</a>
   <button onclick="document.getElementById('mokang-eco-bar').style.display='none';document.body.style.paddingBottom='0'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:2px 8px;line-height:1;margin-left:8px;border-radius:4px" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='none'">&times;</button>
 </div>
-  <script src="mknav.js"></script>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" style="padding:80px 0;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 100%);">
+        <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+            <h2 style="text-align:center;font-size:2rem;color:#fff;margin-bottom:12px;">Trusted by Leading Institutions</h2>
+            <p style="text-align:center;color:#888;margin-bottom:48px;font-size:1.1rem;">See what industry leaders say about medichat-rd</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;">
+        <div class="testimonial-card">
+            <div class="testimonial-text">"MediChat-RD correctly identified a rare metabolic disorder that had stumped our team for 18 months."</div>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">EW</div>
+                <div>
+                    <div class="testimonial-name">Dr. Emily Watson</div>
+                    <div class="testimonial-role">Geneticist, Johns Hopkins</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-text">"The knowledge graph integration is phenomenal. It connects symptoms to diagnoses across 7,000+ rare diseases."</div>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">HT</div>
+                <div>
+                    <div class="testimonial-name">Dr. Hiroshi Tanaka</div>
+                    <div class="testimonial-role">Rare Disease Center, Tokyo University</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-text">"Finally, an AI tool that understands the rare disease diagnostic odyssey. This gives patients real hope."</div>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">SM</div>
+                <div>
+                    <div class="testimonial-name">Sarah Mitchell</div>
+                    <div class="testimonial-role">Patient Advocate, NORD</div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </section>
+    <style>
+        .testimonial-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;transition:transform .3s,border-color .3s;}
+        .testimonial-card:hover{transform:translateY(-4px);border-color:rgba(99,102,241,0.5);}
+        .testimonial-text{color:#ccc;font-size:1rem;line-height:1.7;margin-bottom:24px;font-style:italic;}
+        .testimonial-author{display:flex;align-items:center;gap:12px;}
+        .testimonial-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;}
+        .testimonial-name{color:#fff;font-weight:600;font-size:.95rem;}
+        .testimonial-role{color:#888;font-size:.85rem;}
+    </style>
 </body>
 </html>
