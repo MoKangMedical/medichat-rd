@@ -4,40 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agent协作 — MediChat-RD</title>
+<meta name="description" content="多Agent协作罕见病诊疗系统 - 10个专业Agent协同工作">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
-.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
-.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
-.topnav nav a:hover,.topnav nav a.active{color:#fff}
-.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
-.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
-h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
-h3{margin-bottom:.8rem}
+.container{max-width:1000px}
 .agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
-.agent-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:1.2rem;transition:border-color .2s,transform .2s}
+.agent-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1.2rem;transition:border-color .2s,transform .2s}
 .agent-card:hover{border-color:var(--primary);transform:translateY(-2px)}
 .agent-icon{font-size:2rem;margin-bottom:.5rem}
-.agent-name{font-weight:700;font-size:1.1rem;margin-bottom:.3rem}
+.agent-name{font-weight:700;font-size:1.1rem;margin-bottom:.3rem;color:var(--text)}
 .agent-role{color:var(--primary);font-size:.85rem;margin-bottom:.5rem}
 .agent-desc{color:var(--text-light);font-size:.9rem}
 .status{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:.3rem}
 .flow-diagram{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:center;margin:2rem 0}
-.flow-node{background:var(--primary);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:600}
-.flow-arrow{font-size:1.5rem;color:var(--text-light)}
-.collab-demo{background:#f8f9fa;border-radius:8px;padding:1.5rem;margin:1rem 0}
-textarea{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;resize:vertical;min-height:100px}
+.flow-node{background:var(--gradient-primary);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:600}
+.flow-arrow{font-size:1.5rem;color:var(--text-muted)}
+.collab-demo{background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0}
+textarea{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;resize:vertical;min-height:100px;background:var(--bg-input);color:var(--text)}
 textarea:focus{border-color:var(--primary)}
-button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600;margin-top:.5rem}
-button:hover{background:#1557b0}
-.result-box{background:#1a1a2e;color:#a8b2d1;border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.9rem;font-family:monospace;max-height:400px;overflow-y:auto}
-.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
-.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
-.method.get{background:var(--primary)}
-.method.post{background:var(--success)}
-.path{font-family:monospace;font-weight:600}
+textarea::placeholder{color:var(--text-muted)}
+button{margin-top:.5rem}
+.result-box{background:#0f172a;color:var(--text-light);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.9rem;font-family:monospace;max-height:400px;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -76,10 +64,10 @@ button:hover{background:#1557b0}
       <div class="flow-node">随访Agent</div>
     </div>
     <div class="flow-diagram" style="margin-top:1rem">
-      <div class="flow-node" style="background:#9b59b6">知识Agent</div>
-      <div class="flow-node" style="background:#e74c3c">文献Agent</div>
-      <div class="flow-node" style="background:#f39c12">基因组Agent</div>
-      <div class="flow-node" style="background:#27ae60">药物Agent</div>
+      <div class="flow-node" style="background:#a855f7">知识Agent</div>
+      <div class="flow-node" style="background:#ef4444">文献Agent</div>
+      <div class="flow-node" style="background:#f59e0b">基因组Agent</div>
+      <div class="flow-node" style="background:#10b981">药物Agent</div>
     </div>
   </div>
 

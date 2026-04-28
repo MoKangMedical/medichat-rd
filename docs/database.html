@@ -4,48 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>罕见病数据库 — MediChat-RD</title>
-<style>
-:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60;--danger:#e74c3c;--warn:#f39c12}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
-.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
-.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
-.topnav nav a:hover,.topnav nav a.active{color:#fff}
-.container{max-width:1200px;margin:2rem auto;padding:0 2rem}
-.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
-h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
-h3{margin-bottom:.8rem}
-.search-box{display:flex;gap:.5rem;margin-bottom:1.5rem}
-.search-box input{flex:1;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none}
-.search-box input:focus{border-color:var(--primary)}
-.search-box button{padding:.8rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
-.filter-btn{padding:.4rem 1rem;border:2px solid var(--border);border-radius:20px;background:#fff;cursor:pointer;font-size:.85rem;transition:all .2s}
-.filter-btn:hover,.filter-btn.active{border-color:var(--primary);background:#e8f0fe;color:var(--primary)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:.7rem;text-align:left;border-bottom:1px solid var(--border);font-size:.9rem}
-th{background:#f8f9fa;font-weight:600;position:sticky;top:0}
-tr:hover{background:#f8f9fa}
-.symptom-tag{display:inline-block;background:#e8f0fe;color:var(--primary);padding:.1rem .5rem;border-radius:10px;font-size:.75rem;margin:.1rem}
-.gene-tag{display:inline-block;background:#d4edda;color:#155724;padding:.1rem .5rem;border-radius:10px;font-size:.75rem;margin:.1rem}
-.detail-panel{display:none;background:var(--card);border:2px solid var(--primary);border-radius:var(--radius);padding:1.5rem;margin:1rem 0}
-.detail-panel.show{display:block}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
-.stat{background:#f8f9fa;border-radius:8px;padding:1rem;text-align:center}
-.stat .num{font-size:1.8rem;font-weight:700;color:var(--primary)}
-.stat .label{color:var(--text-light);font-size:.8rem}
-.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
-.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
-.method.get{background:var(--primary)}
-.method.post{background:var(--success)}
-.path{font-family:monospace;font-weight:600}
-.cat-metabolic{background:#ffeaa7;color:#d35400}.cat-neuro{background:#dfe6e9;color:#2d3436}
-.cat-muscular{background:#a8e6cf;color:#00b894}.cat-heme{background:#fed9b7;color:#e17055}
-.cat-immune{background:#c3aed6;color:#6c5ce7}.cat-genetic{background:#b2dfdb;color:#00695c}
-.cat-derm{background:#f8bbd0;color:#c2185b}.cat-ophth{background:#b3e5fc;color:#01579b}
-.cat-gi{background:#dcedc8;color:#33691e}
-</style>
+<meta name="description" content="罕见病数据库 - 30+种罕见病结构化数据，覆盖发病率、症状、基因、治疗方案">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="topnav">
@@ -64,13 +25,14 @@ tr:hover{background:#f8f9fa}
 
 <div class="container">
   <h1>📚 罕见病数据库</h1>
-  <p class="sub">30+种罕见病 · 9大分类 · OMIM/Orphanet数据源</p>
+  <p class="sub">35种罕见病 · 9大分类 · OMIM/Orphanet数据源 · 结构化诊疗数据</p>
 
   <div class="stats-row">
-    <div class="stat"><div class="num" id="totalCount">30+</div><div class="label">覆盖病种</div></div>
+    <div class="stat"><div class="num" id="totalCount">35</div><div class="label">覆盖病种</div></div>
     <div class="stat"><div class="num">9</div><div class="label">疾病分类</div></div>
-    <div class="stat"><div class="num">50+</div><div class="label">关联基因</div></div>
-    <div class="stat"><div class="num">100+</div><div class="label">关键症状</div></div>
+    <div class="stat"><div class="num">60+</div><div class="label">关联基因</div></div>
+    <div class="stat"><div class="num">120+</div><div class="label">关键症状</div></div>
+    <div class="stat"><div class="num">40+</div><div class="label">治疗方案</div></div>
   </div>
 
   <div class="search-box">
@@ -95,12 +57,12 @@ tr:hover{background:#f8f9fa}
   <div class="detail-panel" id="detailPanel">
     <h3 id="detailTitle"></h3>
     <div id="detailContent"></div>
-    <button onclick="document.getElementById('detailPanel').classList.remove('show')" style="margin-top:1rem;background:#6c757d">关闭</button>
+    <button onclick="document.getElementById('detailPanel').classList.remove('show')" style="margin-top:1rem;background:var(--text-muted)">关闭</button>
   </div>
 
   <!-- Disease Table -->
   <div class="card">
-    <h3>📋 疾病列表</h3>
+    <h3>📋 疾病列表 (35种)</h3>
     <div style="overflow-x:auto">
       <table>
         <thead><tr><th>疾病名称</th><th>英文名</th><th>分类</th><th>遗传方式</th><th>患病率</th><th>关键基因</th><th>操作</th></tr></thead>
@@ -115,7 +77,7 @@ tr:hover{background:#f8f9fa}
     <p style="color:var(--text-light);margin-bottom:1rem">输入多个症状（逗号分隔），系统将匹配可能的罕见病</p>
     <div class="search-box">
       <input type="text" id="symptomSearch" placeholder="例如: 肌无力, 眼睑下垂, 吞咽困难">
-      <button onclick="searchBySymptoms()" style="background:var(--accent);color:#1a1a2e">检索</button>
+      <button onclick="searchBySymptoms()" style="background:var(--accent)">检索</button>
     </div>
     <div id="symptomResults"></div>
   </div>
@@ -123,28 +85,74 @@ tr:hover{background:#f8f9fa}
   <!-- API -->
   <div class="card">
     <h3>🔌 API接口</h3>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/{name}</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/categories</span></div>
-    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/rare-diseases/search-by-symptoms</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases</span><span class="desc">获取所有疾病</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/{name}</span><span class="desc">疾病详情</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/rare-diseases/categories</span><span class="desc">分类列表</span></div>
+    <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/rare-diseases/search-by-symptoms</span><span class="desc">症状匹配</span></div>
   </div>
 </div>
+
+<footer>
+  <p>MediChat-RD — 罕见病AI诊疗平台 | <a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a> | MIT License</p>
+  <p style="margin-top:.5rem;font-size:.85rem">本平台仅供辅助诊断参考，不构成医疗建议。最终诊断请咨询专业医师。</p>
+</footer>
 
 <script>
 const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
 
-// Demo data (will be replaced by API data)
+// 35 Rare Diseases Database
 const DEMO_DISEASES = [
-  {name_cn:'戈谢病',name_en:'Gaucher Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/40000-60000',gene:'GBA',symptoms:['肝脾肿大','贫血','骨痛','血小板减少']},
-  {name_cn:'法布雷病',name_en:'Fabry Disease',category:'代谢性疾病',inheritance:'X连锁隐性遗传',prevalence:'1/40000',gene:'GLA',symptoms:['肢端疼痛','血管角质瘤','肾功能不全']},
-  {name_cn:'苯丙酮尿症',name_en:'PKU',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/10000-15000',gene:'PAH',symptoms:['智力障碍','癫痫','湿疹','鼠臭味']},
-  {name_cn:'重症肌无力',name_en:'Myasthenia Gravis',category:'免疫系统疾病',inheritance:'自身免疫',prevalence:'1/5000-10000',gene:'CHRNA1',symptoms:['肌无力','眼睑下垂','吞咽困难','呼吸困难']},
-  {name_cn:'脊髓性肌萎缩症',name_en:'SMA',category:'神经系统疾病',inheritance:'常染色体隐性遗传',prevalence:'1/6000-10000',gene:'SMN1',symptoms:['肌无力','肌萎缩','发育迟缓','呼吸困难']},
-  {name_cn:'Duchenne肌营养不良',name_en:'DMD',category:'肌肉疾病',inheritance:'X连锁隐性遗传',prevalence:'1/3500-5000',gene:'DMD',symptoms:['进行性肌无力','假肥大','Gowers征阳性']},
-  {name_cn:'成骨不全症',name_en:'Osteogenesis Imperfecta',category:'遗传综合征',inheritance:'常染色体显性遗传',prevalence:'1/15000-20000',gene:'COL1A1',symptoms:['反复骨折','蓝色巩膜','听力下降']},
-  {name_cn:'白化病',name_en:'Albinism',category:'皮肤疾病',inheritance:'常染色体隐性遗传',prevalence:'1/17000',gene:'TYR',symptoms:['皮肤白皙','头发浅色','视力问题','畏光']},
-  {name_cn:'血友病A',name_en:'Hemophilia A',category:'血液系统疾病',inheritance:'X连锁隐性遗传',prevalence:'1/5000-10000',gene:'F8',symptoms:['关节出血','肌肉出血','术后出血不止']},
-  {name_cn:'Wilson病',name_en:'Wilson Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/30000',gene:'ATP7B',symptoms:['肝硬化','震颤','精神症状','角膜K-F环']},
+  // === 代谢性疾病 (10) ===
+  {name_cn:'戈谢病',name_en:'Gaucher Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/40,000-60,000',gene:'GBA',symptoms:['肝脾肿大','贫血','骨痛','血小板减少'],treatment:'伊米苷酶/维拉苷酶α/eliglustat',omim:'230800',onset:'任何年龄'},
+  {name_cn:'法布雷病',name_en:'Fabry Disease',category:'代谢性疾病',inheritance:'X连锁隐性遗传',prevalence:'1/40,000',gene:'GLA',symptoms:['肢端疼痛','血管角质瘤','肾功能不全','心肌肥厚'],treatment:'阿加糖酶α/β / migalastat',omim:'301500',onset:'儿童期'},
+  {name_cn:'苯丙酮尿症',name_en:'PKU',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/10,000-15,000',gene:'PAH',symptoms:['智力障碍','癫痫','湿疹','鼠臭味'],treatment:'低苯丙氨酸饮食/sapropterin',omim:'261600',onset:'新生儿'},
+  {name_cn:'Wilson病',name_en:'Wilson Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/30,000',gene:'ATP7B',symptoms:['肝硬化','震颤','精神症状','角膜K-F环'],treatment:'D-青霉胺/曲恩汀/锌剂',omim:'277900',onset:'5-35岁'},
+  {name_cn:'庞贝病',name_en:'Pompe Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/40,000',gene:'GAA',symptoms:['肌无力','心肌肥厚','呼吸困难','发育迟缓'],treatment:'阿糖苷酶α/avalglucosidase',omim:'232300',onset:'婴儿型/晚发型'},
+  {name_cn:'糖原贮积病I型',name_en:'GSD Type I (Von Gierke)',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/100,000',gene:'G6PC / SLC37A4',symptoms:['低血糖','肝肿大','乳酸酸中毒','高尿酸'],treatment:'玉米淀粉饮食/别嘌醇',omim:'232200',onset:'新生儿/婴儿'},
+  {name_cn:'枫糖尿病',name_en:'Maple Syrup Urine Disease',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/185,000',gene:'BCKDHB / BCKDHA',symptoms:['喂养困难','嗜睡','尿特殊气味','代谢性酸中毒'],treatment:'特殊饮食/硫胺素',omim:'248600',onset:'新生儿'},
+  {name_cn:'半乳糖血症',name_en:'Galactosemia',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/30,000-60,000',gene:'GALT',symptoms:['黄疸','肝肿大','白内障','发育迟缓'],treatment:'无乳糖饮食',omim:'230400',onset:'新生儿'},
+  {name_cn:'粘多糖贮积症I型',name_en:'MPS I (Hurler/Scheie)',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/100,000',gene:'IDUA',symptoms:['面容粗糙','角膜混浊','骨骼畸形','智力障碍'],treatment:'拉罗尼酶/骨髓移植',omim:'607014',onset:'婴儿期'},
+  {name_cn:'异戊酸血症',name_en:'Isovaleric Acidemia',category:'代谢性疾病',inheritance:'常染色体隐性遗传',prevalence:'1/250,000',gene:'IVD',symptoms:['呕吐','嗜睡','汗脚气味','代谢性酸中毒'],treatment:'甘氨酸/左旋肉碱/低蛋白饮食',omim:'243500',onset:'新生儿'},
+
+  // === 神经系统疾病 (5) ===
+  {name_cn:'脊髓性肌萎缩症',name_en:'SMA',category:'神经系统疾病',inheritance:'常染色体隐性遗传',prevalence:'1/6,000-10,000',gene:'SMN1 / SMN2',symptoms:['肌无力','肌萎缩','发育迟缓','呼吸困难'],treatment:'诺西那生钠/利司扑兰/onasemnogene',omim:'253300',onset:'婴儿型-成人型'},
+  {name_cn:'亨廷顿病',name_en:'Huntington Disease',category:'神经系统疾病',inheritance:'常染色体显性遗传',prevalence:'1/10,000',gene:'HTT',symptoms:['舞蹈样运动','认知障碍','精神症状','吞咽困难'],treatment:'丁苯那嗪/deutetrabenazine',omim:'143100',onset:'30-50岁'},
+  {name_cn:'Rett综合征',name_en:'Rett Syndrome',category:'神经系统疾病',inheritance:'X连锁显性遗传',prevalence:'1/10,000-15,000',gene:'MECP2',symptoms:['发育倒退','刻板动作','呼吸异常','癫痫'],treatment:'trofinetide/对症治疗',omim:'312750',onset:'6-18月龄'},
+  {name_cn:'Dravet综合征',name_en:'Dravet Syndrome',category:'神经系统疾病',inheritance:'常染色体显性遗传(新发突变)',prevalence:'1/15,000-20,000',gene:'SCN1A',symptoms:['热敏感性癫痫','发育迟缓','共济失调','肌阵挛'],treatment:'司替戊醇/氯巴占/cannabidiol',omim:'607208',onset:'婴儿期'},
+  {name_cn:'先天性无痛症',name_en:'CIP (Congenital Insensitivity to Pain)',category:'神经系统疾病',inheritance:'常染色体隐性遗传',prevalence:'极罕见',gene:'SCN9A / NTRK1',symptoms:['无痛觉','无汗','自伤行为','反复骨折'],treatment:'预防性管理/教育',omim:'243000',onset:'出生'},
+
+  // === 肌肉疾病 (3) ===
+  {name_cn:'重症肌无力',name_en:'Myasthenia Gravis',category:'免疫系统疾病',inheritance:'自身免疫',prevalence:'1/5,000-10,000',gene:'CHRNA1 / AChR抗体',symptoms:['肌无力','眼睑下垂','吞咽困难','呼吸困难'],treatment:'吡啶斯的明/泼尼松/利妥昔单抗',omim:'254200',onset:'任何年龄'},
+  {name_cn:'Duchenne肌营养不良',name_en:'DMD',category:'肌肉疾病',inheritance:'X连锁隐性遗传',prevalence:'1/3,500-5,000',gene:'DMD',symptoms:['进行性肌无力','假肥大','Gowers征阳性','心肌病'],treatment:'激素治疗/eteplirsen/基因治疗',omim:'310200',onset:'2-5岁'},
+  {name_cn:'先天性肌强直',name_en:'Myotonia Congenita',category:'肌肉疾病',inheritance:'常染色体显性/隐性遗传',prevalence:'1/100,000',gene:'CLCN1',symptoms:['肌强直','肌肉僵硬','活动后改善','寒冷加重'],treatment:'美西律/奎尼丁',omim:'160800',onset:'儿童期'},
+
+  // === 血液系统疾病 (2) ===
+  {name_cn:'血友病A',name_en:'Hemophilia A',category:'血液系统疾病',inheritance:'X连锁隐性遗传',prevalence:'1/5,000-10,000',gene:'F8',symptoms:['关节出血','肌肉出血','术后出血不止','颅内出血'],treatment:'凝血因子VIII/emicizumab',omim:'306700',onset:'出生'},
+  {name_cn:'阵发性睡眠性血红蛋白尿',name_en:'PNH',category:'血液系统疾病',inheritance:'获得性体细胞突变',prevalence:'1/100,000-500,000',gene:'PIGA',symptoms:['血红蛋白尿','贫血','血栓形成','乏力'],treatment:'eculizumab/ravulizumab',omim:'300818',onset:'青年-中年'},
+
+  // === 遗传综合征 (4) ===
+  {name_cn:'成骨不全症',name_en:'Osteogenesis Imperfecta',category:'遗传综合征',inheritance:'常染色体显性遗传',prevalence:'1/15,000-20,000',gene:'COL1A1 / COL1A2',symptoms:['反复骨折','蓝色巩膜','听力下降','关节过度活动'],treatment:'双膦酸盐/denosumab/手术',omim:'166200',onset:'出生'},
+  {name_cn:'马凡综合征',name_en:'Marfan Syndrome',category:'遗传综合征',inheritance:'常染色体显性遗传',prevalence:'1/5,000',gene:'FBN1',symptoms:['身材高大','晶状体脱位','主动脉扩张','蜘蛛指'],treatment:'氯沙坦/β受体阻滞剂/主动脉手术',omim:'154700',onset:'出生/儿童期'},
+  {name_cn:'结节性硬化',name_en:'Tuberous Sclerosis',category:'遗传综合征',inheritance:'常染色体显性遗传',prevalence:'1/6,000-10,000',gene:'TSC1 / TSC2',symptoms:['癫痫','皮脂腺瘤','肾血管肌脂瘤','智力障碍'],treatment:'依维莫司/西罗莫司/对症治疗',omim:'191100',onset:'婴儿-儿童期'},
+  {name_cn:'先天性肾上腺皮质增生',name_en:'CAH',category:'遗传综合征',inheritance:'常染色体隐性遗传',prevalence:'1/10,000-15,000',gene:'CYP21A2',symptoms:['性发育异常','电解质紊乱','高血压','多毛'],treatment:'氢化可的松/氟氢可的松',omim:'201910',onset:'新生儿'},
+
+  // === 皮肤疾病 (3) ===
+  {name_cn:'白化病',name_en:'Albinism',category:'皮肤疾病',inheritance:'常染色体隐性遗传',prevalence:'1/17,000',gene:'TYR / OCA2 / TYRP1',symptoms:['皮肤白皙','头发浅色','视力问题','畏光'],treatment:'防晒管理/视觉辅助',omim:'203100',onset:'出生'},
+  {name_cn:'大疱性表皮松解症',name_en:'Epidermolysis Bullosa',category:'皮肤疾病',inheritance:'常染色体显性/隐性遗传',prevalence:'1/50,000',gene:'COL7A1 / KRT5 / LAMB3',symptoms:['皮肤脆性','水疱','瘢痕形成','食管狭窄'],treatment:'beremagene/伤口护理',omim:'131750',onset:'出生'},
+  {name_cn:'着色性干皮病',name_en:'Xeroderma Pigmentosum',category:'皮肤疾病',inheritance:'常染色体隐性遗传',prevalence:'1/1,000,000',gene:'XPA / XPC / XPD',symptoms:['光敏感','皮肤色素沉着','皮肤癌高发','神经退行性变'],treatment:'严格避光/皮肤监测',omim:'278700',onset:'婴儿期'},
+
+  // === 眼科疾病 (3) ===
+  {name_cn:'Leber遗传性视神经病变',name_en:'LHON',category:'眼科疾病',inheritance:'线粒体遗传',prevalence:'1/30,000-50,000',gene:'MT-ND4 / MT-ND1 / MT-ND6',symptoms:['视力骤降','色觉异常','中心暗点','视神经萎缩'],treatment:'idebenone/基因治疗(Luxturna)',omim:'535000',onset:'15-35岁'},
+  {name_cn:'视网膜母细胞瘤',name_en:'Retinoblastoma',category:'眼科疾病',inheritance:'常染色体显性遗传',prevalence:'1/15,000-20,000',gene:'RB1',symptoms:['白瞳症','斜视','视力下降','眼球突出'],treatment:'化疗/卡铂局部注射/放疗/手术',omim:'180200',onset:'<5岁'},
+  {name_cn:'先天性黑蒙',name_en:'Leber Congenital Amaurosis',category:'眼科疾病',inheritance:'常染色体隐性遗传',prevalence:'1/33,000-81,000',gene:'RPE65 / CEP290 / GUCY2D',symptoms:['严重视力障碍','眼球震颤','瞳孔对光反应迟钝'],treatment:'voretigene neparvovec(Luxturna)',omim:'204000',onset:'出生'},
+
+  // === 免疫系统疾病 (2) ===
+  {name_cn:'慢性肉芽肿病',name_en:'CGD',category:'免疫系统疾病',inheritance:'X连锁/常染色体隐性遗传',prevalence:'1/200,000-250,000',gene:'CYBB / NCF1 / NCF2',symptoms:['反复感染','肉芽肿形成','淋巴结肿大','生长迟缓'],treatment:'预防性抗生素/干扰素γ/骨髓移植',omim:'306400',onset:'儿童期'},
+  {name_cn:'Wiskott-Aldrich综合征',name_en:'WAS',category:'免疫系统疾病',inheritance:'X连锁隐性遗传',prevalence:'1/100,000-250,000',gene:'WAS',symptoms:['血小板减少','湿疹','反复感染','自身免疫'],treatment:'骨髓移植/基因治疗',omim:'301000',onset:'婴儿期'},
+
+  // === 消化系统疾病 (2) ===
+  {name_cn:'Alagille综合征',name_en:'Alagille Syndrome',category:'消化系统疾病',inheritance:'常染色体显性遗传',prevalence:'1/30,000-70,000',gene:'JAG1 / NOTCH2',symptoms:['胆汁淤积','蝴蝶椎','特殊面容','心脏杂音'],treatment:'胆汁酸/营养支持/肝移植',omim:'118450',onset:'婴儿期'},
+  {name_cn:'家族性腺瘤性息肉病',name_en:'FAP',category:'消化系统疾病',inheritance:'常染色体显性遗传',prevalence:'1/10,000-30,000',gene:'APC',symptoms:['结肠息肉','腹痛','便血','癌变风险'],treatment:'预防性结肠切除/NSAID/监测',omim:'175100',onset:'青少年期'},
 ];
 
 let currentData = [...DEMO_DISEASES];
@@ -162,17 +170,21 @@ function renderTable(diseases) {
       <td><button onclick="showDetail(${i})" style="padding:.3rem .8rem;font-size:.8rem">详情</button></td>
     </tr>
   `).join('');
+  document.getElementById('totalCount').textContent = diseases.length;
 }
 
 function showDetail(idx) {
   const d = currentData[idx];
   document.getElementById('detailTitle').textContent = `${d.name_cn} (${d.name_en})`;
   document.getElementById('detailContent').innerHTML = `
+    <p><strong>OMIM:</strong> ${d.omim || '-'}</p>
     <p><strong>分类:</strong> ${d.category}</p>
     <p><strong>遗传方式:</strong> ${d.inheritance}</p>
     <p><strong>患病率:</strong> ${d.prevalence}</p>
-    <p><strong>关键基因:</strong> ${d.gene}</p>
+    <p><strong>发病年龄:</strong> ${d.onset || '-'}</p>
+    <p><strong>关键基因:</strong> <span class="gene-tag">${d.gene}</span></p>
     <p><strong>关键症状:</strong> ${(d.symptoms||[]).map(s=>`<span class="symptom-tag">${s}</span>`).join(' ')}</p>
+    <p><strong>治疗方案:</strong> ${d.treatment || '-'}</p>
   `;
   document.getElementById('detailPanel').classList.add('show');
 }
@@ -193,68 +205,51 @@ function searchDB() {
   if(!q) { currentData = [...DEMO_DISEASES]; renderTable(currentData); return; }
   currentData = DEMO_DISEASES.filter(d =>
     d.name_cn.toLowerCase().includes(q) || d.name_en.toLowerCase().includes(q) ||
-    d.gene.toLowerCase().includes(q) || (d.symptoms||[]).some(s => s.includes(q))
+    d.gene.toLowerCase().includes(q) || (d.symptoms||[]).some(s => s.includes(q)) ||
+    (d.treatment||'').toLowerCase().includes(q)
   );
   renderTable(currentData);
 }
 
-async function searchBySymptoms() {
+function searchBySymptoms() {
   const q = document.getElementById('symptomSearch').value.trim();
   if(!q) return;
   const symptoms = q.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
   const div = document.getElementById('symptomResults');
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/rare-diseases/search-by-symptoms`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({symptoms})
-    });
-    const data = await resp.json();
-    if(data.results && data.results.length) {
-      div.innerHTML = '<h4 style="margin:1rem 0">匹配结果:</h4>' + data.results.map(r => `
-        <div style="padding:.8rem;margin:.5rem 0;background:#fff3cd;border-radius:8px;border-left:4px solid #f39c12">
-          <strong>${r.name_cn || r.disease || JSON.stringify(r)}</strong>
-          ${r.prevalence ? ` · 患病率: ${r.prevalence}` : ''}
-        </div>
-      `).join('');
-    } else {
-      div.innerHTML = '<p style="color:#666;margin-top:1rem">未找到匹配的罕见病。请尝试更常见的症状描述。</p>';
-    }
-  } catch(e) {
-    // Fallback: local search
-    const matched = DEMO_DISEASES.filter(d =>
-      symptoms.some(s => (d.symptoms||[]).some(ds => ds.includes(s) || s.includes(ds)))
-    );
-    if(matched.length) {
-      div.innerHTML = '<h4 style="margin:1rem 0">本地匹配结果:</h4>' + matched.map(d => `
-        <div style="padding:.8rem;margin:.5rem 0;background:#fff3cd;border-radius:8px;border-left:4px solid #f39c12">
-          <strong>${d.name_cn} (${d.name_en})</strong> · ${d.category}
-        </div>
-      `).join('');
-    } else {
-      div.innerHTML = '<p style="color:#666;margin-top:1rem">未找到匹配结果</p>';
-    }
+  const matched = DEMO_DISEASES.filter(d =>
+    symptoms.some(s => (d.symptoms||[]).some(ds => ds.includes(s) || s.includes(ds)))
+  );
+  if(matched.length) {
+    div.innerHTML = '<h4 style="margin:1rem 0;color:var(--text)">匹配结果 (' + matched.length + '):</h4>' + matched.map(d => `
+      <div style="padding:.8rem;margin:.5rem 0;background:rgba(99,102,241,.1);border-radius:8px;border-left:4px solid var(--accent)">
+        <strong style="color:var(--text)">${d.name_cn} (${d.name_en})</strong> · ${d.category} · 患病率: ${d.prevalence}
+        <br><span style="color:var(--text-light);font-size:.85rem">基因: ${d.gene} · 治疗: ${d.treatment || '-'}</span>
+      </div>
+    `).join('');
+  } else {
+    div.innerHTML = '<p style="color:var(--text-muted);margin-top:1rem">未找到匹配结果，请尝试更常见的症状描述</p>';
   }
 }
 
-// Init
-renderTable(DEMO_DISEASES);
-
-// Try to load from API
+// Try API first, fallback to demo
 async function loadFromAPI() {
   try {
     const resp = await fetch(`${API_BASE}/api/v1/rare-diseases`);
     const data = await resp.json();
-    if(data.diseases && data.diseases.length > 0) {
+    if(data.diseases && data.diseases.length > DEMO_DISEASES.length) {
       currentData = data.diseases.map(d => ({
         name_cn: d.name_cn, name_en: d.name_en, category: d.category,
         inheritance: d.inheritance, prevalence: d.prevalence,
-        gene: d.gene || '', symptoms: d.key_symptoms || []
+        gene: d.gene || '', symptoms: d.key_symptoms || [],
+        treatment: d.treatment || '', omim: d.omim || '', onset: d.onset || ''
       }));
       renderTable(currentData);
-      document.getElementById('totalCount').textContent = data.total;
     }
-  } catch(e) { console.log('Using demo data'); }
+  } catch(e) { console.log('Using embedded demo data'); }
 }
+
+// Init
+renderTable(DEMO_DISEASES);
 loadFromAPI();
 </script>
 </body>

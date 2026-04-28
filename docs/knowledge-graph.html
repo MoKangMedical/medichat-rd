@@ -4,42 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>知识图谱 — MediChat-RD</title>
-<style>
-:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
-.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
-.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
-.topnav nav a:hover,.topnav nav a.active{color:#fff}
-.container{max-width:1200px;margin:2rem auto;padding:0 2rem}
-h1{font-size:2rem;margin-bottom:.5rem}
-.sub{color:var(--text-light);margin-bottom:2rem}
-.search-box{display:flex;gap:.5rem;margin-bottom:2rem}
-.search-box input{flex:1;padding:.8rem 1rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none}
-.search-box input:focus{border-color:var(--primary)}
-.search-box button{padding:.8rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
-.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
-.card h3{margin-bottom:.5rem}
-.node-list{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
-.node{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .8rem;border-radius:20px;font-size:.85rem}
-.node.disease{background:#ffeaa7;color:#d35400}
-.node.gene{background:#dfe6e9;color:#2d3436}
-.node.drug{background:#a8e6cf;color:#00b894}
-.node.phenotype{background:#c3aed6;color:#6c5ce7}
-.node.literature{background:#fed9b7;color:#e17055}
-.graph-canvas{width:100%;height:500px;background:#1a1a2e;border-radius:var(--radius);position:relative;overflow:hidden;margin:1.5rem 0}
-.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0}
-.legend-item{display:flex;align-items:center;gap:.3rem;font-size:.85rem}
-.legend-dot{width:12px;height:12px;border-radius:50%}
-table{width:100%;border-collapse:collapse;margin-top:1rem}
-th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(--border);font-size:.9rem}
-th{background:#f8f9fa;font-weight:600}
-.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
-.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
-.method.get{background:var(--primary)}
-.path{font-family:monospace;font-weight:600}
-</style>
+<meta name="description" content="罕见病知识图谱 - 疾病、基因、药物、表型多维关联网络">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="topnav">
@@ -57,8 +24,8 @@ th{background:#f8f9fa;font-weight:600}
 </div>
 
 <div class="container">
-  <h1>🕸️ 知识图谱</h1>
-  <p class="sub">疾病-基因-药物-表型-文献 多维关联图谱</p>
+  <h1>🕸️ 罕见病知识图谱</h1>
+  <p class="sub">20+种罕见病 · 疾病-基因-药物-表型-文献 多维关联网络</p>
 
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="搜索疾病、基因、药物、表型..." onkeydown="if(event.key==='Enter')doSearch()">
@@ -67,17 +34,18 @@ th{background:#f8f9fa;font-weight:600}
 
   <!-- Graph Visualization -->
   <div class="card">
-    <h3>📊 图谱可视化</h3>
+    <h3>📊 图谱可视化 (20+种罕见病关系网络)</h3>
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#f39c12"></div>疾病</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#3498db"></div>基因</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div>药物</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>表型</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>文献</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>疾病</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>基因</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>药物</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div>表型</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>通路</div>
     </div>
     <div class="graph-canvas" id="graphCanvas">
       <svg width="100%" height="100%" id="graphSvg"></svg>
     </div>
+    <p style="color:var(--text-muted);font-size:.8rem;text-align:center">提示: 节点可拖拽，悬停查看详情。图谱展示20+种罕见病的核心关联</p>
   </div>
 
   <!-- Search Results -->
@@ -90,122 +58,310 @@ th{background:#f8f9fa;font-weight:600}
   <div class="card">
     <h3>📈 图谱统计</h3>
     <div id="graphStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:1rem">
-      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
-        <div style="font-size:1.8rem;font-weight:700;color:var(--primary)" id="nodeCount">-</div>
-        <div style="color:var(--text-light);font-size:.85rem">节点总数</div>
-      </div>
-      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
-        <div style="font-size:1.8rem;font-weight:700;color:var(--accent)" id="edgeCount">-</div>
-        <div style="color:var(--text-light);font-size:.85rem">关系总数</div>
-      </div>
-      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
-        <div style="font-size:1.8rem;font-weight:700;color:#e74c3c" id="diseaseCount">-</div>
-        <div style="color:var(--text-light);font-size:.85rem">疾病节点</div>
-      </div>
-      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:8px">
-        <div style="font-size:1.8rem;font-weight:700;color:#27ae60" id="geneCount">-</div>
-        <div style="color:var(--text-light);font-size:.85rem">基因节点</div>
-      </div>
+      <div class="stat"><div class="num" id="nodeCount">-</div><div class="label">节点总数</div></div>
+      <div class="stat"><div class="num" style="color:var(--accent)" id="edgeCount">-</div><div class="label">关系总数</div></div>
+      <div class="stat"><div class="num" style="color:#f59e0b" id="diseaseCount">-</div><div class="label">疾病节点</div></div>
+      <div class="stat"><div class="num" style="color:#3b82f6" id="geneCount">-</div><div class="label">基因节点</div></div>
+      <div class="stat"><div class="num" style="color:#10b981" id="drugCount">-</div><div class="label">药物节点</div></div>
     </div>
   </div>
 
-  <!-- Sample Nodes -->
+  <!-- Disease-Gene-Drug Relationship Table -->
   <div class="card">
-    <h3>🏷️ 节点类型示例</h3>
-    <div class="node-list">
-      <span class="node disease">🟡 重症肌无力 (MG)</span>
-      <span class="node disease">🟡 戈谢病 (GD)</span>
-      <span class="node disease">🟡 法布雷病 (FD)</span>
-      <span class="node gene">🔵 CHRNA1</span>
-      <span class="node gene">🔵 GBA</span>
-      <span class="node gene">🔵 GLA</span>
-      <span class="node drug">🟢 吡啶斯的明</span>
-      <span class="node drug">🟢 伊米苷酶</span>
-      <span class="node phenotype">🟣 肌无力</span>
-      <span class="node phenotype">🟣 肝脾肿大</span>
-      <span class="node literature">🟠 PMID:12345678</span>
+    <h3>📋 核心关系网络数据 (20+种罕见病)</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>疾病</th><th>英文名</th><th>致病基因</th><th>治疗药物</th><th>关键表型</th><th>OMIM</th><th>通路</th></tr></thead>
+      <tbody>
+        <tr><td>重症肌无力</td><td>Myasthenia Gravis</td><td>CHRNA1, CHRNB1, CHRND</td><td>吡啶斯的明, 泼尼松, 利妥昔单抗</td><td>肌无力, 眼睑下垂</td><td>254200</td><td>神经肌肉接头</td></tr>
+        <tr><td>戈谢病</td><td>Gaucher Disease</td><td>GBA</td><td>伊米苷酶, 维拉苷酶α, eliglustat</td><td>肝脾肿大, 骨痛</td><td>230800</td><td>鞘脂代谢</td></tr>
+        <tr><td>法布雷病</td><td>Fabry Disease</td><td>GLA</td><td>阿加糖酶α, 阿加糖酶β, migalastat</td><td>肢端疼痛, 血管角质瘤</td><td>301500</td><td>鞘脂代谢</td></tr>
+        <tr><td>脊髓性肌萎缩症</td><td>SMA</td><td>SMN1, SMN2</td><td>诺西那生钠, 利司扑兰,onasemnogene</td><td>肌无力, 肌萎缩</td><td>253300</td><td>RNA剪接</td></tr>
+        <tr><td>Duchenne肌营养不良</td><td>DMD</td><td>DMD</td><td>激素治疗, eteplirsen, 基因治疗</td><td>进行性肌无力, 假肥大</td><td>310200</td><td>细胞骨架</td></tr>
+        <tr><td>成骨不全症</td><td>Osteogenesis Imperfecta</td><td>COL1A1, COL1A2</td><td>双膦酸盐, denosumab</td><td>反复骨折, 蓝色巩膜</td><td>166200</td><td>胶原合成</td></tr>
+        <tr><td>白化病</td><td>Albinism</td><td>TYR, OCA2, TYRP1</td><td>防晒管理, 视觉辅助</td><td>皮肤白皙, 畏光</td><td>203100</td><td>黑色素合成</td></tr>
+        <tr><td>血友病A</td><td>Hemophilia A</td><td>F8</td><td>凝血因子VIII, emicizumab</td><td>关节出血, 术后出血</td><td>306700</td><td>凝血级联</td></tr>
+        <tr><td>Wilson病</td><td>Wilson Disease</td><td>ATP7B</td><td>D-青霉胺, 曲恩汀, 锌剂</td><td>肝硬化, 角膜K-F环</td><td>277900</td><td>铜代谢</td></tr>
+        <tr><td>亨廷顿病</td><td>Huntington Disease</td><td>HTT</td><td>丁苯那嗪, deutetrabenazine</td><td>舞蹈样运动, 认知障碍</td><td>143100</td><td>蛋白质折叠</td></tr>
+        <tr><td>囊性纤维化</td><td>Cystic Fibrosis</td><td>CFTR</td><td>ivacaftor, lumacaftor, elexacaftor</td><td>反复肺部感染, 胰腺功能不全</td><td>219700</td><td>氯离子通道</td></tr>
+        <tr><td>庞贝病</td><td>Pompe Disease</td><td>GAA</td><td>阿糖苷酶α, avalglucosidase</td><td>肌无力, 心肌肥厚</td><td>232300</td><td>糖原代谢</td></tr>
+        <tr><td>马凡综合征</td><td>Marfan Syndrome</td><td>FBN1</td><td>氯沙坦, β受体阻滞剂</td><td>身材高大, 晶状体脱位</td><td>154700</td><td>结缔组织</td></tr>
+        <tr><td>苯丙酮尿症</td><td>PKU</td><td>PAH</td><td>sapropterin, 低苯丙氨酸饮食</td><td>智力障碍, 鼠臭味</td><td>261600</td><td>氨基酸代谢</td></tr>
+        <tr><td>结节性硬化</td><td>Tuberous Sclerosis</td><td>TSC1, TSC2</td><td>依维莫司, 西罗莫司</td><td>癫痫, 皮脂腺瘤, 肾血管肌脂瘤</td><td>191100</td><td>mTOR信号通路</td></tr>
+        <tr><td>视网膜母细胞瘤</td><td>Retinoblastoma</td><td>RB1</td><td>化疗, 卡铂局部注射</td><td>白瞳症, 斜视</td><td>180200</td><td>细胞周期调控</td></tr>
+        <tr><td>先天性肾上腺皮质增生</td><td>CAH</td><td>CYP21A2</td><td>氢化可的松, 氟氢可的松</td><td>性发育异常, 电解质紊乱</td><td>201910</td><td>类固醇合成</td></tr>
+        <tr><td>糖原贮积病I型</td><td>GSD Type I (Von Gierke)</td><td>G6PC, SLC37A4</td><td>玉米淀粉饮食, 别嘌醇</td><td>低血糖, 肝肿大</td><td>232200</td><td>糖原代谢</td></tr>
+        <tr><td>先天性肌强直</td><td>Myotonia Congenita</td><td>CLCN1</td><td>美西律, 奎尼丁</td><td>肌强直, 肌肉僵硬</td><td>160800</td><td>氯离子通道</td></tr>
+        <tr><td>Rett综合征</td><td>Rett Syndrome</td><td>MECP2</td><td>对症治疗, trofinetide</td><td>发育倒退, 刻板动作</td><td>312750</td><td>DNA甲基化</td></tr>
+        <tr><td>先天性无痛症</td><td>Congenital Insensitivity to Pain</td><td>SCN9A, NTRK1</td><td>无特效治疗, 预防性管理</td><td>无痛觉, 自伤行为</td><td>243000</td><td>钠离子通道</td></tr>
+        <tr><td>Leber遗传性视神经病变</td><td>LHON</td><td>MT-ND4, MT-ND1</td><td>idebenone, 基因治疗</td><td>视力骤降, 色觉异常</td><td>535000</td><td>线粒体呼吸链</td></tr>
+        <tr><td>大疱性表皮松解症</td><td>Epidermolysis Bullosa</td><td>COL7A1, KRT5, LAMB3</td><td>伤口护理, beremagene</td><td>皮肤脆性, 水疱</td><td>131750</td><td>基底膜结构</td></tr>
+      </tbody>
+    </table>
     </div>
   </div>
 
   <!-- API -->
   <div class="card">
     <h3>🔌 API接口</h3>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph?q=MG&depth=2</span></div>
-    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph/search?q=重症肌无力&node_type=disease</span></div>
-  </div>
-
-  <!-- Node Detail Table -->
-  <div class="card">
-    <h3>📋 关联数据示例</h3>
-    <table>
-      <thead><tr><th>疾病</th><th>相关基因</th><th>治疗药物</th><th>关键表型</th><th>OMIM</th></tr></thead>
-      <tbody>
-        <tr><td>重症肌无力</td><td>CHRNA1, CHRNB1, CHRND</td><td>吡啶斯的明, 泼尼松</td><td>肌无力, 眼睑下垂</td><td>OMIM:254200</td></tr>
-        <tr><td>戈谢病</td><td>GBA</td><td>伊米苷酶, 维拉苷酶α</td><td>肝脾肿大, 骨痛</td><td>OMIM:230800</td></tr>
-        <tr><td>法布雷病</td><td>GLA</td><td>阿加糖酶α, 阿加糖酶β</td><td>肢端疼痛, 血管角质瘤</td><td>OMIM:301500</td></tr>
-        <tr><td>脊髓性肌萎缩症</td><td>SMN1, SMN2</td><td>诺西那生钠, 利司扑兰</td><td>肌无力, 肌萎缩</td><td>OMIM:253300</td></tr>
-        <tr><td>Duchenne肌营养不良</td><td>DMD</td><td>激素治疗, 基因治疗</td><td>进行性肌无力, 假肥大</td><td>OMIM:310200</td></tr>
-      </tbody>
-    </table>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph</span><span class="desc">获取完整图谱数据</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph?q=MG&depth=2</span><span class="desc">按关键词搜索</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph/search?q=重症肌无力&node_type=disease</span><span class="desc">按类型搜索节点</span></div>
+    <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/knowledge-graph/paths?from=MG&to=CHRNA1</span><span class="desc">查找节点间路径</span></div>
   </div>
 </div>
+
+<footer>
+  <p>MediChat-RD — 罕见病AI诊疗平台 | <a href="https://github.com/MoKangMedical/medichat-rd">GitHub</a> | MIT License</p>
+  <p style="margin-top:.5rem;font-size:.85rem">本平台仅供辅助诊断参考，不构成医疗建议。最终诊断请咨询专业医师。</p>
+</footer>
 
 <script>
 const API_BASE = window.location.port === '8000' ? '' : 'http://localhost:8000';
 
-// Draw sample graph
+// Comprehensive rare disease knowledge graph data (20+ diseases)
+const GRAPH_DATA = {
+  nodes: [
+    // Diseases
+    {id:'MG',label:'重症肌无力',type:'disease'},
+    {id:'GD',label:'戈谢病',type:'disease'},
+    {id:'FD',label:'法布雷病',type:'disease'},
+    {id:'SMA',label:'脊髓性肌萎缩症',type:'disease'},
+    {id:'DMD',label:'Duchenne肌营养不良',type:'disease'},
+    {id:'OI',label:'成骨不全症',type:'disease'},
+    {id:'ALB',label:'白化病',type:'disease'},
+    {id:'HEM_A',label:'血友病A',type:'disease'},
+    {id:'WD',label:'Wilson病',type:'disease'},
+    {id:'HD',label:'亨廷顿病',type:'disease'},
+    {id:'CF',label:'囊性纤维化',type:'disease'},
+    {id:'POMPE',label:'庞贝病',type:'disease'},
+    {id:'MARFAN',label:'马凡综合征',type:'disease'},
+    {id:'PKU',label:'苯丙酮尿症',type:'disease'},
+    {id:'TSC',label:'结节性硬化',type:'disease'},
+    {id:'RB',label:'视网膜母细胞瘤',type:'disease'},
+    {id:'CAH',label:'先天性肾上腺皮质增生',type:'disease'},
+    {id:'GSD1',label:'糖原贮积病I型',type:'disease'},
+    {id:'MC',label:'先天性肌强直',type:'disease'},
+    {id:'RETT',label:'Rett综合征',type:'disease'},
+    {id:'LHON',label:'Leber视神经病变',type:'disease'},
+    {id:'EB',label:'大疱性表皮松解症',type:'disease'},
+    // Genes
+    {id:'CHRNA1',label:'CHRNA1',type:'gene'},
+    {id:'GBA_gene',label:'GBA',type:'gene'},
+    {id:'GLA_gene',label:'GLA',type:'gene'},
+    {id:'SMN1',label:'SMN1',type:'gene'},
+    {id:'DMD_gene',label:'DMD',type:'gene'},
+    {id:'COL1A1',label:'COL1A1',type:'gene'},
+    {id:'TYR',label:'TYR',type:'gene'},
+    {id:'F8',label:'F8',type:'gene'},
+    {id:'ATP7B',label:'ATP7B',type:'gene'},
+    {id:'HTT',label:'HTT',type:'gene'},
+    {id:'CFTR',label:'CFTR',type:'gene'},
+    {id:'GAA_gene',label:'GAA',type:'gene'},
+    {id:'FBN1',label:'FBN1',type:'gene'},
+    {id:'PAH_gene',label:'PAH',type:'gene'},
+    {id:'TSC2',label:'TSC2',type:'gene'},
+    {id:'RB1',label:'RB1',type:'gene'},
+    {id:'MECP2',label:'MECP2',type:'gene'},
+    {id:'COL7A1',label:'COL7A1',type:'gene'},
+    // Drugs
+    {id:'PYR',label:'吡啶斯的明',type:'drug'},
+    {id:'IMIG',label:'伊米苷酶',type:'drug'},
+    {id:'AGAL',label:'阿加糖酶α',type:'drug'},
+    {id:'NUS',label:'诺西那生钠',type:'drug'},
+    {id:'IVACA',label:'ivacaftor',type:'drug'},
+    {id:'EVER',label:'依维莫司',type:'drug'},
+    {id:'EMICI',label:'emicizumab',type:'drug'},
+    {id:'PEN',label:'D-青霉胺',type:'drug'},
+    {id:'TROFI',label:'trofinetide',type:'drug'},
+    // Phenotypes
+    {id:'HP_WEAK',label:'肌无力',type:'phenotype'},
+    {id:'HP_SPLEN',label:'肝脾肿大',type:'phenotype'},
+    {id:'HP_PAIN',label:'肢端疼痛',type:'phenotype'},
+    {id:'HP_SEIZ',label:'癫痫',type:'phenotype'},
+    {id:'HP_BLEED',label:'出血倾向',type:'phenotype'},
+    {id:'HP_VIS',label:'视力下降',type:'phenotype'},
+    {id:'HP_SKIN',label:'皮肤异常',type:'phenotype'},
+    {id:'HP_HEART',label:'心脏病变',type:'phenotype'},
+    // Pathways
+    {id:'PW_LYSO',label:'溶酶体通路',type:'pathway'},
+    {id:'PW_MTOR',label:'mTOR信号通路',type:'pathway'},
+    {id:'PW_COAG',label:'凝血级联通路',type:'pathway'},
+    {id:'PW_NEURO',label:'神经退行性通路',type:'pathway'},
+  ],
+  edges: [
+    // Disease-Gene relationships
+    {s:'MG',t:'CHRNA1',r:'causes'},
+    {s:'GD',t:'GBA_gene',r:'causes'},
+    {s:'FD',t:'GLA_gene',r:'causes'},
+    {s:'SMA',t:'SMN1',r:'causes'},
+    {s:'DMD',t:'DMD_gene',r:'causes'},
+    {s:'OI',t:'COL1A1',r:'causes'},
+    {s:'ALB',t:'TYR',r:'causes'},
+    {s:'HEM_A',t:'F8',r:'causes'},
+    {s:'WD',t:'ATP7B',r:'causes'},
+    {s:'HD',t:'HTT',r:'causes'},
+    {s:'CF',t:'CFTR',r:'causes'},
+    {s:'POMPE',t:'GAA_gene',r:'causes'},
+    {s:'MARFAN',t:'FBN1',r:'causes'},
+    {s:'PKU',t:'PAH_gene',r:'causes'},
+    {s:'TSC',t:'TSC2',r:'causes'},
+    {s:'RB',t:'RB1',r:'causes'},
+    {s:'RETT',t:'MECP2',r:'causes'},
+    {s:'EB',t:'COL7A1',r:'causes'},
+    // Disease-Drug relationships
+    {s:'MG',t:'PYR',r:'treats'},
+    {s:'GD',t:'IMIG',r:'treats'},
+    {s:'FD',t:'AGAL',r:'treats'},
+    {s:'SMA',t:'NUS',r:'treats'},
+    {s:'CF',t:'IVACA',r:'treats'},
+    {s:'TSC',t:'EVER',r:'treats'},
+    {s:'HEM_A',t:'EMICI',r:'treats'},
+    {s:'WD',t:'PEN',r:'treats'},
+    {s:'RETT',t:'TROFI',r:'treats'},
+    // Disease-Phenotype relationships
+    {s:'MG',t:'HP_WEAK',r:'has_phenotype'},
+    {s:'GD',t:'HP_SPLEN',r:'has_phenotype'},
+    {s:'FD',t:'HP_PAIN',r:'has_phenotype'},
+    {s:'SMA',t:'HP_WEAK',r:'has_phenotype'},
+    {s:'HD',t:'HP_SEIZ',r:'has_phenotype'},
+    {s:'HEM_A',t:'HP_BLEED',r:'has_phenotype'},
+    {s:'LHON',t:'HP_VIS',r:'has_phenotype'},
+    {s:'EB',t:'HP_SKIN',r:'has_phenotype'},
+    {s:'MARFAN',t:'HP_HEART',r:'has_phenotype'},
+    {s:'POMPE',t:'HP_HEART',r:'has_phenotype'},
+    {s:'DMD',t:'HP_WEAK',r:'has_phenotype'},
+    // Disease-Pathway relationships
+    {s:'GD',t:'PW_LYSO',r:'involves'},
+    {s:'FD',t:'PW_LYSO',r:'involves'},
+    {s:'POMPE',t:'PW_LYSO',r:'involves'},
+    {s:'TSC',t:'PW_MTOR',r:'involves'},
+    {s:'HEM_A',t:'PW_COAG',r:'involves'},
+    {s:'HD',t:'PW_NEURO',r:'involves'},
+    {s:'RETT',t:'PW_NEURO',r:'involves'},
+  ]
+};
+
 function drawGraph() {
   const svg = document.getElementById('graphSvg');
-  const w = svg.clientWidth || 900, h = 500;
+  const canvas = document.getElementById('graphCanvas');
+  const w = canvas.clientWidth || 900, h = 550;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.innerHTML = '';
-  const nodes = [
-    {id:'MG',label:'重症肌无力',type:'disease',x:w/2,y:h/2},
-    {id:'CHRNA1',label:'CHRNA1',type:'gene',x:w/2-200,y:h/2-120},
-    {id:'PYR',label:'吡啶斯的明',type:'drug',x:w/2+200,y:h/2-120},
-    {id:'HP:0001252',label:'肌无力',type:'phenotype',x:w/2-200,y:h/2+120},
-    {id:'HP:0000486',label:'眼睑下垂',type:'phenotype',x:w/2+200,y:h/2+120},
-    {id:'GD',label:'戈谢病',type:'disease',x:w/2+300,y:h/2},
-    {id:'GBA',label:'GBA',type:'gene',x:w/2+350,y:h/2-150},
-    {id:'FD',label:'法布雷病',type:'disease',x:w/2-300,y:h/2},
-    {id:'GLA',label:'GLA',type:'gene',x:w/2-350,y:h/2-150},
-  ];
-  const edges = [
-    {s:'MG',t:'CHRNA1',r:'causes'},
-    {s:'MG',t:'PYR',r:'treats'},
-    {s:'MG',t:'HP:0001252',r:'has_phenotype'},
-    {s:'MG',t:'HP:0000486',r:'has_phenotype'},
-    {s:'GD',t:'GBA',r:'causes'},
-    {s:'FD',t:'GLA',r:'causes'},
-  ];
-  const colors = {disease:'#f39c12',gene:'#3498db',drug:'#27ae60',phenotype:'#9b59b6',literature:'#e74c3c'};
-  edges.forEach(e => {
-    const sn = nodes.find(n=>n.id===e.s), tn = nodes.find(n=>n.id===e.t);
-    if(sn&&tn) {
-      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.setAttribute('x1',sn.x);line.setAttribute('y1',sn.y);
-      line.setAttribute('x2',tn.x);line.setAttribute('y2',tn.y);
-      line.setAttribute('stroke','#555');line.setAttribute('stroke-width','2');
-      svg.appendChild(line);
-      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-      txt.setAttribute('x',(sn.x+tn.x)/2);txt.setAttribute('y',(sn.y+tn.y)/2-5);
-      txt.setAttribute('fill','#888');txt.setAttribute('font-size','11');txt.setAttribute('text-anchor','middle');
-      txt.textContent = e.r;
-      svg.appendChild(txt);
-    }
+
+  const colors = {disease:'#f59e0b',gene:'#3b82f6',drug:'#10b981',phenotype:'#a855f7',pathway:'#ef4444'};
+  const nodeR = {disease:28,gene:18,drug:18,phenotype:15,pathway:15};
+
+  // Force-directed layout simulation
+  const nodes = GRAPH_DATA.nodes.map((n, i) => {
+    const angle = (i / GRAPH_DATA.nodes.length) * Math.PI * 2;
+    const radius = 150 + Math.random() * 120;
+    return {...n, x: w/2 + Math.cos(angle) * radius, y: h/2 + Math.sin(angle) * radius, vx: 0, vy: 0};
   });
+
+  const nodeMap = {};
+  nodes.forEach(n => nodeMap[n.id] = n);
+
+  // Simple force simulation
+  for (let iter = 0; iter < 200; iter++) {
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i+1; j < nodes.length; j++) {
+        let dx = nodes[j].x - nodes[i].x;
+        let dy = nodes[j].y - nodes[i].y;
+        let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        let force = 3000 / (dist * dist);
+        nodes[i].vx -= dx/dist * force;
+        nodes[i].vy -= dy/dist * force;
+        nodes[j].vx += dx/dist * force;
+        nodes[j].vy += dy/dist * force;
+      }
+    }
+    // Attraction (edges)
+    GRAPH_DATA.edges.forEach(e => {
+      const s = nodeMap[e.s], t = nodeMap[e.t];
+      if (!s || !t) return;
+      let dx = t.x - s.x, dy = t.y - s.y;
+      let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      let force = (dist - 100) * 0.005;
+      s.vx += dx/dist * force;
+      s.vy += dy/dist * force;
+      t.vx -= dx/dist * force;
+      t.vy -= dy/dist * force;
+    });
+    // Center gravity
+    nodes.forEach(n => {
+      n.vx += (w/2 - n.x) * 0.001;
+      n.vy += (h/2 - n.y) * 0.001;
+      n.x += n.vx * 0.3;
+      n.y += n.vy * 0.3;
+      n.vx *= 0.9;
+      n.vy *= 0.9;
+      // Bounds
+      const r = nodeR[n.type] || 15;
+      n.x = Math.max(r+10, Math.min(w-r-10, n.x));
+      n.y = Math.max(r+10, Math.min(h-r-10, n.y));
+    });
+  }
+
+  // Draw edges
+  GRAPH_DATA.edges.forEach(e => {
+    const s = nodeMap[e.s], t = nodeMap[e.t];
+    if (!s || !t) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',s.x); line.setAttribute('y1',s.y);
+    line.setAttribute('x2',t.x); line.setAttribute('y2',t.y);
+    line.setAttribute('stroke','rgba(100,116,139,.4)'); line.setAttribute('stroke-width','1.5');
+    svg.appendChild(line);
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',(s.x+t.x)/2); txt.setAttribute('y',(s.y+t.y)/2-5);
+    txt.setAttribute('fill','#64748b'); txt.setAttribute('font-size','9'); txt.setAttribute('text-anchor','middle');
+    txt.textContent = e.r;
+    svg.appendChild(txt);
+  });
+
+  // Draw nodes
   nodes.forEach(n => {
     const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const r = nodeR[n.type] || 15;
     const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r','24');
-    c.setAttribute('fill',colors[n.type]);c.setAttribute('opacity','0.9');
+    c.setAttribute('cx',n.x); c.setAttribute('cy',n.y); c.setAttribute('r',r);
+    c.setAttribute('fill',colors[n.type]); c.setAttribute('opacity','0.85');
+    c.setAttribute('stroke','rgba(255,255,255,.2)'); c.setAttribute('stroke-width','2');
     g.appendChild(c);
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x',n.x);t.setAttribute('y',n.y+35);
-    t.setAttribute('fill','#333');t.setAttribute('font-size','12');t.setAttribute('text-anchor','middle');
-    t.setAttribute('font-weight','600');
+    t.setAttribute('x',n.x); t.setAttribute('y',n.y+r+14);
+    t.setAttribute('fill','#e2e8f0'); t.setAttribute('font-size', n.type==='disease'?'11':'10');
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-weight', n.type==='disease'?'600':'400');
     t.textContent = n.label;
     g.appendChild(t);
+
+    // Tooltip
+    const title = document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent = `${n.label} (${n.type})`;
+    g.appendChild(title);
+
+    // Drag support
+    let dragging = false;
+    g.style.cursor = 'pointer';
+    g.addEventListener('mousedown', (evt) => {
+      dragging = true;
+      evt.preventDefault();
+    });
+    svg.addEventListener('mousemove', (evt) => {
+      if (!dragging) return;
+      const rect = svg.getBoundingClientRect();
+      const scaleX = w / rect.width;
+      const scaleY = h / rect.height;
+      n.x = (evt.clientX - rect.left) * scaleX;
+      n.y = (evt.clientY - rect.top) * scaleY;
+      c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
+      t.setAttribute('x', n.x); t.setAttribute('y', n.y + r + 14);
+      // Update edges
+      drawGraph();
+    });
+    svg.addEventListener('mouseup', () => { dragging = false; });
+
     svg.appendChild(g);
   });
 }
@@ -222,31 +378,33 @@ async function doSearch() {
     if(data.results && data.results.length > 0) {
       div.innerHTML = data.results.map(r => `<div class="node ${r.type}" style="margin:.3rem">${r.type}: ${r.label} (${r.id})</div>`).join('');
     } else {
-      div.innerHTML = '<p style="color:#666">未找到匹配节点</p>';
+      div.innerHTML = '<p style="color:var(--text-muted)">未找到匹配节点</p>';
     }
   } catch(e) {
-    document.getElementById('resultsCard').style.display = 'block';
-    document.getElementById('searchResults').innerHTML = `<p style="color:#e74c3c">API连接失败: ${e.message}. 请确保 server.py 已启动。</p>`;
+    // Fallback: local search
+    const card = document.getElementById('resultsCard');
+    card.style.display = 'block';
+    const div = document.getElementById('searchResults');
+    const matched = GRAPH_DATA.nodes.filter(n =>
+      n.label.toLowerCase().includes(q.toLowerCase()) || n.id.toLowerCase().includes(q.toLowerCase())
+    );
+    if(matched.length) {
+      div.innerHTML = matched.map(r => `<div class="node ${r.type}" style="margin:.3rem">${r.type}: ${r.label} (${r.id})</div>`).join('');
+    } else {
+      div.innerHTML = '<p style="color:var(--text-muted)">未找到匹配节点 (请确保 server.py 已启动以访问完整数据)</p>';
+    }
   }
 }
 
-async function loadStats() {
-  try {
-    const resp = await fetch(`${API_BASE}/api/v1/knowledge-graph`);
-    const data = await resp.json();
-    document.getElementById('nodeCount').textContent = data.total_nodes || '-';
-    document.getElementById('edgeCount').textContent = data.total_edges || '-';
-    if(data.nodes) {
-      document.getElementById('diseaseCount').textContent = data.nodes.filter(n=>n.type==='disease').length;
-      document.getElementById('geneCount').textContent = data.nodes.filter(n=>n.type==='gene').length;
-    }
-  } catch(e) {
-    console.log('API not available, using demo data');
-    document.getElementById('nodeCount').textContent = '8+';
-    document.getElementById('edgeCount').textContent = '20+';
-    document.getElementById('diseaseCount').textContent = '8';
-    document.getElementById('geneCount').textContent = '10+';
-  }
+function loadStats() {
+  const diseases = GRAPH_DATA.nodes.filter(n=>n.type==='disease').length;
+  const genes = GRAPH_DATA.nodes.filter(n=>n.type==='gene').length;
+  const drugs = GRAPH_DATA.nodes.filter(n=>n.type==='drug').length;
+  document.getElementById('nodeCount').textContent = GRAPH_DATA.nodes.length;
+  document.getElementById('edgeCount').textContent = GRAPH_DATA.edges.length;
+  document.getElementById('diseaseCount').textContent = diseases;
+  document.getElementById('geneCount').textContent = genes;
+  document.getElementById('drugCount').textContent = drugs;
 }
 
 window.addEventListener('load', () => { drawGraph(); loadStats(); });

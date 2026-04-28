@@ -4,38 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI诊断 — MediChat-RD</title>
+<meta name="description" content="AI辅助罕见病诊断 - 多Agent协作诊断推理">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--danger:#e74c3c;--success:#27ae60}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
-.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
-.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
-.topnav nav a:hover,.topnav nav a.active{color:#fff}
-.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
-.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
-textarea,input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit}
+.container{max-width:1000px}
+textarea,input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;font-family:inherit;background:var(--bg-input);color:var(--text)}
 textarea:focus,input:focus{border-color:var(--primary)}
 textarea{resize:vertical;min-height:120px}
-button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600;transition:background .2s}
-button:hover{background:#1557b0}
-button:disabled{background:#ccc;cursor:not-allowed}
+textarea::placeholder,input::placeholder{color:var(--text-muted)}
+button:disabled{background:var(--text-muted);cursor:not-allowed;opacity:.5}
 .btn-row{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
-.result-box{background:#f8f9fa;border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;line-height:1.7;max-height:500px;overflow-y:auto}
-.symptom-tag{display:inline-block;background:#e8f0fe;color:var(--primary);padding:.2rem .7rem;border-radius:15px;font-size:.85rem;margin:.2rem}
-.disease-match{background:#fff3cd;border-left:4px solid #f39c12;padding:1rem;border-radius:0 8px 8px 0;margin:.5rem 0}
-.step{display:flex;gap:1rem;margin:1rem 0;padding:1rem;background:#f8f9fa;border-radius:8px;align-items:flex-start}
-.step .num{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
-.loading{display:none;color:var(--text-light);font-style:italic;margin:1rem 0}
+.result-box{background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;line-height:1.7;max-height:500px;overflow-y:auto;color:var(--text)}
+.disease-match{background:rgba(245,158,11,.1);border-left:4px solid var(--warn);padding:1rem;border-radius:0 8px 8px 0;margin:.5rem 0}
+.step{display:flex;gap:1rem;margin:1rem 0;padding:1rem;background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:8px;align-items:flex-start}
+.step .num{width:32px;height:32px;background:var(--gradient-primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.loading{display:none;color:var(--text-muted);font-style:italic;margin:1rem 0}
 .loading.show{display:block}
-.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
-.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
-.method.get{background:var(--primary)}
-.method.post{background:var(--success)}
-.path{font-family:monospace;font-weight:600}
-h1{font-size:2rem;margin-bottom:.5rem}
-.sub{color:var(--text-light);margin-bottom:2rem}
-h3{margin-bottom:.8rem}
 </style>
 </head>
 <body>
@@ -95,7 +80,7 @@ h3{margin-bottom:.8rem}
   <!-- Chat -->
   <div class="card">
     <h3>💬 智能对话</h3>
-    <div id="chatHistory" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;padding:1rem;background:#f8f9fa;border-radius:8px"></div>
+    <div id="chatHistory" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;padding:1rem;background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px"></div>
     <div style="display:flex;gap:.5rem">
       <input type="text" id="chatInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendChat()">
       <button onclick="sendChat()">发送</button>
@@ -177,7 +162,7 @@ async function sendChat() {
   if(!msg) return;
   input.value = '';
   const hist = document.getElementById('chatHistory');
-  hist.innerHTML += `<div style="text-align:right;margin:.5rem 0"><span style="background:#1a73e8;color:#fff;padding:.5rem 1rem;border-radius:12px 12px 0 12px;display:inline-block;max-width:80%">${msg}</span></div>`;
+      hist.innerHTML += `<div style="text-align:right;margin:.5rem 0"><span style="background:var(--primary);color:#fff;padding:.5rem 1rem;border-radius:12px 12px 0 12px;display:inline-block;max-width:80%">${msg}</span></div>`;
   hist.scrollTop = hist.scrollHeight;
   try {
     const resp = await fetch(`${API_BASE}/api/v1/chat`, {
@@ -186,7 +171,7 @@ async function sendChat() {
     });
     const data = await resp.json();
     sessionId = data.session_id;
-    hist.innerHTML += `<div style="margin:.5rem 0"><span style="background:#f1f3f4;padding:.5rem 1rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%">${data.message}</span></div>`;
+    hist.innerHTML += `<div style="margin:.5rem 0"><span style="background:rgba(51,65,85,.5);padding:.5rem 1rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%;color:var(--text)">${data.message}</span></div>`;
     hist.scrollTop = hist.scrollHeight;
   } catch(e) {
     hist.innerHTML += `<div style="margin:.5rem 0;color:#e74c3c">⚠️ API连接失败: ${e.message}</div>`;

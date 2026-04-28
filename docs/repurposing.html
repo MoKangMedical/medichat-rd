@@ -4,37 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>药物重定位 — MediChat-RD</title>
+<meta name="description" content="罕见病药物重定位 - AI驱动的老药新用发现平台">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root{--primary:#1a73e8;--accent:#00c9a7;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--text-light:#666;--border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--success:#27ae60}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-.topnav{background:#1a1a2e;color:#fff;padding:0 2rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
-.topnav .logo{font-size:1.3rem;font-weight:700;color:var(--accent);margin-right:2rem}
-.topnav nav a{color:#ccc;margin:0 1rem;font-size:.95rem;text-decoration:none}
-.topnav nav a:hover,.topnav nav a.active{color:#fff}
-.container{max-width:1000px;margin:2rem auto;padding:0 2rem}
-.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
-input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none}
+.container{max-width:1000px}
+input[type=text]{width:100%;padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;outline:none;background:var(--bg-input);color:var(--text)}
 input:focus{border-color:var(--primary)}
-button{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600}
-button:hover{background:#1557b0}
-button:disabled{background:#ccc}
+input::placeholder{color:var(--text-muted)}
+button:disabled{background:var(--text-muted);opacity:.5}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-.form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem}
-.result-box{background:#f8f9fa;border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;max-height:500px;overflow-y:auto}
-.loading{display:none;color:var(--text-light);font-style:italic;margin:1rem 0}
+.form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem;color:var(--text)}
+.result-box{background:rgba(15,23,42,.5);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-top:1rem;white-space:pre-wrap;font-size:.95rem;max-height:500px;overflow-y:auto;color:var(--text)}
+.loading{display:none;color:var(--text-muted);font-style:italic;margin:1rem 0}
 .loading.show{display:block}
-.score-bar{height:20px;background:#e8ecf1;border-radius:10px;overflow:hidden;margin:.3rem 0}
+.score-bar{height:20px;background:var(--border);border-radius:10px;overflow:hidden;margin:.3rem 0}
 .score-fill{height:100%;border-radius:10px;transition:width .5s}
-.evidence{padding:.8rem;margin:.5rem 0;border-left:4px solid var(--accent);background:#f8f9fa;border-radius:0 8px 8px 0}
-.endpoint{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
-.method{background:var(--accent);color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.8rem;font-weight:700;min-width:50px;text-align:center}
-.method.get{background:var(--primary)}
-.method.post{background:var(--success)}
-.path{font-family:monospace;font-weight:600}
-h1{font-size:2rem;margin-bottom:.5rem}.sub{color:var(--text-light);margin-bottom:2rem}
-h3{margin-bottom:.8rem}
-.tag{display:inline-block;background:#e8f0fe;color:var(--primary);padding:.15rem .6rem;border-radius:10px;font-size:.8rem;margin:.2rem}
+.evidence{padding:.8rem;margin:.5rem 0;border-left:4px solid var(--accent);background:rgba(51,65,85,.3);border:1px solid var(--border);border-radius:0 8px 8px 0;color:var(--text-light)}
 </style>
 </head>
 <body>

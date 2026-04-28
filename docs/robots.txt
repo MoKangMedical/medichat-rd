@@ -1,8 +1,6 @@
 User-agent: *
 Allow: /
-User-agent: GPTBot
-Allow: /
-User-agent: ClaudeBot
-Allow: /
-User-agent: PerplexityBot
-Allow: /
+
+Sitemap: https://mokangmedical.github.io/medichat-rd/sitemap.xml
+
+# MediChat-RD - Rare Disease AI Diagnosis Platform
