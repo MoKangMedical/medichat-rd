@@ -1,0 +1,15 @@
+{
+  "appid": "touristappid",
+  "projectname": "medichatrd-miniapp",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "dist",
+  "srcMiniprogramRoot": "src",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false
+  },
+  "condition": {}
+}
