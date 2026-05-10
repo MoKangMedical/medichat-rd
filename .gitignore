@@ -12,6 +12,9 @@ scientific-runtime/.pytest_cache/
 # Node
 node_modules/
 frontend/node_modules/
+apps/wechat-miniapp/node_modules/
+apps/wechat-miniapp/dist/
+apps/wechat-miniapp/.swc/
 
 # IDE
 .vscode/

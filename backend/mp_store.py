@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -63,7 +63,7 @@ class MiniProgramStore:
         user_id = f"user_{wechat_code[-8:]}"
         patient_id = f"patient_{wechat_code[-8:]}"
         display_name = "微信患者"
-        created_at = datetime.now(UTC).isoformat()
+        created_at = datetime.now(timezone.utc).isoformat()
         with self._connect() as conn:
             conn.execute(
                 """
@@ -96,7 +96,7 @@ class MiniProgramStore:
                 insert into mp_deeprare_tasks(patient_id, task_id, payload, created_at)
                 values (?, ?, ?, ?)
                 """,
-                (patient_id, task_id, str(payload), datetime.now(UTC).isoformat()),
+                (patient_id, task_id, str(payload), datetime.now(timezone.utc).isoformat()),
             )
 
     def get_deeprare_task(self, patient_id: str, task_id: str) -> dict | None:
@@ -118,7 +118,7 @@ class MiniProgramStore:
                 values (?, ?, ?)
                 on conflict(patient_id) do update set runtime = excluded.runtime
                 """,
-                (patient_id, runtime, datetime.now(UTC).isoformat()),
+                (patient_id, runtime, datetime.now(timezone.utc).isoformat()),
             )
 
     def get_avatar_binding(self, patient_id: str) -> dict | None:
@@ -143,6 +143,6 @@ class MiniProgramStore:
                     payload["mood_score"],
                     payload["note"],
                     payload["next_followup_at"],
-                    datetime.now(UTC).isoformat(),
+                    datetime.now(timezone.utc).isoformat(),
                 ),
             )

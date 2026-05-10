@@ -5,21 +5,13 @@ import { useState } from "react"
 import { apiRequest } from "@/services/api"
 import { ensureSession } from "@/services/auth"
 
-type HomePayload = {
-  patient_name: string
-  journey_stage: string
-  next_actions: string[]
-  spotlight_disease: string
-  live_rooms: Array<{ title: string; schedule: string; summary: string }>
-}
-
 export default function HomePage() {
-  const [data, setData] = useState<HomePayload | null>(null)
+  const [data, setData] = useState(null)
 
   useDidShow(() => {
     void (async () => {
       const token = await ensureSession()
-      const result = await apiRequest<HomePayload>({
+      const result = await apiRequest({
         url: "/home",
         token
       })

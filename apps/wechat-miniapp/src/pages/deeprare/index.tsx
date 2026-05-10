@@ -5,28 +5,19 @@ import { useState } from "react"
 import { apiRequest } from "@/services/api"
 import { ensureSession } from "@/services/auth"
 
-type SubmitResponse = {
-  task_id: string
-  status: string
-  top_diseases: string[]
-  suggested_tests: string[]
-}
-
 export default function DeepRarePage() {
   const [symptoms, setSymptoms] = useState("")
   const [age, setAge] = useState("")
-  const [result, setResult] = useState<SubmitResponse | null>(null)
+  const [result, setResult] = useState(null)
 
   async function submit() {
     const token = await ensureSession()
-    const data = await apiRequest<SubmitResponse, { symptoms: string; age: string }>(
-      {
-        url: "/deeprare/submit",
-        method: "POST",
-        token,
-        data: { symptoms, age }
-      }
-    )
+    const data = await apiRequest({
+      url: "/deeprare/submit",
+      method: "POST",
+      token,
+      data: { symptoms, age }
+    })
     setResult(data)
   }
 

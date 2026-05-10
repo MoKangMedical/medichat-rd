@@ -5,21 +5,13 @@ import { useState } from "react"
 import { apiRequest } from "@/services/api"
 import { ensureSession } from "@/services/auth"
 
-type FeedItem = {
-  id: string
-  author: string
-  disease: string
-  post_type: string
-  summary: string
-}
-
 export default function CommunityPage() {
-  const [items, setItems] = useState<FeedItem[]>([])
+  const [items, setItems] = useState([])
 
   useDidShow(() => {
     void (async () => {
       const token = await ensureSession()
-      const data = await apiRequest<{ feed: FeedItem[] }>({
+      const data = await apiRequest({
         url: "/community/feed",
         token
       })
@@ -29,7 +21,7 @@ export default function CommunityPage() {
 
   async function createAvatar() {
     const token = await ensureSession()
-    await apiRequest<{ status: string }>({
+    await apiRequest({
       url: "/avatar/create",
       method: "POST",
       token

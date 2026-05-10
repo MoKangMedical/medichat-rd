@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
-from typing import Annotated
+from datetime import datetime, timedelta, timezone
+from typing import Annotated, Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from mp_store import MiniProgramStore
@@ -31,7 +31,7 @@ class FollowupCheckinRequest(BaseModel):
     note: str = Field(default="", max_length=300)
 
 
-def _read_token(authorization: Annotated[str | None, Header()] = None) -> str:
+def _read_token(authorization: Annotated[Optional[str], Header()] = None) -> str:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="missing bearer token")
     return authorization.split(" ", 1)[1]
@@ -53,7 +53,7 @@ async def login(payload: MiniProgramLoginRequest):
 
 
 @router.get("/home")
-def get_home(token: str = _read_token):
+def get_home(token: str = Depends(_read_token)):
     session = store.require_session(token)
     return {
         "patient_name": session["display_name"],
@@ -81,7 +81,7 @@ def get_home(token: str = _read_token):
 
 
 @router.post("/deeprare/submit")
-def submit_deeprare(payload: DeepRareSubmitRequest, token: str = _read_token):
+def submit_deeprare(payload: DeepRareSubmitRequest, token: str = Depends(_read_token)):
     session = store.require_session(token)
     task_id = f"mpdr_{uuid4().hex[:10]}"
     store.save_deeprare_task(
@@ -90,7 +90,7 @@ def submit_deeprare(payload: DeepRareSubmitRequest, token: str = _read_token):
         {
             "symptoms": payload.symptoms,
             "age": payload.age,
-            "created_at": datetime.now(UTC).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         },
     )
     return {
@@ -102,7 +102,7 @@ def submit_deeprare(payload: DeepRareSubmitRequest, token: str = _read_token):
 
 
 @router.get("/deeprare/result/{task_id}")
-def get_deeprare_result(task_id: str, token: str = _read_token):
+def get_deeprare_result(task_id: str, token: str = Depends(_read_token)):
     session = store.require_session(token)
     task = store.get_deeprare_task(session["patient_id"], task_id)
     if not task:
@@ -117,7 +117,7 @@ def get_deeprare_result(task_id: str, token: str = _read_token):
 
 
 @router.get("/community/feed")
-def get_community_feed(token: str = _read_token):
+def get_community_feed(token: str = Depends(_read_token)):
     store.require_session(token)
     return {
         "feed": [
@@ -147,14 +147,14 @@ def get_community_feed(token: str = _read_token):
 
 
 @router.post("/avatar/create")
-def create_avatar(token: str = _read_token):
+def create_avatar(token: str = Depends(_read_token)):
     session = store.require_session(token)
     store.bind_avatar(session["patient_id"], runtime="local")
     return {"status": "created", "provider": "local"}
 
 
 @router.get("/profile")
-def get_profile(token: str = _read_token):
+def get_profile(token: str = Depends(_read_token)):
     session = store.require_session(token)
     avatar = store.get_avatar_binding(session["patient_id"])
     return {
@@ -166,7 +166,7 @@ def get_profile(token: str = _read_token):
 
 
 @router.post("/followup/checkin")
-def save_checkin(payload: FollowupCheckinRequest, token: str = _read_token):
+def save_checkin(payload: FollowupCheckinRequest, token: str = Depends(_read_token)):
     session = store.require_session(token)
     checkin_id = f"checkin_{uuid4().hex[:10]}"
     store.save_checkin(
@@ -176,7 +176,7 @@ def save_checkin(payload: FollowupCheckinRequest, token: str = _read_token):
             "symptom_score": payload.symptom_score,
             "mood_score": payload.mood_score,
             "note": payload.note,
-            "next_followup_at": (datetime.now(UTC) + timedelta(days=3)).isoformat(),
+            "next_followup_at": (datetime.now(timezone.utc) + timedelta(days=3)).isoformat(),
         },
     )
     return {"status": "saved", "checkin_id": checkin_id}

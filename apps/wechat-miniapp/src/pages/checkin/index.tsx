@@ -12,7 +12,7 @@ export default function CheckinPage() {
 
   async function submit() {
     const token = await ensureSession()
-    await apiRequest<{ status: string }, { symptom_score: number; mood_score: number; note: string }>({
+    await apiRequest({
       url: "/followup/checkin",
       method: "POST",
       token,

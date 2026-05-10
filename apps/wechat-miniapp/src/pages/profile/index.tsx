@@ -5,20 +5,13 @@ import { useState } from "react"
 import { apiRequest } from "@/services/api"
 import { ensureSession } from "@/services/auth"
 
-type ProfilePayload = {
-  patient_id: string
-  linked_runtime: string
-  secondme_bound: boolean
-  followup_enabled: boolean
-}
-
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<ProfilePayload | null>(null)
+  const [profile, setProfile] = useState(null)
 
   useDidShow(() => {
     void (async () => {
       const token = await ensureSession()
-      const data = await apiRequest<ProfilePayload>({
+      const data = await apiRequest({
         url: "/profile",
         token
       })
