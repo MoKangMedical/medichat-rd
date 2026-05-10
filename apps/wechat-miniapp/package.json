@@ -1,0 +1,32 @@
+{
+  "name": "medichat-rd-wechat-miniapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MediChat-RD 微信小程序前端壳，基于 Taro + React。",
+  "scripts": {
+    "dev:weapp": "taro build --type weapp --watch",
+    "build:weapp": "taro build --type weapp",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@tarojs/components": "^4.0.6",
+    "@tarojs/helper": "^4.0.6",
+    "@tarojs/plugin-framework-react": "^4.0.6",
+    "@tarojs/plugin-platform-weapp": "^4.0.6",
+    "@tarojs/react": "^4.0.6",
+    "@tarojs/runtime": "^4.0.6",
+    "@tarojs/taro": "^4.0.6",
+    "@tarojs/webpack5-runner": "^4.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-react": "^7.28.5",
+    "@tarojs/cli": "^4.0.6",
+    "@types/react": "^18.3.4",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.10.0",
+    "typescript": "^5.6.2"
+  }
+}

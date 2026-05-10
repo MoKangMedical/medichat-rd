@@ -75,6 +75,7 @@ from analytics_api import router as analytics_router
 from clinical_trials import get_trials_json
 from media_generation_api import router as media_generation_router
 from hospital_recommender import get_recommendation_json, format_recommendation_text
+from mp_api import router as mp_router
 
 app = FastAPI(
     title="MediChat API",
@@ -152,6 +153,7 @@ app.include_router(doctor_router)
 app.include_router(openevidence_router)
 app.include_router(analytics_router)
 app.include_router(media_generation_router)
+app.include_router(mp_router)
 
 # ============================================================
 # 前端静态文件服务

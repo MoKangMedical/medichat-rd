@@ -1,0 +1,128 @@
+$bg: #fdf8ef;
+$card: rgba(255, 255, 255, 0.92);
+$primary: #0b9b7a;
+$accent: #ff8f66;
+$text: #243447;
+
+page {
+  min-height: 100%;
+  background: radial-gradient(circle at top left, #fff7dc, $bg 42%, #f7fff9 100%);
+  color: $text;
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+.page-shell {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.hero-card,
+.panel-card,
+.action-card,
+.status-card {
+  background: $card;
+  border-radius: 28px;
+  box-shadow: 0 22px 60px rgba(57, 42, 18, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.hero-card {
+  padding: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.page-title {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  margin-top: 12px;
+  font-size: 26px;
+  line-height: 1.5;
+  color: #5b6b7c;
+}
+
+.pill-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.pill {
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(11, 155, 122, 0.1);
+  color: $primary;
+  font-size: 22px;
+}
+
+.section-title {
+  margin: 28px 6px 18px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.action-card,
+.panel-card,
+.status-card {
+  padding: 24px;
+}
+
+.action-title,
+.panel-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.action-desc,
+.panel-desc,
+.label-muted {
+  margin-top: 8px;
+  font-size: 22px;
+  color: #657789;
+  line-height: 1.5;
+}
+
+.primary-button,
+.secondary-button {
+  margin-top: 18px;
+  border-radius: 999px;
+  font-size: 24px;
+  padding: 12px 24px;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, $primary 0%, #17bf91 100%);
+  color: #fff;
+}
+
+.secondary-button {
+  background: rgba(255, 143, 102, 0.14);
+  color: $accent;
+}
+
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.room-highlight {
+  border-left: 8px solid $accent;
+}
+
+.meta-line {
+  margin-top: 10px;
+  font-size: 22px;
+  color: #7e6d56;
+}
