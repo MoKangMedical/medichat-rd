@@ -7397,10 +7397,337 @@ button.disease-orbit-variable-card:disabled {
   box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.16);
 }
 
+.openrd-page {
+  --openrd-ink: #102033;
+  --openrd-blue: #2f6fed;
+  --openrd-green: #0f9f7a;
+  --openrd-amber: #d49120;
+}
+
+.openrd-shell {
+  display: grid;
+  gap: 20px;
+}
+
+.openrd-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(300px, .82fr);
+  gap: 22px;
+  padding: 28px;
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(47, 111, 237, .2), transparent 26%),
+    radial-gradient(circle at 86% 16%, rgba(15, 159, 122, .18), transparent 24%),
+    linear-gradient(135deg, #fffaf1 0%, #f4fbff 58%, #f7fff9 100%);
+  border: 1px solid rgba(12, 24, 49, .08);
+  box-shadow: 0 30px 80px rgba(17, 28, 56, .1);
+  overflow: hidden;
+}
+
+.openrd-hero-copy h2 {
+  margin: 14px 0 14px;
+  max-width: 920px;
+  font-family: Manrope, "Noto Sans SC", sans-serif;
+  font-size: clamp(2.1rem, 4vw, 4.25rem);
+  line-height: .98;
+  letter-spacing: -.06em;
+  color: var(--openrd-ink);
+}
+
+.openrd-hero-copy p,
+.openrd-hero-card p,
+.openrd-module-card p,
+.openrd-requirement-card p,
+.openrd-project-card p,
+.openrd-cohort-card p,
+.openrd-tech-card p,
+.openrd-message p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.78;
+}
+
+.openrd-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.openrd-hero-card {
+  align-self: stretch;
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid rgba(255, 255, 255, .75);
+  box-shadow: inset 0 0 0 1px rgba(12, 24, 49, .04);
+}
+
+.openrd-hero-card > span,
+.openrd-module-card small,
+.openrd-tech-card span {
+  width: fit-content;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(47, 111, 237, .1);
+  color: #2454b8;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.openrd-hero-card strong {
+  font-family: Manrope, "Noto Sans SC", sans-serif;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -.04em;
+}
+
+.openrd-hero-meta,
+.openrd-module-grid,
+.openrd-requirement-grid,
+.openrd-project-grid,
+.openrd-tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.openrd-hero-meta div,
+.openrd-module-card,
+.openrd-requirement-card,
+.openrd-project-card,
+.openrd-cohort-card,
+.openrd-tech-card,
+.openrd-message,
+.openrd-ledger-row {
+  border: 1px solid rgba(12, 24, 49, .08);
+  background: rgba(255, 255, 255, .72);
+  border-radius: 22px;
+}
+
+.openrd-hero-meta div {
+  padding: 14px;
+}
+
+.openrd-hero-meta small,
+.openrd-card-top small,
+.openrd-card-foot,
+.openrd-project-card small,
+.openrd-message span,
+.openrd-ledger-row small {
+  color: var(--ink-faint);
+  font-size: .78rem;
+}
+
+.openrd-hero-meta b {
+  display: block;
+  margin-top: 4px;
+  font-family: Manrope, "Noto Sans SC", sans-serif;
+  font-size: 1.45rem;
+}
+
+.openrd-module-card,
+.openrd-requirement-card,
+.openrd-project-card,
+.openrd-cohort-card,
+.openrd-tech-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.openrd-module-card h3,
+.openrd-requirement-card h3,
+.openrd-project-card h3,
+.openrd-cohort-card h3 {
+  margin: 0;
+  color: var(--openrd-ink);
+  line-height: 1.25;
+}
+
+.openrd-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.openrd-chip-row span,
+.openrd-card-top span,
+.openrd-card-foot span {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(15, 159, 122, .1);
+  color: #08745b;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.openrd-track-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.openrd-track-tabs button {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .8);
+  color: var(--ink-soft);
+  border: 1px solid rgba(12, 24, 49, .08);
+  cursor: pointer;
+}
+
+.openrd-track-tabs button.active {
+  background: #102033;
+  color: #fff;
+}
+
+.openrd-requirement-card {
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.openrd-requirement-card:hover,
+.openrd-requirement-card.selected {
+  transform: translateY(-2px);
+  border-color: rgba(47, 111, 237, .35);
+  box-shadow: 0 20px 46px rgba(47, 111, 237, .12);
+}
+
+.openrd-card-top,
+.openrd-card-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.openrd-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.openrd-progress > div {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(12, 24, 49, .08);
+}
+
+.openrd-progress > div span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--openrd-green), var(--openrd-blue));
+}
+
+.openrd-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.openrd-message-list,
+.openrd-ledger-list,
+.openrd-cohort-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.openrd-message {
+  padding: 14px;
+}
+
+.openrd-message strong,
+.openrd-message span {
+  display: block;
+}
+
+.openrd-message p {
+  margin-top: 8px;
+}
+
+.openrd-ledger-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+}
+
+.openrd-ledger-row span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(212, 145, 32, .12);
+  color: #a26107;
+  font-size: .75rem;
+  font-weight: 800;
+}
+
+.openrd-cohort-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr);
+  gap: 18px;
+}
+
+.openrd-cohort-card > span {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(47, 111, 237, .1);
+  color: #2454b8;
+  font-size: .75rem;
+  font-weight: 800;
+}
+
+.openrd-source-note {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.openrd-source-note a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.openrd-empty {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(12, 24, 49, .04);
+  color: var(--ink-faint);
+}
+
+.inline-success {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #ecfdf5;
+  color: #166534;
+  border: 1px solid rgba(22, 101, 52, .12);
+}
+
 @media (max-width: 820px) {
   .analytics-x-summary,
   .analytics-x-grid,
-  .analytics-heatmap-shell {
+  .analytics-heatmap-shell,
+  .openrd-hero,
+  .openrd-hero-meta,
+  .openrd-module-grid,
+  .openrd-requirement-grid,
+  .openrd-project-grid,
+  .openrd-action-grid,
+  .openrd-cohort-layout,
+  .openrd-tech-grid {
     grid-template-columns: 1fr;
   }
 

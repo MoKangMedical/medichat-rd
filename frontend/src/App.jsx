@@ -3,6 +3,7 @@ import './App.css';
 import DeepRarePanel from './components/DeepRarePanel';
 import CommunityPanel from './components/CommunityPanel';
 import DoctorPanel from './components/DoctorPanel';
+import OpenRDPanel from './components/OpenRDPanel';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const REGISTRY_STORAGE_KEY = 'medichat_registry_id';
@@ -92,6 +93,11 @@ const PAGE_GUIDE = {
     title: '访问分析',
     hint: '把访问量、国家分布和来源渠道变成每天都能看到的后台图表。',
     tags: ['访问趋势', '国家分布', '来源渠道'],
+  },
+  'openrd-bridge': {
+    title: 'OpenRD 共建',
+    hint: '把患者需求、志愿者、医生、科研和药企合作变成可执行共建项目。',
+    tags: ['需求池', '项目进度', '虚拟队列'],
   },
 };
 
@@ -3744,6 +3750,7 @@ function App() {
     { id: 'drug-research', label: '药物线索', icon: 'pill' },
     { id: 'platform-ops', label: '治理评估', icon: 'check' },
     { id: 'traffic-analytics', label: '访问分析', icon: 'activity' },
+    { id: 'openrd-bridge', label: 'OpenRD 共建', icon: 'users' },
   ];
 
   const scrollToActiveModule = () => {
@@ -3820,6 +3827,8 @@ function App() {
         return <PlatformControlPage />;
       case 'traffic-analytics':
         return <TrafficAnalyticsPage />;
+      case 'openrd-bridge':
+        return <OpenRDPanel />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

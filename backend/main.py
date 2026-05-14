@@ -75,6 +75,7 @@ from analytics_api import router as analytics_router
 from clinical_trials import get_trials_json
 from media_generation_api import router as media_generation_router
 from hospital_recommender import get_recommendation_json, format_recommendation_text
+from openrd_bridge_api import router as openrd_bridge_router
 
 app = FastAPI(
     title="MediChat API",
@@ -152,6 +153,7 @@ app.include_router(doctor_router)
 app.include_router(openevidence_router)
 app.include_router(analytics_router)
 app.include_router(media_generation_router)
+app.include_router(openrd_bridge_router)
 
 # ============================================================
 # 前端静态文件服务
@@ -512,16 +514,6 @@ async def get_models():
     }
 
 
-if os.path.exists(FRONTEND_DIR):
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        """前端SPA路由回退，必须放在所有 API 路由之后。"""
-        file_path = os.path.join(FRONTEND_DIR, full_path)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
-
-
 # ============================================================
 # 决策检查点 API
 # ============================================================
@@ -589,6 +581,21 @@ async def rollback_checkpoint(checkpoint_id: str):
         "rolled_back": success,
         "message": "已回滚" if success else "无可回滚数据"
     }
+
+
+if os.path.exists(FRONTEND_DIR):
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_frontend(full_path: str):
+        """前端 SPA 路由回退；API 路径必须返回 JSON 404，不能回退到 index.html。"""
+        if full_path.startswith("api/"):
+            return JSONResponse(
+                status_code=404,
+                content={"detail": "API endpoint not found", "path": f"/{full_path}"},
+            )
+        file_path = os.path.join(FRONTEND_DIR, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
 
 # ============================================================

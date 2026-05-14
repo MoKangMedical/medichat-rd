@@ -306,42 +306,50 @@ async def record_page_view(payload: PageViewInput, request: Request):
     visit_date = datetime.now(SHANGHAI_TZ).date().isoformat()
     referrer_host = _extract_referrer_host(payload.referrer)
 
-    with closing(_get_connection()) as connection:
-        connection.execute(
-            """
-            INSERT INTO page_views (
-                visitor_id,
-                page_id,
-                page_label,
-                path,
-                referrer,
-                referrer_host,
-                country_code,
-                country_name,
-                language,
-                timezone,
-                ip_hash,
-                visit_date,
-                created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                payload.visitor_id.strip(),
-                payload.page_id.strip() or "unknown",
-                payload.page_label.strip() or "未知页面",
-                payload.path.strip() or "/",
-                payload.referrer.strip(),
-                referrer_host,
-                country_code,
-                country_name,
-                payload.language.strip(),
-                payload.timezone.strip(),
-                _hash_ip(client_ip),
-                visit_date,
-                recorded_at,
-            ),
-        )
-        connection.commit()
+    try:
+        with closing(_get_connection()) as connection:
+            connection.execute(
+                """
+                INSERT INTO page_views (
+                    visitor_id,
+                    page_id,
+                    page_label,
+                    path,
+                    referrer,
+                    referrer_host,
+                    country_code,
+                    country_name,
+                    language,
+                    timezone,
+                    ip_hash,
+                    visit_date,
+                    created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload.visitor_id.strip(),
+                    payload.page_id.strip() or "unknown",
+                    payload.page_label.strip() or "未知页面",
+                    payload.path.strip() or "/",
+                    payload.referrer.strip(),
+                    referrer_host,
+                    country_code,
+                    country_name,
+                    payload.language.strip(),
+                    payload.timezone.strip(),
+                    _hash_ip(client_ip),
+                    visit_date,
+                    recorded_at,
+                ),
+            )
+            connection.commit()
+    except sqlite3.OperationalError:
+        return {
+            "ok": False,
+            "degraded": True,
+            "reason": "analytics_storage_unavailable",
+            "detail": "analytics write skipped",
+        }
 
     return {
         "ok": True,
@@ -355,32 +363,40 @@ async def record_conversion_event(payload: ConversionEventInput, request: Reques
     country_code, country_name = await _resolve_country(request)
     recorded_at = datetime.now(timezone.utc).isoformat()
 
-    with closing(_get_connection()) as connection:
-        connection.execute(
-            """
-            INSERT INTO conversion_events (
-                visitor_id,
-                event_type,
-                event_label,
-                page_id,
-                page_label,
-                country_code,
-                country_name,
-                created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                payload.visitor_id.strip(),
-                payload.event_type.strip(),
-                payload.event_label.strip(),
-                payload.page_id.strip() or "unknown",
-                payload.page_label.strip() or "未知页面",
-                country_code,
-                country_name,
-                recorded_at,
-            ),
-        )
-        connection.commit()
+    try:
+        with closing(_get_connection()) as connection:
+            connection.execute(
+                """
+                INSERT INTO conversion_events (
+                    visitor_id,
+                    event_type,
+                    event_label,
+                    page_id,
+                    page_label,
+                    country_code,
+                    country_name,
+                    created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload.visitor_id.strip(),
+                    payload.event_type.strip(),
+                    payload.event_label.strip(),
+                    payload.page_id.strip() or "unknown",
+                    payload.page_label.strip() or "未知页面",
+                    country_code,
+                    country_name,
+                    recorded_at,
+                ),
+            )
+            connection.commit()
+    except sqlite3.OperationalError:
+        return {
+            "ok": False,
+            "degraded": True,
+            "reason": "analytics_storage_unavailable",
+            "detail": "analytics write skipped",
+        }
 
     return {"ok": True, "recorded_at": recorded_at}
 
